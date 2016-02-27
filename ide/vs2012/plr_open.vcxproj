@@ -66,10 +66,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\plr_ArgList.h" />
     <ClInclude Include="..\..\plr_def.h" />
     <ClInclude Include="..\..\plr_Path.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\plr_ArgList.cpp" />
     <ClCompile Include="..\..\plr_def.cpp" />
     <ClCompile Include="..\..\plr_Path.cpp" />
   </ItemGroup>
