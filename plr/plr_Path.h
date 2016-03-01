@@ -6,9 +6,9 @@
 #ifndef plr_Path_h
 #define plr_Path_h
 
-#include "plr_def.h"
+#include <plr/plr_def.h>
 
-#ifdef _WIN32
+#ifdef PLR_PLATFORM_WIN
 	// max path length should match MAX_PATH (minwindef.h)
 	#define PLR_MAX_PATH_LENGTH 260
 	// max path dirs is arbitrary but should be as small as reasonbly possible

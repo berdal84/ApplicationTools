@@ -13,6 +13,14 @@
 	#define PLR_COMPILER_GNU
 #elif defined(_MSC_VER)
 	#define PLR_COMPILER_MSVC
+#else
+	#error plr: Compiler not supported
+#endif
+
+#if defined(_WIN32) || defined(_WIN64)
+	#define PLR_PLATFORM_WIN
+#else
+	#error plr: Platform not supported
 #endif
 
 #if defined(PLR_COMPILER_GNU)
@@ -125,7 +133,7 @@ const char* StripPath(const char* path);
 		do { \
 			if_unlikely (!(e)) { \
 				if (plr::internal::AssertAndCallback(#e, __FILE__, __LINE__, msg, __VA_ARGS__) == plr::AssertBehavior::kBreak) \
-					PLR_BREAK(); \
+				{ PLR_BREAK(); } \
 			} \
 		} while(0)
 
@@ -138,8 +146,43 @@ const char* StripPath(const char* path);
 	#define PLR_ASSERT(e)                 do { PLR_UNUSED(e); } while(0)
 	#define PLR_VERIFY_MSG(e, msg, ...)   do { (void)(e); PLR_UNUSED(msg); } while(0)
 	#define PLR_VERIFY(e)                 (void)(e)
+
 #endif // PLR_DEBUG
 
 #define PLR_STATIC_ASSERT(e) { (void)sizeof(char[(e) ? 1 : -1]); }
+
+////////////////////////////////////////////////////////////////////////////////
+/// \class non_copyable
+/// Mixin class, forces a derived class to be non-copyable.
+/// \note The template parameter permits Empty Base Optimization (see
+///		http://en.wikibooks.org/wiki/More_C++_Idioms/Non-copyable_Mixin).
+/// \ingroup plr_core
+////////////////////////////////////////////////////////////////////////////////
+template <typename tType>
+class non_copyable
+{
+protected:
+	inline  non_copyable() {}
+	inline ~non_copyable() {}
+private:
+	non_copyable(const non_copyable&);
+	non_copyable& operator=(const non_copyable&);
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+/// \class non_instantiable
+/// Mixin class, forces a derived class to be non-instantiable. Note that by
+/// definitionn a non-instantiable class is also non-copyable.
+/// \note The template parameter permits Empty Base Optimization (see
+///		http://en.wikibooks.org/wiki/More_C++_Idioms/Non-copyable_Mixin).
+/// \ingroup plr_core
+////////////////////////////////////////////////////////////////////////////////
+template <typename tType>
+class non_instantiable: private non_copyable<tType>
+{
+private:
+	non_instantiable();
+};
 
 #endif // plr_def_h

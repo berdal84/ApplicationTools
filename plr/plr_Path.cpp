@@ -3,7 +3,7 @@
 // This software is distributed freely under the terms of the MIT License.
 // See http://opensource.org/licenses/MIT
 ////////////////////////////////////////////////////////////////////////////////
-#include "plr_Path.h"
+#include <plr/plr_Path.h>
 
 #ifdef PLR_COMPILER_MSVC
 	// most of cstring generates warnings; disable them!

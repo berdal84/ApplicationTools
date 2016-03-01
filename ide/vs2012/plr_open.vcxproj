@@ -69,6 +69,7 @@
     <ClInclude Include="..\..\plr_ArgList.h" />
     <ClInclude Include="..\..\plr_def.h" />
     <ClInclude Include="..\..\plr_Path.h" />
+    <ClInclude Include="..\..\plr_Time.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\plr_ArgList.cpp" />
