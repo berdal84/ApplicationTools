@@ -3,6 +3,7 @@
 // This software is distributed freely under the terms of the MIT License.
 // See http://opensource.org/licenses/MIT
 ////////////////////////////////////////////////////////////////////////////////
+#pragma once
 #ifndef plr_win_h
 #define plr_win_h
 

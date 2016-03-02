@@ -1,8 +1,9 @@
 #include <iostream>
 
-#include <plr/plr_def.h>
-#include <plr/plr_ArgList.h>
-#include <plr/plr_Path.h>
+#include <plr/def.h>
+#include <plr/ArgList.h>
+#include <plr/Path.h>
+#include <plr/Time.h>
 
 using namespace plr;
 
@@ -30,6 +31,6 @@ int main(int _argc, char** _argv)
 	print_typeinfo(double);
 
 	#undef print_typeinfo
-
+	
 	return 0;
 }

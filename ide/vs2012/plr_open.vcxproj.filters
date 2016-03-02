@@ -6,15 +6,22 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\plr\win\plr_platform.h">
+    <ClInclude Include="..\..\plr\ArgList.h" />
+    <ClInclude Include="..\..\plr\def.h" />
+    <ClInclude Include="..\..\plr\Path.h" />
+    <ClInclude Include="..\..\plr\Time.h" />
+    <ClInclude Include="..\..\plr\win\platform.h">
       <Filter>win</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\plr\win\plr_win.h">
+    <ClInclude Include="..\..\plr\win\win.h">
       <Filter>win</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\plr\win\plr_Time.cpp">
+    <ClCompile Include="..\..\plr\ArgList.cpp" />
+    <ClCompile Include="..\..\plr\def.cpp" />
+    <ClCompile Include="..\..\plr\Path.cpp" />
+    <ClCompile Include="..\..\plr\win\Time.cpp">
       <Filter>win</Filter>
     </ClCompile>
   </ItemGroup>

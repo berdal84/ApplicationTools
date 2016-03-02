@@ -3,25 +3,37 @@
 // This software is distributed freely under the terms of the MIT License.
 // See http://opensource.org/licenses/MIT
 ////////////////////////////////////////////////////////////////////////////////
+#pragma once
 #ifndef plr_def_h
 #define plr_def_h
 
 #include <cstddef> // size_t
 #include <cstdint> // sized ints
 
+// Compiler
 #if defined(__GNUC__)
 	#define PLR_COMPILER_GNU
 #elif defined(_MSC_VER)
 	#define PLR_COMPILER_MSVC
 #else
-	#error plr: Compiler not supported
+	#error plr: Compiler not defined
 #endif
 
+// Platform 
 #if defined(_WIN32) || defined(_WIN64)
 	#define PLR_PLATFORM_WIN
 #else
-	#error plr: Platform not supported
+	#error plr: Platform not defined
 #endif
+
+// Architecture
+#if defined(_M_X64) || defined(__x86_64)
+	#define PLR_DCACHE_LINE_SIZE 64
+#else
+	#error plr: Architecture not defined
+#endif
+
+
 
 #if defined(PLR_COMPILER_GNU)
 	#define PLR_ALIGN(a) __attribute__((aligned(a)))

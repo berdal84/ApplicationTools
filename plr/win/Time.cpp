@@ -4,9 +4,9 @@
 // This software is distributed freely under the terms of the MIT License.
 // See "license.txt" or "http://copyfree.org/licenses/mit/license.txt".
 ////////////////////////////////////////////////////////////////////////////////
-#include <plr/plr_Time.h>
+#include <plr/Time.h>
 
-#include <plr/win/plr_win.h>
+#include <plr/win/win.h>
 
 #include <iomanip>
 #include <sstream>
@@ -140,6 +140,9 @@ plr::DateTime plr::Time::GetDateTime()
 
 plr::sint64 plr::Time::GetSystemFrequency() 
 {
-	PLR_ASSERT(gFreq != 0ll);
-	return gFreq;
+	//PLR_ASSERT(gFreq != 0ll);
+	//return gFreq;
+	LARGE_INTEGER f;
+	/*PLR_SYS_VERIFY(*/QueryPerformanceFrequency(&f)/*)*/;
+	return f.QuadPart;
 }

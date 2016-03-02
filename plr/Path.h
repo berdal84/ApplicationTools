@@ -3,10 +3,11 @@
 // This software is distributed freely under the terms of the MIT License.
 // See http://opensource.org/licenses/MIT
 ////////////////////////////////////////////////////////////////////////////////
+#pragma once
 #ifndef plr_Path_h
 #define plr_Path_h
 
-#include <plr/plr_def.h>
+#include <plr/def.h>
 
 #ifdef PLR_PLATFORM_WIN
 	// max path length should match MAX_PATH (minwindef.h)

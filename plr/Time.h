@@ -3,10 +3,13 @@
 // This software is distributed freely under the terms of the MIT License.
 // See http://opensource.org/licenses/MIT
 ////////////////////////////////////////////////////////////////////////////////
+#pragma once
 #ifndef plr_Time_h
 #define plr_Time_h
 
-#include <plr/plr_def.h>
+#include <plr/def.h>
+
+#include <string>
 
 namespace plr {
 
@@ -23,7 +26,7 @@ class Time: private non_instantiable<Time>
 public:
 	/// \return high-resolution timestamp.
 	/// \note This is not synchronised to an external time reference. Use for
-	///    interval measurements.
+	///   interval measurements.
 	static Timestamp GetTimestamp();
 
 	/// \return high-resolution datetime.
@@ -119,7 +122,7 @@ public:
 	///    <tr><td>%%s</td><td>Zero-padded millisecond in [0000,9999]</td></tr>
 	///    <tr><td>%%S</td><td>Zero-padded second in [00,59]</td></tr>
 	///    <tr><td>%%Y</td><td>Year</td></tr>
-	///  </table>
+	/// </table>
 	/// So, for example, ISO 8601 format would be "%Y-%m-%dT%H:%M:%SZ".
 	std::string asString(const char* _format = 0) const;
 

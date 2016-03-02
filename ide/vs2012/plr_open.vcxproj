@@ -11,18 +11,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\plr\plr_ArgList.cpp" />
-    <ClCompile Include="..\..\plr\plr_def.cpp" />
-    <ClCompile Include="..\..\plr\plr_Path.cpp" />
-    <ClCompile Include="..\..\plr\win\plr_Time.cpp" />
+    <ClCompile Include="..\..\plr\ArgList.cpp" />
+    <ClCompile Include="..\..\plr\def.cpp" />
+    <ClCompile Include="..\..\plr\Path.cpp" />
+    <ClCompile Include="..\..\plr\win\Time.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\plr\plr_ArgList.h" />
-    <ClInclude Include="..\..\plr\plr_def.h" />
-    <ClInclude Include="..\..\plr\plr_Path.h" />
-    <ClInclude Include="..\..\plr\plr_Time.h" />
-    <ClInclude Include="..\..\plr\win\plr_platform.h" />
-    <ClInclude Include="..\..\plr\win\plr_win.h" />
+    <ClInclude Include="..\..\plr\ArgList.h" />
+    <ClInclude Include="..\..\plr\def.h" />
+    <ClInclude Include="..\..\plr\Path.h" />
+    <ClInclude Include="..\..\plr\Time.h" />
+    <ClInclude Include="..\..\plr\win\platform.h" />
+    <ClInclude Include="..\..\plr\win\win.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{DE0E7298-1DFC-4D0D-9FCE-271AA81E71F7}</ProjectGuid>

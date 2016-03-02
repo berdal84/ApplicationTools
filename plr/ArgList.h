@@ -3,10 +3,11 @@
 // This software is distributed freely under the terms of the MIT License.
 // See http://opensource.org/licenses/MIT
 ////////////////////////////////////////////////////////////////////////////////
+#pragma once
 #ifndef plr_ArgList_h
 #define plr_ArgList_h
 
-#include <plr/plr_def.h>
+#include <plr/def.h>
 #include <vector>
 
 namespace plr {
