@@ -29,7 +29,7 @@ class Path
 {
 public:
 	/// \param _path Raw path (copied to an internal buffer) up to
-	///    \c PLR_MAX_PATH_LENGTH chars (including the null terminator).
+	///    PLR_MAX_PATH_LENGTH chars (including the null terminator).
 	Path(const char* _path = 0);
 
 	/// Copy ctor.

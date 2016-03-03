@@ -10,7 +10,7 @@ using namespace plr;
 int main(int _argc, char** _argv)
 {
 	std::cout << "plr_open_tests\n--------------\n" << std::endl;
-
+	std::cout << Time::GetDateTime().asString() << std::endl;
 	#define print_typeinfo(t) std::cout \
 		<< "sizeof(" #t ")\t" << sizeof(t) \
 		<< "\talignof(" #t ")\t" << PLR_ALIGNOF(t) \

@@ -1,8 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 2016 John Chapman
-//
+// Copyright (C) 2016 John Chapman -- http://john-chapman.net
 // This software is distributed freely under the terms of the MIT License.
-// See "license.txt" or "http://copyfree.org/licenses/mit/license.txt".
+// See http://opensource.org/licenses/MIT
 ////////////////////////////////////////////////////////////////////////////////
 #include <plr/Time.h>
 
@@ -65,7 +64,7 @@ std::string plr::DateTime::asString(const char* _format) const
 	SYSTEMTIME st = GetSystemTime(m_raw);
 	std::stringstream ss;
 	if (!_format) {
-	//	default ISO 8601 format
+	 // default ISO 8601 format
 		ss	<< std::setw(4) << st.wYear << '-' 
 			<< std::setw(2) << std::setfill('0') << st.wMonth << '-' 
 			<< std::setw(2) << std::setfill('0') << st.wDay << 'T'
@@ -75,7 +74,7 @@ std::string plr::DateTime::asString(const char* _format) const
 	} else {
 		for (int i = 0; _format[i] != 0; ++i) {
 			if (_format[i] == '%') {
-			//	insert date time component into stream
+			 // insert date time component into stream
 				switch (_format[++i]) {
 				case 'Y': ss << std::setw(4) << st.wYear; break;
 				case 'm': ss << std::setw(2) << std::setfill('0') << st.wMonth; break;
@@ -85,12 +84,12 @@ std::string plr::DateTime::asString(const char* _format) const
 				case 'S': ss << std::setw(2) << std::setfill('0') << st.wSecond; break;
 				case 's': ss << std::setw(4) << std::setfill('0') << st.wMilliseconds; break;
 				default:
-				//	write char if not null
+				 // write char if not null
 					if (_format[i] != 0)
 						ss << _format[i];
 				};
 			} else {
-			//	otherwise write char
+			 // otherwise write char
 				ss << _format[i];
 			}
 		}

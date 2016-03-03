@@ -16,6 +16,8 @@
     <ClInclude Include="..\..\plr\win\win.h">
       <Filter>win</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\plr\hash.h" />
+    <ClInclude Include="..\..\plr\StringHash.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\plr\ArgList.cpp" />
@@ -24,5 +26,7 @@
     <ClCompile Include="..\..\plr\win\Time.cpp">
       <Filter>win</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\plr\hash.cpp" />
+    <ClCompile Include="..\..\plr\StringHash.cpp" />
   </ItemGroup>
 </Project>

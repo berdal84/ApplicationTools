@@ -123,7 +123,7 @@ public:
 	///    <tr><td>%%S</td><td>Zero-padded second in [00,59]</td></tr>
 	///    <tr><td>%%Y</td><td>Year</td></tr>
 	/// </table>
-	/// So, for example, ISO 8601 format would be "%Y-%m-%dT%H:%M:%SZ".
+	/// E.g. ISO 8601 format would be "%Y-%m-%dT%H:%M:%SZ".
 	std::string asString(const char* _format = 0) const;
 
 	const DateTime operator- (const DateTime& rhs) const  { return m_raw -  rhs.m_raw; }
