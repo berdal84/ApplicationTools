@@ -18,6 +18,7 @@
     </ClInclude>
     <ClInclude Include="..\..\plr\hash.h" />
     <ClInclude Include="..\..\plr\StringHash.h" />
+    <ClInclude Include="..\..\plr\IniFile.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\plr\ArgList.cpp" />
@@ -28,5 +29,6 @@
     </ClCompile>
     <ClCompile Include="..\..\plr\hash.cpp" />
     <ClCompile Include="..\..\plr\StringHash.cpp" />
+    <ClCompile Include="..\..\plr\IniFile.cpp" />
   </ItemGroup>
 </Project>
