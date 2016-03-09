@@ -19,6 +19,7 @@
     <ClInclude Include="..\..\plr\hash.h" />
     <ClInclude Include="..\..\plr\StringHash.h" />
     <ClInclude Include="..\..\plr\IniFile.h" />
+    <ClInclude Include="..\..\plr\log.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\plr\ArgList.cpp" />
@@ -30,5 +31,6 @@
     <ClCompile Include="..\..\plr\hash.cpp" />
     <ClCompile Include="..\..\plr\StringHash.cpp" />
     <ClCompile Include="..\..\plr\IniFile.cpp" />
+    <ClCompile Include="..\..\plr\log.cpp" />
   </ItemGroup>
 </Project>

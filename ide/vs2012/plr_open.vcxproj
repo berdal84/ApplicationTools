@@ -15,6 +15,7 @@
     <ClCompile Include="..\..\plr\def.cpp" />
     <ClCompile Include="..\..\plr\hash.cpp" />
     <ClCompile Include="..\..\plr\IniFile.cpp" />
+    <ClCompile Include="..\..\plr\log.cpp" />
     <ClCompile Include="..\..\plr\Path.cpp" />
     <ClCompile Include="..\..\plr\StringHash.cpp" />
     <ClCompile Include="..\..\plr\win\Time.cpp" />
@@ -24,6 +25,7 @@
     <ClInclude Include="..\..\plr\def.h" />
     <ClInclude Include="..\..\plr\hash.h" />
     <ClInclude Include="..\..\plr\IniFile.h" />
+    <ClInclude Include="..\..\plr\log.h" />
     <ClInclude Include="..\..\plr\Path.h" />
     <ClInclude Include="..\..\plr\StringHash.h" />
     <ClInclude Include="..\..\plr\Time.h" />
