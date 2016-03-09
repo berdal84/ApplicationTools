@@ -1,20 +1,17 @@
-#include <iostream>
-
 #include <plr/def.h>
-#include <plr/ArgList.h>
-#include <plr/Path.h>
+#include <plr/log.h>
 #include <plr/Time.h>
 
 using namespace plr;
 
 int main(int _argc, char** _argv)
 {
-	std::cout << "plr_open_tests\n--------------\n" << std::endl;
-	std::cout << Time::GetDateTime().asString() << std::endl;
-	#define print_typeinfo(t) std::cout \
-		<< "sizeof(" #t ")\t" << sizeof(t) \
-		<< "\talignof(" #t ")\t" << PLR_ALIGNOF(t) \
-		<< std::endl
+	PLR_LOG("plr_open_tests\n--------------");
+	PLR_LOG("%s", Time::GetDateTime().asString().c_str());
+	PLR_LOG_DBG("DEBUG");
+	PLR_TIME_DBG("plr_open_tests");
+
+	#define print_typeinfo(t) PLR_LOG("sizeof(%s)\t%d\talignof(%s)\t%d", #t, sizeof(t), #t, PLR_ALIGNOF(t));
 	print_typeinfo(char);
 	print_typeinfo(char*);
 	print_typeinfo(sint8);
@@ -29,8 +26,7 @@ int main(int _argc, char** _argv)
 	print_typeinfo(uint);
 	print_typeinfo(float);
 	print_typeinfo(double);
-
 	#undef print_typeinfo
-	
+
 	return 0;
 }

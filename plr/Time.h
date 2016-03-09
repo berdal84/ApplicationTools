@@ -8,6 +8,7 @@
 #define plr_Time_h
 
 #include <plr/def.h>
+#include <plr/log.h>
 
 #include <string>
 
@@ -140,6 +141,36 @@ private:
 	sint64 m_raw;
 
 }; // class DateTime
+
+////////////////////////////////////////////////////////////////////////////////
+/// \class AutoTimer
+/// Scoped timer. Measures the time between ctor, dtor calls and logs the
+/// interval in the dtor. Use PLR_TIME_DBG to declare an AutoTimer instance for 
+/// debug builds only.
+/// \ingroup plr_core
+////////////////////////////////////////////////////////////////////////////////
+class AutoTimer
+{
+	Timestamp   m_start;
+	const char* m_name;
+public:
+	AutoTimer(const char* _name)
+		: m_name(_name) 
+	{ 
+		m_start = Time::GetTimestamp(); 
+	}
+	~AutoTimer() 
+	{ 
+		Timestamp interval = Time::GetTimestamp() - m_start;
+		PLR_LOG("%s -- %fms", m_name, interval.asMilliseconds());
+	}
+};
+
+#ifdef PLR_DEBUG
+	#define PLR_TIME_DBG(name) plr::AutoTimer PLR_UNIQUE_NAME(_plrAutoTimer_)(name)
+#else
+	#define PLR_TIME_DBG(name) PLR_UNUSED(name)
+#endif
 
 } // namespace plr
 

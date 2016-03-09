@@ -114,12 +114,12 @@ std::string plr::DateTime::asString(const char* _format) const
 //
 //	return true;
 //}
-//plr::Timestamp plr::Time::GetTimestamp() 
-//{
-//	LARGE_INTEGER t;
-//	PLR_SYS_VERIFY(QueryPerformanceCounter(&t));
-//	return Timestamp(t.QuadPart);
-//}
+plr::Timestamp plr::Time::GetTimestamp() 
+{
+	LARGE_INTEGER t;
+	/*PLR_SYS_VERIFY(*/QueryPerformanceCounter(&t)/*)*/;
+	return Timestamp(t.QuadPart);
+}
 //
 //plr::Timestamp plr::Time::GetApplicationElapsed()
 //{
