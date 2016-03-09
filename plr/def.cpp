@@ -4,17 +4,14 @@
 // See http://opensource.org/licenses/MIT
 ////////////////////////////////////////////////////////////////////////////////
 #include <plr/def.h>
+#include <plr/log.h>
 
 #ifdef PLR_COMPILER_MSVC
 	// disable warning about vsnprintf
 	#pragma warning(disable: 4996)
 #endif
-
 #include <cstdarg> // va_list, va_start, va_end
-#include <cstdio>  // vsprintf
-
-#include <iostream> // std::cerr
-#include <sstream>  // std::stringstream
+#include <cstdio>  // vsnprintf
 
 static const int kAssertMsgMax = 256; // max size for message buffer in assert()
 static PLR_THREAD_LOCAL plr::AssertCallback* pfAssertCallback = &plr::DefaultAssertCallback;
@@ -30,20 +27,9 @@ plr::AssertCallback* plr::GetAssertCallback() {
 
 plr::AssertBehavior plr::DefaultAssertCallback(const char* e, const char* msg, const char* file, int line) 
 {
- // use a std::stringstream to construct a local message string before making
- // a single call to std::cerr::operator<<, to prevent interleaved output
- // from multiple threads (C++11 global streams are thread safe)
-	std::stringstream s;
-	s << "PLR_ASSERT (\"" << file << "\", line " << line << "):\n\t";
-	if (e) s << "\'" << e << "\' ";
-	if (msg) s << msg;
-	s << std::endl;
-
-	std::cerr << s.str(); // thread safe single call to operator<<
-
+	PLR_LOG_ERR("PLR_ASSERT (\"%s\", line %d)\n\t'%s' %s", file, line, e ? e : "", msg ? msg : "");
 	return AssertBehavior::kBreak;
 }
-
 
 plr::AssertBehavior plr::internal::AssertAndCallback(const char* e, const char* file, int line, const char* msg, ...) 
 {

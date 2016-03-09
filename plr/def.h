@@ -99,7 +99,7 @@ enum class AssertBehavior
 };
 
 /// Typedef for assert callbacks. See DefaultAssertCallback for a description
-/// of the functionn arguments.
+/// of the function arguments.
 /// \ingroup plr_debug
 typedef AssertBehavior (AssertCallback)(const char* e, const char* msg, const char* file, int line);
 
@@ -114,7 +114,7 @@ AssertCallback* GetAssertCallback();
 ///	\ingroup plr_debug
 void SetAssertCallback(AssertCallback* callback);
 
-///	Default assert callback. Print an error message to std::cerr.
+///	Default assert callback, print message via PLR_LOG_ERR().
 ///	\param e Stringified version of the assert expression.
 ///	\param msg Optional message (passed from PLR_ASSERT_MSG,PLR_VERIFY_MSG macros).
 ///	\param file, line Location of the assert.
