@@ -5,17 +5,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include <plr/IniFile.h>
 
+#include <plr/log.h>
+
 #include <cstring>
 #include <fstream>
-
-#include <iostream>
 
 using namespace plr;
 
 static const char* kWhitespace = " \t\n\v\f\r";
 static const char* kLineEnd = "\n";
 
-#define INI_ERROR(line, msg) (std::cerr << "Ini syntax error, line " << line << ": '" << msg << "'" << std::endl)
+#define INI_ERROR(line, msg) PLR_LOG_ERR("Ini syntax error, line %d: '%s'", line, msg)
 
 static bool IsWhitespace(char _c)
 {
@@ -171,7 +171,7 @@ IniFile::Error IniFile::parse(const char* _str)
 			++_str; // skip ']'
 		} else if (*_str == '=' || *_str == ',') {
 			if (m_keys.empty()) {
-				INI_ERROR(line, "Unexpected '" << (char)*_str << "', no property name was specified");
+				INI_ERROR(line, "Unexpected '=' or ',' no property name was specified");
 				return Error::kSyntax;
 			}
 			Key& k = m_keys.back();

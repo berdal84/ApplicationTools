@@ -103,23 +103,23 @@ enum class AssertBehavior
 /// \ingroup plr_debug
 typedef AssertBehavior (AssertCallback)(const char* e, const char* msg, const char* file, int line);
 
-///	\return AssertCallback in use on this thread. 
+/// \return AssertCallback in use on this thread. 
 /// Default is DefaultAssertCallback().
-///	\note This may return 0, if 0 was previously passed to SetAssertCallback().
-///	\ingroup plr_debug
+/// \note This may return 0, if 0 was previously passed to SetAssertCallback().
+/// \ingroup plr_debug
 AssertCallback* GetAssertCallback();
 
-///	Set the function to be called when asserts fail on this thread.
+/// Set the function to be called when asserts fail on this thread.
 /// Default is DefaultAssertCallback().
-///	\ingroup plr_debug
+/// \ingroup plr_debug
 void SetAssertCallback(AssertCallback* callback);
 
-///	Default assert callback, print message via PLR_LOG_ERR().
-///	\param e Stringified version of the assert expression.
-///	\param msg Optional message (passed from PLR_ASSERT_MSG,PLR_VERIFY_MSG macros).
-///	\param file, line Location of the assert.
-///	\return Always AssertBehaviour::kBreak.
-///	\ingroup plr_assert
+/// Default assert callback, print message via PLR_LOG_ERR().
+/// \param e Stringified version of the assert expression.
+/// \param msg Optional message (passed from PLR_ASSERT_MSG,PLR_VERIFY_MSG macros).
+/// \param file, line Location of the assert.
+/// \return Always AssertBehaviour::kBreak.
+/// \ingroup plr_assert
 AssertBehavior DefaultAssertCallback(const char* e, const char* msg,  const char* file,  int line);
 
 } // namespace plr
@@ -167,7 +167,7 @@ const char* StripPath(const char* path);
 /// \class non_copyable
 /// Mixin class, forces a derived class to be non-copyable.
 /// \note The template parameter permits Empty Base Optimization (see
-///		http://en.wikibooks.org/wiki/More_C++_Idioms/Non-copyable_Mixin).
+///   http://en.wikibooks.org/wiki/More_C++_Idioms/Non-copyable_Mixin).
 /// \ingroup plr_core
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType>
@@ -187,7 +187,7 @@ private:
 /// Mixin class, forces a derived class to be non-instantiable. Note that by
 /// definitionn a non-instantiable class is also non-copyable.
 /// \note The template parameter permits Empty Base Optimization (see
-///		http://en.wikibooks.org/wiki/More_C++_Idioms/Non-copyable_Mixin).
+///   http://en.wikibooks.org/wiki/More_C++_Idioms/Non-copyable_Mixin).
 /// \ingroup plr_core
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType>
