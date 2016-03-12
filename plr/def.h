@@ -100,18 +100,18 @@ enum class AssertBehavior
 
 /// Typedef for assert callbacks. See DefaultAssertCallback for a description
 /// of the function arguments.
-/// \ingroup plr_debug
+/// \ingroup plr_core
 typedef AssertBehavior (AssertCallback)(const char* e, const char* msg, const char* file, int line);
 
 /// \return AssertCallback in use on this thread. 
 /// Default is DefaultAssertCallback().
 /// \note This may return 0, if 0 was previously passed to SetAssertCallback().
-/// \ingroup plr_debug
+/// \ingroup plr_core
 AssertCallback* GetAssertCallback();
 
 /// Set the function to be called when asserts fail on this thread.
 /// Default is DefaultAssertCallback().
-/// \ingroup plr_debug
+/// \ingroup plr_core
 void SetAssertCallback(AssertCallback* callback);
 
 /// Default assert callback, print message via PLR_LOG_ERR().
@@ -133,7 +133,7 @@ const char* StripPath(const char* path);
 } } // namespace plr::internal
 
 #define PLR_UNUSED(x) do { (void)sizeof(x); } while(0)
-#ifdef PLR_DEBUG
+#ifdef plr_core
 	#ifdef PLR_COMPILER_MSVC
 		#define PLR_BREAK() __debugbreak()
 	#else
@@ -159,7 +159,7 @@ const char* StripPath(const char* path);
 	#define PLR_VERIFY_MSG(e, msg, ...)   do { (void)(e); PLR_UNUSED(msg); } while(0)
 	#define PLR_VERIFY(e)                 (void)(e)
 
-#endif // PLR_DEBUG
+#endif // plr_core
 
 #define PLR_STATIC_ASSERT(e) { (void)sizeof(char[(e) ? 1 : -1]); }
 
