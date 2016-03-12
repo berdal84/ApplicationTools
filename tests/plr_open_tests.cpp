@@ -7,7 +7,7 @@ using namespace plr;
 int main(int _argc, char** _argv)
 {
 	PLR_LOG("plr_open_tests\n--------------");
-	PLR_LOG("%s", Time::GetDateTime().asString().c_str());
+	//PLR_LOG("%s", GetDateTime().asString().c_str());
 	PLR_LOG_DBG("DEBUG");
 	PLR_TIME_DBG("plr_open_tests");
 

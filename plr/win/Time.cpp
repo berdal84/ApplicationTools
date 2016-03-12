@@ -3,12 +3,35 @@
 // This software is distributed freely under the terms of the MIT License.
 // See http://opensource.org/licenses/MIT
 ////////////////////////////////////////////////////////////////////////////////
-#include <plr/Time.h>
+#include <plr/time.h>
 
 #include <plr/win/win.h>
 
 #include <iomanip>
 #include <sstream>
+
+
+using namespace plr;
+
+static sint64    g_Frequency;
+static Timestamp g_AppStart;
+int internal::time_initializer::m_counter = 0;
+internal::time_initializer::time_initializer()
+{
+	if (++m_counter == 1) {
+		//PLR_ASSERT(gFreq != 0ll);
+		LARGE_INTEGER f;
+		/*PLR_SYS_VERIFY(*/QueryPerformanceFrequency(&f)/*)*/;
+		g_Frequency = f.QuadPart;
+		g_AppStart = GetTimestamp();
+	}
+}
+
+internal::time_initializer::~time_initializer()
+{
+	if (--m_counter == 0) {
+	}
+}
 
 /*******************************************************************************
 	
@@ -16,19 +39,19 @@
 
 *******************************************************************************/
 
-double plr::Timestamp::asSeconds() const
+double Timestamp::asSeconds() const
 {
 	return asMicroseconds() / 1000000.0;
 }
 
-double plr::Timestamp::asMilliseconds() const
+double Timestamp::asMilliseconds() const
 {
 	return asMicroseconds() / 1000.0;
 }
 
 double plr::Timestamp::asMicroseconds() const
 {
-	return (double)((m_raw * 1000000ll) / Time::GetSystemFrequency());
+	return (double)((m_raw * 1000000ll) / GetSystemFrequency());
 }
 
 
@@ -51,15 +74,15 @@ static SYSTEMTIME GetSystemTime(plr::sint64 raw)
 	return st;
 }
 
-plr::sint32 plr::DateTime::getYear() const         { return (sint32)GetSystemTime(m_raw).wYear; }
-plr::sint32 plr::DateTime::getMonth() const        { return (sint32)GetSystemTime(m_raw).wMonth; }
-plr::sint32 plr::DateTime::getDay() const          { return (sint32)GetSystemTime(m_raw).wDay; }
-plr::sint32 plr::DateTime::getHour() const         { return (sint32)GetSystemTime(m_raw).wHour; }
-plr::sint32 plr::DateTime::getMinute() const       { return (sint32)GetSystemTime(m_raw).wMinute; }
-plr::sint32 plr::DateTime::getSecond() const       { return (sint32)GetSystemTime(m_raw).wSecond; }
-plr::sint32 plr::DateTime::getMillisecond() const  { return (sint32)GetSystemTime(m_raw).wMilliseconds; }
+sint32 DateTime::getYear() const         { return (sint32)GetSystemTime(m_raw).wYear; }
+sint32 DateTime::getMonth() const        { return (sint32)GetSystemTime(m_raw).wMonth; }
+sint32 DateTime::getDay() const          { return (sint32)GetSystemTime(m_raw).wDay; }
+sint32 DateTime::getHour() const         { return (sint32)GetSystemTime(m_raw).wHour; }
+sint32 DateTime::getMinute() const       { return (sint32)GetSystemTime(m_raw).wMinute; }
+sint32 DateTime::getSecond() const       { return (sint32)GetSystemTime(m_raw).wSecond; }
+sint32 DateTime::getMillisecond() const  { return (sint32)GetSystemTime(m_raw).wMilliseconds; }
 
-std::string plr::DateTime::asString(const char* _format) const
+/*std::string plr::DateTime::asString(const char* _format) const
 {
 	SYSTEMTIME st = GetSystemTime(m_raw);
 	std::stringstream ss;
@@ -96,37 +119,21 @@ std::string plr::DateTime::asString(const char* _format) const
 	}
 
 	return ss.str();
-}
+}*/
 
-/*******************************************************************************
-	
-                                    Time
-
-*******************************************************************************/
-
-//bool plr::Time::Init()
-//{
-//	LARGE_INTEGER f;
-//	PLR_SYS_VERIFY(QueryPerformanceFrequency(&f));
-//	gFreq = f.QuadPart;
-//
-//	gInitTime = GetTimestamp();
-//
-//	return true;
-//}
-plr::Timestamp plr::Time::GetTimestamp() 
+Timestamp plr::GetTimestamp() 
 {
 	LARGE_INTEGER t;
 	/*PLR_SYS_VERIFY(*/QueryPerformanceCounter(&t)/*)*/;
 	return Timestamp(t.QuadPart);
 }
-//
-//plr::Timestamp plr::Time::GetApplicationElapsed()
-//{
-//	return GetTimestamp() - gInitTime;
-//}
 
-plr::DateTime plr::Time::GetDateTime() 
+Timestamp plr::GetApplicationElapsed()
+{
+	return GetTimestamp() - g_AppStart;
+}
+
+DateTime plr::GetDateTime() 
 {
 	FILETIME ft;
 	GetSystemTimePreciseAsFileTime(&ft);
@@ -137,11 +144,7 @@ plr::DateTime plr::Time::GetDateTime()
 	return DateTime(li.QuadPart);
 }
 
-plr::sint64 plr::Time::GetSystemFrequency() 
+sint64 plr::GetSystemFrequency() 
 {
-	//PLR_ASSERT(gFreq != 0ll);
-	//return gFreq;
-	LARGE_INTEGER f;
-	/*PLR_SYS_VERIFY(*/QueryPerformanceFrequency(&f)/*)*/;
-	return f.QuadPart;
+	return g_Frequency;
 }

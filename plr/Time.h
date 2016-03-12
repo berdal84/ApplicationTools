@@ -4,41 +4,32 @@
 // See http://opensource.org/licenses/MIT
 ////////////////////////////////////////////////////////////////////////////////
 #pragma once
-#ifndef plr_Time_h
-#define plr_Time_h
+#ifndef plr_time_h
+#define plr_time_h
 
 #include <plr/def.h>
 #include <plr/log.h>
-
-#include <string>
 
 namespace plr {
 
 class Timestamp;
 class DateTime;
 
-////////////////////////////////////////////////////////////////////////////////
-/// \class Time
-/// Global time functions.
+/// \return High-resolution time stamp.
+/// \note This is not synchronised to an external time reference. Use for
+///   interval measurements.
 /// \ingroup plr_core
-////////////////////////////////////////////////////////////////////////////////
-class Time: private non_instantiable<Time>
-{
-public:
-	/// \return high-resolution timestamp.
-	/// \note This is not synchronised to an external time reference. Use for
-	///   interval measurements.
-	static Timestamp GetTimestamp();
+Timestamp GetTimestamp();
 
-	/// \return high-resolution datetime.
-	/// \note This is synchronized to UTC.
-	static DateTime GetDateTime();
+/// \return High-resolution date time.
+/// \note This is synchronized to UTC.
+DateTime GetDateTime();
 
-	/// \return frequency of the system timer in ticks/second.
-	static sint64 GetSystemFrequency();
-	
-}; // class time
+/// \return Frequency of the system timer in ticks/second.
+sint64 GetSystemFrequency();
 
+/// \return Interval since the application began.
+Timestamp GetApplicationElapsed();
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class Timestamp
@@ -125,7 +116,7 @@ public:
 	///    <tr><td>%%Y</td><td>Year</td></tr>
 	/// </table>
 	/// E.g. ISO 8601 format would be "%Y-%m-%dT%H:%M:%SZ".
-	std::string asString(const char* _format = 0) const;
+	//std::string asString(const char* _format = 0) const;
 
 	const DateTime operator- (const DateTime& rhs) const  { return m_raw -  rhs.m_raw; }
 	const DateTime operator+ (const DateTime& rhs) const  { return m_raw +  rhs.m_raw; }
@@ -157,11 +148,11 @@ public:
 	AutoTimer(const char* _name)
 		: m_name(_name) 
 	{ 
-		m_start = Time::GetTimestamp(); 
+		m_start = GetTimestamp(); 
 	}
 	~AutoTimer() 
 	{ 
-		Timestamp interval = Time::GetTimestamp() - m_start;
+		Timestamp interval = GetTimestamp() - m_start;
 		PLR_LOG("%s -- %fms", m_name, interval.asMilliseconds());
 	}
 };
@@ -173,5 +164,19 @@ public:
 #endif
 
 } // namespace plr
+
+
+namespace plr { namespace internal {
+
+class time_initializer
+{
+	static int m_counter;
+public:
+	time_initializer();
+	~time_initializer();
+};
+static time_initializer g_time;
+
+} } // namespace plr::internal
 
 #endif // plr_Time_h
