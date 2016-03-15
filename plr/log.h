@@ -9,10 +9,10 @@
 
 #include <plr/def.h>
 
-#define PLR_LOG(fmt, ...)         do { plr::internal::Log(fmt, __VA_ARGS__); } while (0)
-#define PLR_LOG_ERR(fmt, ...)     do { plr::internal::LogError(fmt, __VA_ARGS__); } while (0)
+#define PLR_LOG(fmt, ...)         do { plr::internal::Log(fmt ## "\n", __VA_ARGS__); } while (0)
+#define PLR_LOG_ERR(fmt, ...)     do { plr::internal::LogError(fmt ## "\n", __VA_ARGS__); } while (0)
 #ifdef PLR_DEBUG
-	#define PLR_LOG_DBG(fmt, ...) do { plr::internal::LogDebug(fmt, __VA_ARGS__); } while (0)
+	#define PLR_LOG_DBG(fmt, ...) do { plr::internal::LogDebug(fmt ## "\n", __VA_ARGS__); } while (0)
 #else
 	#define PLR_LOG_DBG(fmt, ...) do { PLR_UNUSED(fmt); } while(0)
 #endif
