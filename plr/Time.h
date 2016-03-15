@@ -23,12 +23,15 @@ Timestamp GetTimestamp();
 
 /// \return High-resolution date time.
 /// \note This is synchronized to UTC.
+/// \ingroup plr_core
 DateTime GetDateTime();
 
 /// \return Frequency of the system timer in ticks/second.
+/// \ingroup plr_core
 sint64 GetSystemFrequency();
 
 /// \return Interval since the application began.
+/// \ingroup plr_core
 Timestamp GetApplicationElapsed();
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -116,7 +119,9 @@ public:
 	///    <tr><td>%%Y</td><td>Year</td></tr>
 	/// </table>
 	/// E.g. ISO 8601 format would be "%Y-%m-%dT%H:%M:%SZ".
-	//std::string asString(const char* _format = 0) const;
+	/// \note Returns a ptr to a thread-local static buffer - for normal use
+	///   this should be fine, just print the string and don't keep the ptr.
+	const char* asString(const char* _format = 0) const;
 
 	const DateTime operator- (const DateTime& rhs) const  { return m_raw -  rhs.m_raw; }
 	const DateTime operator+ (const DateTime& rhs) const  { return m_raw +  rhs.m_raw; }

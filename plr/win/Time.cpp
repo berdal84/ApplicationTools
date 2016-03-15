@@ -10,11 +10,13 @@
 #include <iomanip>
 #include <sstream>
 
-
 using namespace plr;
 
 static sint64    g_Frequency;
 static Timestamp g_AppStart;
+PLR_THREAD_LOCAL static char g_DateBuf[1024];
+
+
 int internal::time_initializer::m_counter = 0;
 internal::time_initializer::time_initializer()
 {
