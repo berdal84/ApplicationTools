@@ -19,7 +19,8 @@
     <ClInclude Include="..\..\plr\StringHash.h" />
     <ClInclude Include="..\..\plr\IniFile.h" />
     <ClInclude Include="..\..\plr\log.h" />
-    <ClInclude Include="..\..\plr\time.h" />
+    <ClInclude Include="..\..\plr\Time.h" />
+    <ClInclude Include="..\..\plr\static_initializer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\plr\ArgList.cpp" />
@@ -29,7 +30,7 @@
     <ClCompile Include="..\..\plr\StringHash.cpp" />
     <ClCompile Include="..\..\plr\IniFile.cpp" />
     <ClCompile Include="..\..\plr\log.cpp" />
-    <ClCompile Include="..\..\plr\win\time.cpp">
+    <ClCompile Include="..\..\plr\win\Time.cpp">
       <Filter>win</Filter>
     </ClCompile>
   </ItemGroup>

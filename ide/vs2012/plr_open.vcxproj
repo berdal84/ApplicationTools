@@ -18,7 +18,7 @@
     <ClCompile Include="..\..\plr\log.cpp" />
     <ClCompile Include="..\..\plr\Path.cpp" />
     <ClCompile Include="..\..\plr\StringHash.cpp" />
-    <ClCompile Include="..\..\plr\win\time.cpp" />
+    <ClCompile Include="..\..\plr\win\Time.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\plr\ArgList.h" />
@@ -27,8 +27,9 @@
     <ClInclude Include="..\..\plr\IniFile.h" />
     <ClInclude Include="..\..\plr\log.h" />
     <ClInclude Include="..\..\plr\Path.h" />
+    <ClInclude Include="..\..\plr\static_initializer.h" />
     <ClInclude Include="..\..\plr\StringHash.h" />
-    <ClInclude Include="..\..\plr\time.h" />
+    <ClInclude Include="..\..\plr\Time.h" />
     <ClInclude Include="..\..\plr\win\platform.h" />
     <ClInclude Include="..\..\plr\win\win.h" />
   </ItemGroup>
