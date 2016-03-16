@@ -1,6 +1,9 @@
 #include <plr/def.h>
 #include <plr/log.h>
+#include <plr/memory.h>
 #include <plr/Time.h>
+
+#include <new>
 
 using namespace plr;
 
@@ -26,8 +29,8 @@ int main(int _argc, char** _argv)
 	print_typeinfo(uint);
 	print_typeinfo(float);
 	print_typeinfo(double);
-	#undef print_typeinfo
 
+	#undef print_typeinfo
 
 	return 0;
 }

@@ -5,10 +5,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include <plr/time.h>
 
+#include <plr/memory.h>
 #include <plr/win/win.h>
-
-#include <iomanip>
-#include <sstream>
 
 using namespace plr;
 
@@ -17,12 +15,10 @@ using namespace plr;
                                  Time
 
 *******************************************************************************/
-struct Time_Globals
-{
-	sint64    m_sysFreq;
-	Timestamp m_appInit;
-};
-Time_Globals* g_timeGlobals;
+
+PLR_DEFINE_STATIC_INIT(Time);
+static storage<sint64, 1> g_sysFreq;
+static storage<Timestamp, 1> g_appInit;
 
 Timestamp Time::GetTimestamp() 
 {
@@ -33,7 +29,7 @@ Timestamp Time::GetTimestamp()
 
 Timestamp Time::GetApplicationElapsed()
 {
-	return GetTimestamp() - g_timeGlobals->m_appInit;
+	return GetTimestamp() - *g_appInit;
 }
 
 DateTime Time::GetDateTime() 
@@ -49,23 +45,20 @@ DateTime Time::GetDateTime()
 
 sint64 Time::GetSystemFrequency() 
 {
-	return g_timeGlobals->m_sysFreq;
+	return *g_sysFreq;
 }
 
 void Time::Init()
 {
 	LARGE_INTEGER f;
 	/*PLR_SYS_VERIFY(*/QueryPerformanceFrequency(&f)/*)*/;
-	g_timeGlobals = new Time_Globals;
-	g_timeGlobals->m_sysFreq= f.QuadPart;
-	g_timeGlobals->m_appInit = GetTimestamp();
+	*g_sysFreq = f.QuadPart;
+	*g_appInit = GetTimestamp();
 }
 
 void Time::Shutdown()
 {
-	delete g_timeGlobals;
 }
-PLR_DEFINE_STATIC_INIT(Time);
 
 /*******************************************************************************
 	
