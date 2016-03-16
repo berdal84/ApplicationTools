@@ -33,10 +33,16 @@ namespace plr {
 ///   order of initialization relative to static_initializer cannot be
 ///   guaranteed. This means that static objects initialized during Init()
 ///   may subsequently be default-initialized, overwriting the value set by
-///   Init(). To get around this, allocate static data from the heap or a
-///   static storage buffer (see the link above for an example).
-/// \todo It may be the case that calling PLR_LOG variants during Init() will
-///   fail, depending on whether stdout was initialized.
+///   Init(). To get around this, use the storage class (memory.h), e.g.
+/// \code
+///   #inclide <plr/memory.h>
+///   static storage<Foo, 1> g_foo;
+///
+///   void Monostate::Init()
+///   {
+///      new(g_foo) Foo();
+///      // ..
+/// \endcode
 /// \ingroup plr_core
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType>
@@ -49,6 +55,7 @@ public:
 };
 #define PLR_DECLARE_STATIC_INIT(t) static plr::static_initializer<t> t ## _static_initializer
 #define PLR_DEFINE_STATIC_INIT(t)  int plr::static_initializer<t>::s_initCounter = 0
+
 
 } // namespace plr
 
