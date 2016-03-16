@@ -28,5 +28,6 @@ int main(int _argc, char** _argv)
 	print_typeinfo(double);
 	#undef print_typeinfo
 
+
 	return 0;
 }

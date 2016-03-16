@@ -12,28 +12,60 @@
 
 using namespace plr;
 
-static sint64    g_Frequency;
-static Timestamp g_AppStart;
-PLR_THREAD_LOCAL static char g_DateBuf[1024];
+/*******************************************************************************
+	
+                                 Time
 
-
-int internal::time_initializer::m_counter = 0;
-internal::time_initializer::time_initializer()
+*******************************************************************************/
+struct Time_Globals
 {
-	if (++m_counter == 1) {
-		//PLR_ASSERT(gFreq != 0ll);
-		LARGE_INTEGER f;
-		/*PLR_SYS_VERIFY(*/QueryPerformanceFrequency(&f)/*)*/;
-		g_Frequency = f.QuadPart;
-		g_AppStart = GetTimestamp();
-	}
+	sint64    m_sysFreq;
+	Timestamp m_appInit;
+};
+Time_Globals* g_timeGlobals;
+
+Timestamp Time::GetTimestamp() 
+{
+	LARGE_INTEGER t;
+	/*PLR_SYS_VERIFY(*/QueryPerformanceCounter(&t)/*)*/;
+	return Timestamp(t.QuadPart);
 }
 
-internal::time_initializer::~time_initializer()
+Timestamp Time::GetApplicationElapsed()
 {
-	if (--m_counter == 0) {
-	}
+	return GetTimestamp() - g_timeGlobals->m_appInit;
 }
+
+DateTime Time::GetDateTime() 
+{
+	FILETIME ft;
+	GetSystemTimePreciseAsFileTime(&ft);
+	// MS docs recommend copying into a LARGE_INTEGER first
+	LARGE_INTEGER li;
+	li.LowPart  = ft.dwLowDateTime;
+	li.HighPart = ft.dwHighDateTime;
+	return DateTime(li.QuadPart);
+}
+
+sint64 Time::GetSystemFrequency() 
+{
+	return g_timeGlobals->m_sysFreq;
+}
+
+void Time::Init()
+{
+	LARGE_INTEGER f;
+	/*PLR_SYS_VERIFY(*/QueryPerformanceFrequency(&f)/*)*/;
+	g_timeGlobals = new Time_Globals;
+	g_timeGlobals->m_sysFreq= f.QuadPart;
+	g_timeGlobals->m_appInit = GetTimestamp();
+}
+
+void Time::Shutdown()
+{
+	delete g_timeGlobals;
+}
+PLR_DEFINE_STATIC_INIT(Time);
 
 /*******************************************************************************
 	
@@ -53,7 +85,7 @@ double Timestamp::asMilliseconds() const
 
 double plr::Timestamp::asMicroseconds() const
 {
-	return (double)((m_raw * 1000000ll) / GetSystemFrequency());
+	return (double)((m_raw * 1000000ll) / Time::GetSystemFrequency());
 }
 
 
@@ -123,30 +155,3 @@ sint32 DateTime::getMillisecond() const  { return (sint32)GetSystemTime(m_raw).w
 	return ss.str();
 }*/
 
-Timestamp plr::GetTimestamp() 
-{
-	LARGE_INTEGER t;
-	/*PLR_SYS_VERIFY(*/QueryPerformanceCounter(&t)/*)*/;
-	return Timestamp(t.QuadPart);
-}
-
-Timestamp plr::GetApplicationElapsed()
-{
-	return GetTimestamp() - g_AppStart;
-}
-
-DateTime plr::GetDateTime() 
-{
-	FILETIME ft;
-	GetSystemTimePreciseAsFileTime(&ft);
-	// MS docs recommend copying into a LARGE_INTEGER first
-	LARGE_INTEGER li;
-	li.LowPart  = ft.dwLowDateTime;
-	li.HighPart = ft.dwHighDateTime;
-	return DateTime(li.QuadPart);
-}
-
-sint64 plr::GetSystemFrequency() 
-{
-	return g_Frequency;
-}

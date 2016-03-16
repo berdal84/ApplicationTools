@@ -9,30 +9,46 @@
 
 #include <plr/def.h>
 #include <plr/log.h>
+#include <plr/static_initializer.h>
 
 namespace plr {
 
 class Timestamp;
 class DateTime;
 
-/// \return High-resolution time stamp.
-/// \note This is not synchronised to an external time reference. Use for
-///   interval measurements.
+////////////////////////////////////////////////////////////////////////////////
+/// \class Time
+/// Global time functions.
 /// \ingroup plr_core
-Timestamp GetTimestamp();
+////////////////////////////////////////////////////////////////////////////////
+class Time
+{
+public:
+	/// \return High-resolution time stamp.
+	/// \note This is not synchronised to an external time reference. Use for
+	///   interval measurements.
+	/// \ingroup plr_core
+	static Timestamp GetTimestamp();
+	
+	/// \return High-resolution date time.
+	/// \note This is synchronized to UTC.
+	/// \ingroup plr_core
+	static DateTime GetDateTime();
+	
+	/// \return Frequency of the system timer in ticks/second.
+	/// \ingroup plr_core
+	static sint64 GetSystemFrequency();
+	
+	/// \return Interval since the application began.
+	/// \ingroup plr_core
+	static Timestamp GetApplicationElapsed();
 
-/// \return High-resolution date time.
-/// \note This is synchronized to UTC.
-/// \ingroup plr_core
-DateTime GetDateTime();
+protected:
+	static void Init();
+	static void Shutdown();
 
-/// \return Frequency of the system timer in ticks/second.
-/// \ingroup plr_core
-sint64 GetSystemFrequency();
-
-/// \return Interval since the application began.
-/// \ingroup plr_core
-Timestamp GetApplicationElapsed();
+}; // class Time
+PLR_DECLARE_STATIC_INIT(Time);
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class Timestamp
@@ -153,11 +169,11 @@ public:
 	AutoTimer(const char* _name)
 		: m_name(_name) 
 	{ 
-		m_start = GetTimestamp(); 
+		m_start = Time::GetTimestamp(); 
 	}
 	~AutoTimer() 
 	{ 
-		Timestamp interval = GetTimestamp() - m_start;
+		Timestamp interval = Time::GetTimestamp() - m_start;
 		PLR_LOG("%s -- %fms", m_name, interval.asMilliseconds());
 	}
 };
@@ -169,19 +185,5 @@ public:
 #endif
 
 } // namespace plr
-
-
-namespace plr { namespace internal {
-
-class time_initializer
-{
-	static int m_counter;
-public:
-	time_initializer();
-	~time_initializer();
-};
-static time_initializer g_time;
-
-} } // namespace plr::internal
 
 #endif // plr_Time_h
