@@ -13,9 +13,12 @@
   <ItemGroup>
     <ClCompile Include="..\..\plr\ArgList.cpp" />
     <ClCompile Include="..\..\plr\def.cpp" />
-    <ClCompile Include="..\..\plr\hash.cpp" />
+    <ClCompile Include="..\..\plr\hash.cpp">
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='debug|x64'">/P</AdditionalOptions>
+    </ClCompile>
     <ClCompile Include="..\..\plr\IniFile.cpp" />
     <ClCompile Include="..\..\plr\log.cpp" />
+    <ClCompile Include="..\..\plr\memory.cpp" />
     <ClCompile Include="..\..\plr\Path.cpp" />
     <ClCompile Include="..\..\plr\StringHash.cpp" />
     <ClCompile Include="..\..\plr\win\Time.cpp" />
@@ -26,6 +29,7 @@
     <ClInclude Include="..\..\plr\hash.h" />
     <ClInclude Include="..\..\plr\IniFile.h" />
     <ClInclude Include="..\..\plr\log.h" />
+    <ClInclude Include="..\..\plr\memory.h" />
     <ClInclude Include="..\..\plr\Path.h" />
     <ClInclude Include="..\..\plr\static_initializer.h" />
     <ClInclude Include="..\..\plr\StringHash.h" />

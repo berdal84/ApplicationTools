@@ -21,6 +21,7 @@
     <ClInclude Include="..\..\plr\log.h" />
     <ClInclude Include="..\..\plr\Time.h" />
     <ClInclude Include="..\..\plr\static_initializer.h" />
+    <ClInclude Include="..\..\plr\memory.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\plr\ArgList.cpp" />
@@ -33,5 +34,6 @@
     <ClCompile Include="..\..\plr\win\Time.cpp">
       <Filter>win</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\plr\memory.cpp" />
   </ItemGroup>
 </Project>
