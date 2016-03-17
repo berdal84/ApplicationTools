@@ -1,6 +1,7 @@
 # All builds and intermediate build files
-lib/
-bin/
+lib/*
+bin/*
+!bin/*.ini
 
 # Auto-generated docs (except configs)
 docs/*
