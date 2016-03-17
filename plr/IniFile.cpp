@@ -214,14 +214,17 @@ IniFile::Error IniFile::parse(const char* _str)
 			 // value is a number
 				const char* beg = _str;
 				AdvanceToNextWhiteSpaceOrComma(&_str, &line);
+				long int l = strtol(beg, 0, 0);
 				double d = strtod(beg, 0);
 				Value v;
-				if (Contains(beg, _str, '.')) {
+				if (d == 0.0 || l != 0) {
+				 // value was an int, or both d and l were 0 in which case int/double are equivalent
+					k.m_type = ValueType::kInt;
+					v.m_int = (sint64)l;
+				} else {
+				 // value was a double
 					k.m_type = ValueType::kDouble;
 					v.m_double = d;
-				} else {
-					k.m_type = ValueType::kInt;
-					v.m_int = (sint64)d;
 				}
 				m_values.push_back(v);
 

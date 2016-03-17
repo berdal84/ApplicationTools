@@ -90,8 +90,8 @@ public:
 	/// Load and parse the file specified by _path. This can be called multiple 
 	/// times to accumulate properties from several files. This invalidates any
 	/// existing Property instances returned by getProperty().
-	/// \return Error state. If kErrorSyntax, an error message will be printed to
-	///   stderr.
+	/// \return Error state. If kErrorSyntax, an error message will be printed via
+	///   PLR_LOG_ERR().
 	Error load(const char* _path);
 	
 	/// Retrieve a named property, optionally specifying the section to search.
