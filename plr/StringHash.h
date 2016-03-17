@@ -26,7 +26,7 @@ public:
 	StringHash(): m_hash(0)  {}
 
 	/// Initialize from a null-terminated string.
-	StringHash(const char* str);
+	StringHash(const char* _str);
 
 	/// Initialize from _len characters of _str.
 	StringHash(const char* _str, uint _len);

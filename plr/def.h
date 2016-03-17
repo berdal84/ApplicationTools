@@ -133,7 +133,7 @@ const char* StripPath(const char* path);
 } } // namespace plr::internal
 
 #define PLR_UNUSED(x) do { (void)sizeof(x); } while(0)
-#ifdef plr_core
+#ifdef PLR_DEBUG
 	#ifdef PLR_COMPILER_MSVC
 		#define PLR_BREAK() __debugbreak()
 	#else
