@@ -40,8 +40,8 @@ void CheckTestIniProperties(IniFile& _ini, const char* _section = 0)
 	PLR_ASSERT(_ini.getProperty("farr0", _section).getType() == IniFile::ValueType::kDouble);
 	PLR_ASSERT(_ini.getProperty("farr0", _section).getCount() == 3);
 	PLR_ASSERT(_ini.getProperty("farr0", _section).asDouble(0) == 7.0);
-	PLR_ASSERT(_ini.getProperty("farr0", _section).asDouble(1) == 8.0);
-	PLR_ASSERT(_ini.getProperty("farr0", _section).asDouble(2) == 9.0);
+	PLR_ASSERT(_ini.getProperty("farr0", _section).asDouble(1) == 8.1);
+	PLR_ASSERT(_ini.getProperty("farr0", _section).asDouble(2) == 9.2);
 
 
 	PLR_ASSERT(_ini.getProperty("bval0", _section).getType() == IniFile::ValueType::kBool);

@@ -33,11 +33,15 @@ static bool IsNumeric(char _c)
 {
 	return _c >= '0' && _c <='9';
 }
-static bool Contains(const char* _beg,  const char* _end, char _c)
+static bool ContainsAny(const char* _beg,  const char* _end, const char* _c)
 {
 	while (*_beg != 0 && _beg != _end) {
-		if (*_beg == _c) {
-			return true;
+		const char* c = _c;
+		while (*c != 0) {
+			if (*_beg == *c) {
+				return true;
+			}
+			++c;
 		}
 		++_beg;
 	}
@@ -217,14 +221,23 @@ IniFile::Error IniFile::parse(const char* _str)
 				long int l = strtol(beg, 0, 0);
 				double d = strtod(beg, 0);
 				Value v;
-				if (d == 0.0 || l != 0) {
-				 // value was an int, or both d and l were 0 in which case int/double are equivalent
+				if (d == 0.0 && l != 0) {
+				 // value was an int
 					k.m_type = ValueType::kInt;
 					v.m_int = (sint64)l;
-				} else {
+				} else if (l == 0 && d != 0.0) {
 				 // value was a double
 					k.m_type = ValueType::kDouble;
 					v.m_double = d;
+				} else {
+				 // both were nonzero, guess if an int or a double was intended
+					if (ContainsAny(beg, _str, ".eEnN")) { // n/N to catch INF/NAN
+						k.m_type = ValueType::kDouble;
+						v.m_double = d;
+					} else {
+						k.m_type = ValueType::kInt;
+						v.m_int = (sint64)l;
+					}
 				}
 				m_values.push_back(v);
 
