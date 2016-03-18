@@ -7,32 +7,21 @@
 
 #include <plr/log.h>
 
+#include <cctype>
 #include <cstring>
 #include <fstream>
 
 using namespace plr;
 
-static const char* kWhitespace = " \t\n\v\f\r";
 static const char* kLineEnd = "\n";
 
 #define INI_ERROR(line, msg) PLR_LOG_ERR("Ini syntax error, line %d: '%s'", line, msg)
 
-static bool IsWhitespace(char _c)
-{
-	return strchr(kWhitespace, (int)_c) != 0;
-}
 static bool IsLineEnd(char _c)
 {
 	return strchr(kLineEnd, (int)_c) != 0;
 }
-static bool IsAlpha(char _c)
-{
-	return (_c >= 'A' && _c <='Z') || (_c >= 'a' && _c <= 'z');
-}
-static bool IsNumeric(char _c)
-{
-	return _c >= '0' && _c <='9';
-}
+
 static bool ContainsAny(const char* _beg,  const char* _end, const char* _c)
 {
 	while (*_beg != 0 && _beg != _end) {
@@ -49,7 +38,7 @@ static bool ContainsAny(const char* _beg,  const char* _end, const char* _c)
 }
 static void SkipWhitespace(const char** _str, int *_line_)
 {
-	while (_str != 0 && IsWhitespace(**_str)) {
+	while (_str != 0 && isspace(**_str)) {
 		if (IsLineEnd(**_str)) {
 			++*_line_;
 		}
@@ -68,7 +57,7 @@ static bool AdvanceToNext(const char **_str, char _c, int *_line_)
 }
 static bool AdvanceToNextNonAlphanumeric(const char **_str, int *_line_)
 {
-	while (**_str != 0 && (IsAlpha(**_str) || IsNumeric(**_str))) {
+	while (**_str != 0 && (isalnum(**_str))) {
 		if (IsLineEnd(**_str)) {
 			++*_line_;
 		}
@@ -78,7 +67,7 @@ static bool AdvanceToNextNonAlphanumeric(const char **_str, int *_line_)
 }
 static bool AdvanceToNextWhiteSpaceOrComma(const char **_str, int *_line_)
 {
-	while (**_str != 0 && !(IsWhitespace(**_str) || **_str == ',')) {
+	while (**_str != 0 && !(isspace(**_str) || **_str == ',')) {
 		if (IsLineEnd(**_str)) {
 			++*_line_;
 		}
@@ -214,7 +203,7 @@ IniFile::Error IniFile::parse(const char* _str)
 				m_values.push_back(v);
 				AdvanceToNextWhiteSpaceOrComma(&_str, &line);
 
-			} else if (IsNumeric(*_str) || *_str == '-' || *_str == '+') {
+			} else if (isdigit(*_str) || *_str == '-' || *_str == '+') {
 			 // value is a number
 				const char* beg = _str;
 				AdvanceToNextWhiteSpaceOrComma(&_str, &line);
@@ -253,7 +242,7 @@ IniFile::Error IniFile::parse(const char* _str)
 			++k.m_count;
 		} else if (*_str != 0) {
 		 // new data
-			if (IsNumeric(*_str)) {
+			if (isdigit(*_str)) {
 				INI_ERROR(line, "Property names cannot begin with a number");
 				return Error::kSyntax;
 			}
