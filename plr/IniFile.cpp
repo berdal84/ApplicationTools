@@ -6,9 +6,8 @@
 #include <plr/IniFile.h>
 
 #include <plr/log.h>
+#include <plr/TextParser.h>
 
-#include <cctype>
-#include <cstring>
 #include <fstream>
 
 using namespace plr;
@@ -16,75 +15,6 @@ using namespace plr;
 static const char* kLineEnd = "\n";
 
 #define INI_ERROR(line, msg) PLR_LOG_ERR("Ini syntax error, line %d: '%s'", line, msg)
-
-static bool IsLineEnd(char _c)
-{
-	return strchr(kLineEnd, (int)_c) != 0;
-}
-
-static bool ContainsAny(const char* _beg,  const char* _end, const char* _c)
-{
-	while (*_beg != 0 && _beg != _end) {
-		const char* c = _c;
-		while (*c != 0) {
-			if (*_beg == *c) {
-				return true;
-			}
-			++c;
-		}
-		++_beg;
-	}
-	return false;
-}
-static void SkipWhitespace(const char** _str, int *_line_)
-{
-	while (_str != 0 && isspace(**_str)) {
-		if (IsLineEnd(**_str)) {
-			++*_line_;
-		}
-		++*_str;
-	}
-}
-static bool AdvanceToNext(const char **_str, char _c, int *_line_)
-{
-	while (**_str != 0 && **_str != _c) {
-		if (IsLineEnd(**_str)) {
-			++*_line_;
-		}
-		++*_str;
-	}
-	return **_str != 0;
-}
-static bool AdvanceToNextNonAlphanumeric(const char **_str, int *_line_)
-{
-	while (**_str != 0 && (isalnum(**_str))) {
-		if (IsLineEnd(**_str)) {
-			++*_line_;
-		}
-		++*_str;
-	}
-	return **_str != 0;
-}
-static bool AdvanceToNextWhiteSpaceOrComma(const char **_str, int *_line_)
-{
-	while (**_str != 0 && !(isspace(**_str) || **_str == ',')) {
-		if (IsLineEnd(**_str)) {
-			++*_line_;
-		}
-		++*_str;
-	}
-	return **_str != 0;
-}
-static void SkipLine(const char **_str, int *_line_)
-{
-	while (**_str != 0 && !IsLineEnd(**_str)) {
-		++*_str;
-	}
-	if (**_str != 0) {
-		++*_str;
-		++*_line_;
-	}
-}
 
 const StringHash IniFile::kDefaultSection = StringHash::kInvalidHash;
 
@@ -145,68 +75,68 @@ IniFile::Error IniFile::parse(const char* _str)
 		m_sections.push_back(s);
 	}
 
-	int line = 1; // line counter for errors
-	while (*_str != 0) {
-		SkipWhitespace(&_str, &line);
-		if (*_str == ';') {
+	TextParser tp(_str);
+	while (!tp.isNull()) {
+		tp.skipWhitespace();
+		if (*tp == ';') {
 		 // comment
-			SkipLine(&_str, &line);
-		} else if (*_str == '[') {
+			tp.skipLine();
+		} else if (*tp == '[') {
 		 // section
-			const char* beg = _str + 1;
-			int errline = line;
-			if (!AdvanceToNext(&_str, ']', &line)) {
-				INI_ERROR(errline, "Unterminated section");
+			tp.advance();
+			const char* beg = tp;
+			if (!tp.advanceToNext(']')) {
+				INI_ERROR(tp.getLineCount(beg), "Unterminated section");
 				return Error::kSyntax;
 			}
-			Section s = { StringHash(beg, _str - beg), 0u, m_keys.size() };
+			Section s = { StringHash(beg, tp - beg), 0u, m_keys.size() };
 			m_sections.push_back(s);
-			++_str; // skip ']'
-		} else if (*_str == '=' || *_str == ',') {
+			tp.advance(); // skip ']'
+		} else if (*tp == '=' || *tp == ',') {
 			if (m_keys.empty()) {
-				INI_ERROR(line, "Unexpected '=' or ',' no property name was specified");
+				INI_ERROR(tp.getLineCount(), "Unexpected '=' or ',' no property name was specified");
 				return Error::kSyntax;
 			}
 			Key& k = m_keys.back();
 			ValueType t = k.m_type; // for sanity check below
 
-			++_str; // skip '='/','
-			SkipWhitespace(&_str, &line);
-			while (*_str == ';') {
-				SkipLine(&_str, &line);
-				SkipWhitespace(&_str, &line);
+			tp.advance(); // skip '='/','
+			tp.skipWhitespace();
+			while (*tp == ';') {
+				tp.skipLine();
+				tp.skipWhitespace();
 			}
-			int errline = line;
-
-			if (*_str == '"') {
+			const char* vbeg = tp; // for getLineCount if value was invalid
+			if (*tp == '"') {
 			 // value is a string
 				k.m_type = ValueType::kString;
-				const char* beg = ++_str;
-				if (!AdvanceToNext(&_str, '"', &line)) {
-					INI_ERROR(errline, "Unterminated string");
+				tp.advance(); // skip '"'
+				const char* beg = tp;
+				if (!tp.advanceToNext('"')) {
+					INI_ERROR(tp.getLineCount(beg), "Unterminated string");
 					return Error::kSyntax;
 				}
 
 				Value v;
-				sint n = _str - beg;
-				++_str; // skip '"'
+				sint n = tp - beg;
+				tp.advance(); // skip '"'
 				v.m_string = new char[n + 1];
 				strncpy(v.m_string, beg, n);
 				v.m_string[n] = '\0';
 				m_values.push_back(v);
 
-			} else if (*_str == 't' || *_str == 'f') {
+			} else if (*tp == 't' || *tp == 'f') {
 			 // value is a bool
 				k.m_type = ValueType::kBool;
 				Value v;
-				v.m_bool = *_str == 't' ? true : false;
+				v.m_bool = *tp == 't' ? true : false;
 				m_values.push_back(v);
-				AdvanceToNextWhiteSpaceOrComma(&_str, &line);
+				tp.advanceToNextWhitespaceOr(',');
 
-			} else if (isdigit(*_str) || *_str == '-' || *_str == '+') {
+			} else if (tp.isNum() || *tp == '-' || *tp == '+') {
 			 // value is a number
-				const char* beg = _str;
-				AdvanceToNextWhiteSpaceOrComma(&_str, &line);
+				const char* beg = tp;
+				tp.advanceToNextWhitespaceOr(',');
 				long int l = strtol(beg, 0, 0);
 				double d = strtod(beg, 0);
 				Value v;
@@ -220,7 +150,7 @@ IniFile::Error IniFile::parse(const char* _str)
 					v.m_double = d;
 				} else {
 				 // both were nonzero, guess if an int or a double was intended
-					if (ContainsAny(beg, _str, ".eEnN")) { // n/N to catch INF/NAN
+					if (tp.containsAny(beg, ".eEnN")) { // n/N to catch INF/NAN
 						k.m_type = ValueType::kDouble;
 						v.m_double = d;
 					} else {
@@ -231,30 +161,30 @@ IniFile::Error IniFile::parse(const char* _str)
 				m_values.push_back(v);
 
 			} else {
-				INI_ERROR(errline, "Invalid value");
+				INI_ERROR(tp.getLineCount(vbeg), "Invalid value");
 				return Error::kSyntax;
 			}
 
 			if (k.m_count > 0u && k.m_type != t) {
-				INI_ERROR(errline, "Invalid array (arrays must be homogeneous)");
+				INI_ERROR(tp.getLineCount(vbeg), "Invalid array (arrays must be homogeneous)");
 				return Error::kSyntax;
 			}
 			++k.m_count;
-		} else if (*_str != 0) {
+		} else if (!tp.isNull()) {
 		 // new data
-			if (isdigit(*_str)) {
-				INI_ERROR(line, "Property names cannot begin with a number");
+			if (tp.isNum()) {
+				INI_ERROR(tp.getLineCount(), "Property names cannot begin with a number");
 				return Error::kSyntax;
 			}
 
-			const char* beg = _str;
-			if (!AdvanceToNextNonAlphanumeric(&_str, &line)) {
-				INI_ERROR(line, "Unexpected end of file");
+			const char* beg = tp;
+			if (!tp.advanceToNextNonAlphaNum()) {
+				INI_ERROR(tp.getLineCount(), "Unexpected end of file");
 				return Error::kSyntax;
 			}
 
 			Key k;
-			k.m_key = StringHash(beg, _str - beg);
+			k.m_key = StringHash(beg, tp - beg);
 			k.m_valueOffset = m_values.size();
 			k.m_count = 0;
 			m_keys.push_back(k);
