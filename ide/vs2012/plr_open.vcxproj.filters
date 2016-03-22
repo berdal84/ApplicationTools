@@ -22,6 +22,7 @@
     <ClInclude Include="..\..\plr\Time.h" />
     <ClInclude Include="..\..\plr\static_initializer.h" />
     <ClInclude Include="..\..\plr\memory.h" />
+    <ClInclude Include="..\..\plr\TextParser.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\plr\ArgList.cpp" />
@@ -35,5 +36,6 @@
       <Filter>win</Filter>
     </ClCompile>
     <ClCompile Include="..\..\plr\memory.cpp" />
+    <ClCompile Include="..\..\plr\TextParser.cpp" />
   </ItemGroup>
 </Project>

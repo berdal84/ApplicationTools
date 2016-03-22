@@ -21,6 +21,7 @@
     <ClCompile Include="..\..\plr\memory.cpp" />
     <ClCompile Include="..\..\plr\Path.cpp" />
     <ClCompile Include="..\..\plr\StringHash.cpp" />
+    <ClCompile Include="..\..\plr\TextParser.cpp" />
     <ClCompile Include="..\..\plr\win\Time.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -33,6 +34,7 @@
     <ClInclude Include="..\..\plr\Path.h" />
     <ClInclude Include="..\..\plr\static_initializer.h" />
     <ClInclude Include="..\..\plr\StringHash.h" />
+    <ClInclude Include="..\..\plr\TextParser.h" />
     <ClInclude Include="..\..\plr\Time.h" />
     <ClInclude Include="..\..\plr\win\platform.h" />
     <ClInclude Include="..\..\plr\win\win.h" />
