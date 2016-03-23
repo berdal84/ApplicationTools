@@ -11,33 +11,31 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\plr\ArgList.cpp" />
-    <ClCompile Include="..\..\plr\def.cpp" />
-    <ClCompile Include="..\..\plr\hash.cpp">
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='debug|x64'">/P</AdditionalOptions>
-    </ClCompile>
-    <ClCompile Include="..\..\plr\IniFile.cpp" />
-    <ClCompile Include="..\..\plr\log.cpp" />
-    <ClCompile Include="..\..\plr\memory.cpp" />
-    <ClCompile Include="..\..\plr\Path.cpp" />
-    <ClCompile Include="..\..\plr\StringHash.cpp" />
-    <ClCompile Include="..\..\plr\TextParser.cpp" />
-    <ClCompile Include="..\..\plr\win\Time.cpp" />
+    <ClCompile Include="..\..\src\all\plr\ArgList.cpp" />
+    <ClCompile Include="..\..\src\all\plr\def.cpp" />
+    <ClCompile Include="..\..\src\all\plr\hash.cpp" />
+    <ClCompile Include="..\..\src\all\plr\IniFile.cpp" />
+    <ClCompile Include="..\..\src\all\plr\log.cpp" />
+    <ClCompile Include="..\..\src\all\plr\memory.cpp" />
+    <ClCompile Include="..\..\src\all\plr\Path.cpp" />
+    <ClCompile Include="..\..\src\all\plr\StringHash.cpp" />
+    <ClCompile Include="..\..\src\all\plr\TextParser.cpp" />
+    <ClCompile Include="..\..\src\win\plr\Time.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\plr\ArgList.h" />
-    <ClInclude Include="..\..\plr\def.h" />
-    <ClInclude Include="..\..\plr\hash.h" />
-    <ClInclude Include="..\..\plr\IniFile.h" />
-    <ClInclude Include="..\..\plr\log.h" />
-    <ClInclude Include="..\..\plr\memory.h" />
-    <ClInclude Include="..\..\plr\Path.h" />
-    <ClInclude Include="..\..\plr\static_initializer.h" />
-    <ClInclude Include="..\..\plr\StringHash.h" />
-    <ClInclude Include="..\..\plr\TextParser.h" />
-    <ClInclude Include="..\..\plr\Time.h" />
-    <ClInclude Include="..\..\plr\win\platform.h" />
-    <ClInclude Include="..\..\plr\win\win.h" />
+    <ClInclude Include="..\..\src\all\plr\ArgList.h" />
+    <ClInclude Include="..\..\src\all\plr\def.h" />
+    <ClInclude Include="..\..\src\all\plr\hash.h" />
+    <ClInclude Include="..\..\src\all\plr\IniFile.h" />
+    <ClInclude Include="..\..\src\all\plr\log.h" />
+    <ClInclude Include="..\..\src\all\plr\memory.h" />
+    <ClInclude Include="..\..\src\all\plr\Path.h" />
+    <ClInclude Include="..\..\src\all\plr\static_initializer.h" />
+    <ClInclude Include="..\..\src\all\plr\StringHash.h" />
+    <ClInclude Include="..\..\src\all\plr\TextParser.h" />
+    <ClInclude Include="..\..\src\all\plr\Time.h" />
+    <ClInclude Include="..\..\src\win\plr\platform.h" />
+    <ClInclude Include="..\..\src\win\plr\win.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{DE0E7298-1DFC-4D0D-9FCE-271AA81E71F7}</ProjectGuid>
@@ -76,7 +74,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\src\all\;$(ProjectDir)..\..\src\win\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GeneratedebugInformation>true</GeneratedebugInformation>
@@ -88,7 +86,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\..\src\all\;$(ProjectDir)..\..\src\win\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GeneratedebugInformation>true</GeneratedebugInformation>
