@@ -18,6 +18,9 @@
     <ClCompile Include="..\..\src\win\plr\Time.cpp">
       <Filter>win</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\win\plr\platform.cpp">
+      <Filter>win</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\all\plr\ArgList.h" />

@@ -13,8 +13,18 @@
 #endif
 
 // ASSERT/VERIFY with platform-specific error string (use to wrap OS calls)
-// \todo
-#define PLR_PLATFORM_ASSERT(e) PLR_ASSERT(e)
-#define PLR_PLATFORM_VERIFY(e) PLR_VERIFY(e)
+#define PLR_PLATFORM_ASSERT(e) PLR_ASSERT_MSG(e, plr::GetPlatformErrorString(GetLastError()))
+#define PLR_PLATFORM_VERIFY(e) PLR_VERIFY_MSG(e, plr::GetPlatformErrorString(GetLastError()))
+
+namespace plr {
+
+/// Format a system error code as a string.
+/// \note This returns a ptr to an internal static char buffer. The buffer is
+///	   thread-local but calling code **must** copy the returned string immediately
+///	   and not store the returned ptr.
+/// \ingroup plr_core
+const char* GetPlatformErrorString(unsigned int _err);
+
+} // namespace plr
 
 #endif // plr_platform_h

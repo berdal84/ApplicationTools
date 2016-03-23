@@ -20,6 +20,7 @@
     <ClCompile Include="..\..\src\all\plr\Path.cpp" />
     <ClCompile Include="..\..\src\all\plr\StringHash.cpp" />
     <ClCompile Include="..\..\src\all\plr\TextParser.cpp" />
+    <ClCompile Include="..\..\src\win\plr\platform.cpp" />
     <ClCompile Include="..\..\src\win\plr\Time.cpp" />
   </ItemGroup>
   <ItemGroup>
