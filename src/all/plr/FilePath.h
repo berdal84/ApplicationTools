@@ -4,8 +4,8 @@
 // See http://opensource.org/licenses/MIT
 ////////////////////////////////////////////////////////////////////////////////
 #pragma once
-#ifndef plr_Path_h
-#define plr_Path_h
+#ifndef plr_FilePath_h
+#define plr_FilePath_h
 
 #include <plr/def.h>
 
@@ -20,20 +20,17 @@
 namespace plr {
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \class Path
+/// \class FilePath
 /// Path manipulation.
 /// No memory allocation is performed, all interfaces are const char*.
 /// \ingroup plr_core
 ////////////////////////////////////////////////////////////////////////////////
-class Path
+class FilePath
 {
 public:
 	/// \param _path Raw path (copied to an internal buffer) up to
 	///    PLR_MAX_PATH_LENGTH chars (including the null terminator).
-	Path(const char* _path = 0);
-
-	/// Copy ctor.
-	//Path(const Path& _rhs);
+	FilePath(const char* _path = 0);
 
 	/// Re-initialize from _path.
 	void setPath(const char* _path);
@@ -83,4 +80,4 @@ private:
 
 } // namespace plr
 
-#endif // plr_Path_h
+#endif // plr_FilePath_h

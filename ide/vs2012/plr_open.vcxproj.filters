@@ -12,7 +12,6 @@
     <ClCompile Include="..\..\src\all\plr\IniFile.cpp" />
     <ClCompile Include="..\..\src\all\plr\log.cpp" />
     <ClCompile Include="..\..\src\all\plr\memory.cpp" />
-    <ClCompile Include="..\..\src\all\plr\Path.cpp" />
     <ClCompile Include="..\..\src\all\plr\StringHash.cpp" />
     <ClCompile Include="..\..\src\all\plr\TextParser.cpp" />
     <ClCompile Include="..\..\src\win\plr\Time.cpp">
@@ -21,6 +20,7 @@
     <ClCompile Include="..\..\src\win\plr\platform.cpp">
       <Filter>win</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\all\plr\FilePath.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\all\plr\ArgList.h" />
@@ -29,7 +29,6 @@
     <ClInclude Include="..\..\src\all\plr\IniFile.h" />
     <ClInclude Include="..\..\src\all\plr\log.h" />
     <ClInclude Include="..\..\src\all\plr\memory.h" />
-    <ClInclude Include="..\..\src\all\plr\Path.h" />
     <ClInclude Include="..\..\src\all\plr\static_initializer.h" />
     <ClInclude Include="..\..\src\all\plr\StringHash.h" />
     <ClInclude Include="..\..\src\all\plr\TextParser.h" />
@@ -40,5 +39,6 @@
     <ClInclude Include="..\..\src\win\plr\win.h">
       <Filter>win</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\all\plr\FilePath.h" />
   </ItemGroup>
 </Project>

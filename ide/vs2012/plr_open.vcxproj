@@ -13,11 +13,11 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\all\plr\ArgList.cpp" />
     <ClCompile Include="..\..\src\all\plr\def.cpp" />
+    <ClCompile Include="..\..\src\all\plr\FilePath.cpp" />
     <ClCompile Include="..\..\src\all\plr\hash.cpp" />
     <ClCompile Include="..\..\src\all\plr\IniFile.cpp" />
     <ClCompile Include="..\..\src\all\plr\log.cpp" />
     <ClCompile Include="..\..\src\all\plr\memory.cpp" />
-    <ClCompile Include="..\..\src\all\plr\Path.cpp" />
     <ClCompile Include="..\..\src\all\plr\StringHash.cpp" />
     <ClCompile Include="..\..\src\all\plr\TextParser.cpp" />
     <ClCompile Include="..\..\src\win\plr\platform.cpp" />
@@ -26,11 +26,11 @@
   <ItemGroup>
     <ClInclude Include="..\..\src\all\plr\ArgList.h" />
     <ClInclude Include="..\..\src\all\plr\def.h" />
+    <ClInclude Include="..\..\src\all\plr\FilePath.h" />
     <ClInclude Include="..\..\src\all\plr\hash.h" />
     <ClInclude Include="..\..\src\all\plr\IniFile.h" />
     <ClInclude Include="..\..\src\all\plr\log.h" />
     <ClInclude Include="..\..\src\all\plr\memory.h" />
-    <ClInclude Include="..\..\src\all\plr\Path.h" />
     <ClInclude Include="..\..\src\all\plr\static_initializer.h" />
     <ClInclude Include="..\..\src\all\plr\StringHash.h" />
     <ClInclude Include="..\..\src\all\plr\TextParser.h" />

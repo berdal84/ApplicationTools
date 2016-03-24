@@ -3,7 +3,7 @@
 // This software is distributed freely under the terms of the MIT License.
 // See http://opensource.org/licenses/MIT
 ////////////////////////////////////////////////////////////////////////////////
-#include <plr/Path.h>
+#include <plr/FilePath.h>
 
 #ifdef PLR_COMPILER_MSVC
 	// most of cstring generates warnings; disable them!
@@ -11,11 +11,13 @@
 #endif
 #include <cstring>
 
+using namespace plr;
+
 /// \todo make these platform dependent
 static const char* kDirSeparator = "\\/";
 static const char* kExtSeparator = ".";
 
-plr::Path::Path(const char* _path)
+FilePath::FilePath(const char* _path)
 	: m_len(0)
 	, m_dirsCount(0)
 	, m_fname(0)
@@ -28,12 +30,7 @@ plr::Path::Path(const char* _path)
 	}
 }
 
-//plr::Path::Path(const Path& _rhs)
-//{
-//	memcpy(this, &_rhs, sizeof(Path));
-//}
-
-void plr::Path::setPath(const char* _path)
+void FilePath::setPath(const char* _path)
 {
 	m_len = (int)strlen(_path); // doesn't count null terminator
 	PLR_ASSERT(m_len < PLR_MAX_PATH_LENGTH);
@@ -41,7 +38,7 @@ void plr::Path::setPath(const char* _path)
 	parse();
 }
 
-void plr::Path::setDirectory(int i, const char* _dir)
+void FilePath::setDirectory(int i, const char* _dir)
 {
   // remove leading separators
 	while (strchr(kDirSeparator, (int)(*_dir)) != 0) {
@@ -50,7 +47,7 @@ void plr::Path::setDirectory(int i, const char* _dir)
 	replace(getDirectory(i), _dir);
 }
 
-void plr::Path::setExtension(const char* _ext)
+void FilePath::setExtension(const char* _ext)
 {
   // remove leading separators
 	while (strchr(kExtSeparator, (int)(*_ext)) != 0) {
@@ -62,7 +59,7 @@ void plr::Path::setExtension(const char* _ext)
 
 // PRIVATE
 
-void plr::Path::parse()
+void FilePath::parse()
 {
 	strncpy(m_buf, m_pth, PLR_MAX_PATH_LENGTH); // pads with zeroes
 
@@ -88,7 +85,7 @@ void plr::Path::parse()
 
 }
 
-void plr::Path::replace(const char* _beg, const char* _in)
+void FilePath::replace(const char* _beg, const char* _in)
 {
 	int lenIn  = (int)strlen(_in);
 	int lenOut = (int)strlen(_beg); // length of region to be replaced
