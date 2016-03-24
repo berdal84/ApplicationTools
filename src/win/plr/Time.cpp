@@ -3,7 +3,7 @@
 // This software is distributed freely under the terms of the MIT License.
 // See http://opensource.org/licenses/MIT
 ////////////////////////////////////////////////////////////////////////////////
-#include <plr/time.h>
+#include <plr/Time.h>
 
 #include <plr/memory.h>
 #include <plr/win.h>
