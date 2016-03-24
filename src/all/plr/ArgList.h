@@ -26,7 +26,7 @@ public:
 	const char* getName() const             { return m_name; }
 	uint  getValueCount() const             { return (uint)m_values.size(); }
 	void  pushValue(const char* _val)       { m_values.push_back(_val); }
-	const char* getValue(uint i) const      { PLR_ASSERT(i < m_values.size()); return m_values[i]; }
+	const char* getValue(uint i = 0u) const { PLR_ASSERT(i < m_values.size()); return m_values[i]; }
 	const char* operator[](uint i) const    { PLR_ASSERT(i < m_values.size()); return m_values[i]; }
 
 private:
