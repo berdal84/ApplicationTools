@@ -77,6 +77,8 @@
 #define PLR_TOKEN_CONCATENATE(_t0, _t1)  PLR_TOKEN_CONCATENATE_(_t0, _t1)
 #define PLR_UNIQUE_NAME(_base) PLR_TOKEN_CONCATENATE(_base, __COUNTER__)
 
+#define PLR_ARRAY_LENGTH(_arr) plr::internal::ArrayLength(_arr)
+
 namespace plr {
 
 typedef std::int8_t     sint8;
@@ -119,7 +121,7 @@ void SetAssertCallback(AssertCallback* callback);
 /// \param msg Optional message (passed from PLR_ASSERT_MSG,PLR_VERIFY_MSG macros).
 /// \param file, line Location of the assert.
 /// \return Always AssertBehaviour::kBreak.
-/// \ingroup plr_assert
+/// \ingroup plr_core
 AssertBehavior DefaultAssertCallback(const char* e, const char* msg,  const char* file,  int line);
 
 } // namespace plr
@@ -129,6 +131,9 @@ namespace plr { namespace internal {
 
 AssertBehavior AssertAndCallback(const char* e, const char* file, int line, const char* msg, ...);
 const char* StripPath(const char* path);
+
+template <typename tType, unsigned kSize>
+inline unsigned ArrayLength(const tType (&)[kSize]) { return kSize; }
 
 } } // namespace plr::internal
 
