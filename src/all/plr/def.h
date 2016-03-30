@@ -79,6 +79,9 @@
 
 #define PLR_ARRAY_LENGTH(_arr) plr::internal::ArrayLength(_arr)
 
+#define PLR_MIN(a, b) plr::internal::Min(a, b)
+#define PLR_MAX(a, b) plr::internal::Max(a, b)
+
 namespace plr {
 
 typedef std::int8_t     sint8;
@@ -134,6 +137,11 @@ const char* StripPath(const char* path);
 
 template <typename tType, unsigned kSize>
 inline unsigned ArrayLength(const tType (&)[kSize]) { return kSize; }
+
+template <typename tType>
+inline tType Min(tType a, tType b) { return a < b ? a : b; }
+template <typename tType>
+inline tType Max(tType a, tType b) { return a > b ? a : b; }
 
 } } // namespace plr::internal
 
