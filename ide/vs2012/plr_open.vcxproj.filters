@@ -4,6 +4,9 @@
     <Filter Include="win">
       <UniqueIdentifier>{2aef0fb7-d159-408f-9efb-1cbf1bab8b9b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="extern">
+      <UniqueIdentifier>{31118057-bbab-40e4-ba02-ecb436824a80}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\all\plr\ArgList.cpp" />
@@ -21,6 +24,10 @@
       <Filter>win</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\all\plr\FilePath.cpp" />
+    <ClCompile Include="..\..\src\all\plr\Image.cpp" />
+    <ClCompile Include="..\..\src\all\plr\extern\dds.cpp">
+      <Filter>extern</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\all\plr\ArgList.h" />
@@ -40,5 +47,12 @@
       <Filter>win</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\all\plr\FilePath.h" />
+    <ClInclude Include="..\..\src\all\plr\Image.h" />
+    <ClInclude Include="..\..\src\all\plr\extern\stb_image.h">
+      <Filter>extern</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\all\plr\extern\stb_image_write.h">
+      <Filter>extern</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
