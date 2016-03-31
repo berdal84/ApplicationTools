@@ -13,9 +13,17 @@ namespace plr {
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class Image
+/// \todo Remove alloc() call from Create()? Have these functions init metadata
+///   only, then alloc() on the first call to set data/load?
+/// \todo Clean the *Size functions, add descriptive comments and/or rename them
+///   to be clearer (e.g. include "bytes" in the name).
+/// \todo Load*() functions and setRawData() should correctly release the 
+///   existing image first (or only if the load succeeded).
+/// \todo Implement load-from-memory variant of the load interface, to allow 
+///   interop with external file loading code.
+/// \todo Support loading all stbi formats (jpg, gif, psd, hdr, etc.)
 /// \todo Conversion behaviour between data types is not well define. Need to
 ///   consider how to manage unnormalized floating point data.
-/// \todo 16 bit float format.
 ////////////////////////////////////////////////////////////////////////////////
 class Image
 {
@@ -120,8 +128,10 @@ public:
 
 	/// Load from a file specified by _path. If _format is not provided, the format
 	/// is assumed from the extension in _path.
-	/// \return Loaded image. If an error occurred, getErrorState() will be nonzero.
-	static Image* Load(const char* _path, FileFormat _format = FileFormat::kInvalid);
+	/// \return kOk if the operation succeeded, kFileFormatUnsupported if
+	///   requested file format doesn't support the image format, kFileIoError
+	///   if a write error occurred.
+	static ErrorState Load(Image* img_, const char* _path, FileFormat _format = FileFormat::kInvalid);
 
 	/// Save _img to the file specified by _path. The file format is specified by
 	/// _format. Mipmaps, array layers, cubemap faces and 3d slices will be saved as 
@@ -139,6 +149,10 @@ public:
 	/// \return String version of an error state.
 	static const char* GetErrorString(ErrorState _err);
 
+	/// Default ctor, initializes metadata but doesn't allocate any memory.
+	Image(): m_data(0)                           { init(); }
+	~Image();
+
 	uint getWidth() const                        { return m_width; }
 	uint getHeight() const                       { return m_height; }
 	uint getDepth() const                        { return m_depth; }
@@ -148,7 +162,6 @@ public:
 	uint getTexelSize() const                    { return m_texelSize; }
 	Type getType() const                         { return m_type; }
 	DataType getImageDataType() const            { return m_dataType; }
-	ErrorState getErrorState() const             { return m_errorState; }
 	CompressionType getCompressionType() const   { return m_compression; }
 
 	bool isCubemap() const                       { return m_type == Type::kCubemap; }
@@ -170,30 +183,26 @@ public:
 
 private:
 	
-	Image();
-	~Image();
-
 	/// Set defaults.
 	void init();
 
 	/// Allocate m_data, set mip sizes/offsets. Sets m_errorState.
 	void alloc();
 
-	ErrorState m_errorState;
 	uint m_width, m_height, m_depth;     //< Image dimensions, min = 1.
-	uint m_texelSize;                    //< Bytes in a single texel (uncompressed images only).
 	uint m_arrayCount;                   //< 1 for non-arrays, 6 for cubemaps.
-	uint m_arrayLayerSize;               //< Data size (bytes) of a single array layer (including mip chain).
 	uint m_mipmapCount;                  //< Number of valid mipmap levels, min = 1.
+	uint m_arrayLayerSize;               //< Data size (bytes) of a single array layer (including mip chain).
+	uint m_texelSize;                    //< Bytes in a single texel (uncompressed images only).
 	
-	Type            m_type;              //< 1d, 2d, cubemap, etc.
-	Layout          m_layout;            //< Component layout.
-	DataType        m_dataType;          //< Component type.
+	Type m_type;                         //< 1d, 2d, cubemap, etc.
+	Layout m_layout;                     //< Component layout.
+	DataType m_dataType;                 //< Component type.
 	CompressionType m_compression;       //< Compression type (or kCompression_None if uncompressed).
 
 	char* m_data;                        //< Raw image data. Each image is adjacent to its mipmap chain.
-	uint  m_mipOffsets[kMaxMipmapCount]; //< Offset (bytes, from image start) per mipmap level.
-	uint  m_mipSizes[kMaxMipmapCount];   //< Data size (bytes) per mipmap level.
+	uint m_mipOffsets[kMaxMipmapCount];  //< Offset (bytes, from image start) per mipmap level.
+	uint m_mipSizes[kMaxMipmapCount];    //< Data size (bytes) per mipmap level.
 
 	/// \return true if the file format supports the image layout, data type 
 	///   and compression
@@ -205,6 +214,9 @@ private:
 	/// \return Number of components associated with a layout.
 	static uint GetComponentCount(Layout _layout);
 
+	/// \return Layout from a component count.
+	static Layout GuessLayout(uint _cmpCount);
+
 	/// \return Fileformat from a path extension.
 	static FileFormat GuessFormat(const char* _path);
 
@@ -213,9 +225,14 @@ private:
 	static bool IsDataTypeSigned(DataType _type);
 	static bool IsDataTypeBpc(DataType _type, int _bpc);
 
+
 	// extern/dds.cpp
-	static ErrorState ReadDds(const char* _path, Image* img_);
-	static ErrorState WriteDds(const char* _path, const Image* img_);
+	static ErrorState LoadDds(const char* _path, Image* img_);
+	static ErrorState SaveDds(const char* _path, const Image* _img);
+	// Image.cpp
+	static ErrorState LoadDefault(const char* _path, Image* img_);
+	static ErrorState SavePng(const char* _path, const Image* _img);
+	static ErrorState SaveTga(const char* _path, const Image* _img);
 
 }; // class Image
 

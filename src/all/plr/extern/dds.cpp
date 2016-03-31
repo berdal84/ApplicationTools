@@ -390,7 +390,7 @@ typedef struct
 
 typedef struct
 {
-    DXGI_FORMAT              dxgiFormat;
+  DXGI_FORMAT              dxgiFormat;
   DDS_RESOURCE_DIMENSION resourceDimension;
   UINT                     miscFlag;
   UINT                     arraySize;
@@ -495,7 +495,7 @@ static uint GetImageSize(uint _w, uint _h, uint _d, const Image* _img)
 	return _w * _h * _d * _img->getTexelSize();
 }
 
-Image::ErrorState Image::ReadDds(const char* _path, Image* img_)
+Image::ErrorState Image::LoadDds(const char* _path, Image* img_)
 {
 	PLR_ASSERT(_path != 0);
 	PLR_ASSERT(img_ != 0);
@@ -792,7 +792,7 @@ ReadDds_End:
 	return ret;
 }
 
-Image::ErrorState Image::WriteDds(const char* _path, const Image* _img)
+Image::ErrorState Image::SaveDds(const char* _path, const Image* _img)
 {
 	PLR_ASSERT(_path != 0);
 	PLR_ASSERT(_img != 0);

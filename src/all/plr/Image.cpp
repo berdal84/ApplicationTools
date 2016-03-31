@@ -8,16 +8,10 @@
 #include <plr/def.h>
 #include <plr/log.h>
 
+#include <cmath>
 #include <cstring>
 
 using namespace plr;
-
-#define STB_IMAGE_STATIC
-#define STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_STATIC
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include <plr/extern/stb_image.h>
-#include <plr/extern/stb_image_write.h>
 
 template <typename tSrc, typename tDst>
 static tDst Convert(tSrc _src) { return tDst(_src); }
@@ -155,33 +149,30 @@ void Image::Destroy(Image*& _img_)
 	}
 }
 
-Image* Image::Load(const char* _path, FileFormat _format)
+Image::ErrorState Image::Load(Image* img_, const char* _path, FileFormat _format)
 {
-	Image* ret = new Image;
-	PLR_ASSERT(ret);
-	ret->init();
+	ErrorState ret = ErrorState::kOk;
+	img_->init();
 
 	if (_format == FileFormat::kInvalid) {
 		_format = GuessFormat(_path);
 		if (_format == FileFormat::kInvalid) {
-			ret->m_errorState = ErrorState::kFileFormatUnsupported;
+			ret = ErrorState::kFileFormatUnsupported;
 			goto Image_Load_end;
 		}
 	}
 
 	switch (_format) {
-	case FileFormat::kDds:
-		ret->m_errorState = ReadDds(_path, ret);
-		break;
-	case FileFormat::kPng:
-		break;
-	case FileFormat::kTga:
-		break;
+		case FileFormat::kDds: ret = LoadDds(_path, img_); break;
+		case FileFormat::kPng:
+		case FileFormat::kTga: ret = LoadDefault(_path, img_); break;
+		default: ret= ErrorState::kFileFormatUnsupported; goto Image_Load_end;
 	};
 
 Image_Load_end:
-	if (ret->getErrorState() != ErrorState::kOk) {
-		PLR_LOG_ERR("Error loading '%s':\n\t%s", _path, GetErrorString(ret->getErrorState()));
+	if (ret != ErrorState::kOk) {
+		PLR_LOG_ERR("Error loading '%s':\n\t%s", _path, GetErrorString(ret));
+		PLR_ASSERT(false);
 	}
 	return ret;
 }
@@ -207,22 +198,10 @@ Image::ErrorState Image::Save(Image* _img, const char* _path, FileFormat _format
 	}
 
 	switch (_format) {
-	case FileFormat::kDds:
-		ret = WriteDds(_path, _img);
-		break;
-	case FileFormat::kPng:
-		if (!stbi_write_png(_path, (int)_img->m_width, (int)_img->m_height, (int)GetComponentCount(_img->m_layout), _img->m_data, 0)) {
-			ret = ErrorState::kFileIoError;
-		}
-		break;
-	case FileFormat::kTga:
-		if (!stbi_write_tga(_path, (int)_img->m_width, (int)_img->m_height, (int)GetComponentCount(_img->m_layout), _img->m_data)) {
-			ret = ErrorState::kFileIoError;
-		}
-		break;
-	default:
-		ret = ErrorState::kFileFormatUnsupported;
-		goto Image_Save_end;
+		case FileFormat::kDds: ret = SaveDds(_path, _img); break;
+		case FileFormat::kPng: ret = SavePng(_path, _img); break;
+		case FileFormat::kTga: ret = SaveTga(_path, _img); break;
+		default: ret = ErrorState::kFileFormatUnsupported; goto Image_Save_end;
 	};
 
 Image_Save_end:
@@ -318,12 +297,6 @@ void Image::setRawImage(uint _array, uint _mip, const void* _src, Layout _layout
 
 // PRIVATE
 
-Image::Image()
-	: m_data(0)
-{
-	init();
-}
-
 Image::~Image()
 {
 	if (m_data) {
@@ -340,8 +313,7 @@ void Image::init()
 	m_compression = CompressionType::kNone;
 	m_layout = Layout::kInvalid;
 	m_dataType = DataType::kInvalid;
-	m_errorState = ErrorState::kOk;
-
+	
 	char* m_data = 0;
 	memset(m_mipOffsets, 0u, sizeof(uint) * kMaxMipmapCount);
 	memset(m_mipSizes, 0u, sizeof(uint) * kMaxMipmapCount);
@@ -372,31 +344,31 @@ void Image::alloc()
 
 	m_data = new char[m_arrayLayerSize * m_arrayCount];
 	PLR_ASSERT(m_data);
-	if (!m_data) {
-		m_errorState = ErrorState::kBadAlloc;
-	}
+	//if (!m_data) {
+	//	m_errorState = ErrorState::kBadAlloc;
+	//}
 }
 
 bool Image::validateFileFormat(FileFormat _format) const
 {
 	switch (_format) {
-	case FileFormat::kDds:
-		if (m_type == Type::k3dArray) return false;
-		return true;
-		break;
-	case FileFormat::kPng:
-		if (m_compression != CompressionType::kNone) return false;
-		if (IsDataTypeFloat(m_dataType))  return false;
-		if (IsDataTypeSigned(m_dataType)) return false;
-		if (IsDataTypeBpc(m_dataType, 16) || IsDataTypeBpc(m_dataType, 32)) return false;
-	case FileFormat::kTga:
-		if (m_compression != CompressionType::kNone) return false;
-		if (IsDataTypeFloat(m_dataType))  return false;
-		if (IsDataTypeSigned(m_dataType)) return false;
-		if (IsDataTypeBpc(m_dataType, 16) || IsDataTypeBpc(m_dataType, 32)) return false;
-		break;
-	default:
-		break;
+		case FileFormat::kDds:
+			if (m_type == Type::k3dArray) return false;
+			return true;
+			break;
+		case FileFormat::kPng:
+			if (m_compression != CompressionType::kNone) return false;
+			if (IsDataTypeFloat(m_dataType))  return false;
+			if (IsDataTypeSigned(m_dataType)) return false;
+			if (IsDataTypeBpc(m_dataType, 16) || IsDataTypeBpc(m_dataType, 32)) return false;
+		case FileFormat::kTga:
+			if (m_compression != CompressionType::kNone) return false;
+			if (IsDataTypeFloat(m_dataType))  return false;
+			if (IsDataTypeSigned(m_dataType)) return false;
+			if (IsDataTypeBpc(m_dataType, 16) || IsDataTypeBpc(m_dataType, 32)) return false;
+			break;
+		default:
+			break;
 	};
 
 	return true;
@@ -405,33 +377,43 @@ bool Image::validateFileFormat(FileFormat _format) const
 uint Image::GetDataTypeSize(DataType _type)
 {
 	switch (_type) {
-	case DataType::kUint8:
-	case DataType::kSint8:   return 1;
-	
-	case DataType::kUint16:
-	case DataType::kSint16:  return 2;
-	
-	case DataType::kUint32:
-	case DataType::kSint32:
-	case DataType::kFloat32: return 4;
-	
-	case DataType::kInvalid:
-	default:                return 0;
+		case DataType::kUint8:
+		case DataType::kSint8:   return 1;
+		
+		case DataType::kUint16:
+		case DataType::kSint16:  return 2;
+		
+		case DataType::kUint32:
+		case DataType::kSint32:
+		case DataType::kFloat32: return 4;
+		
+		case DataType::kInvalid:
+		default:                 return 0;
 	};
 }
 
 uint Image::GetComponentCount(Layout _layout)
 {
 	switch (_layout) {
-	case Layout::kR:         return 1;
-	case Layout::kRG:        return 2;
-	case Layout::kRGB:       return 3;
-	case Layout::kRGBA:      return 4;
-	case Layout::kInvalid:
-	default:                return 0;
+		case Layout::kR:         return 1;
+		case Layout::kRG:        return 2;
+		case Layout::kRGB:       return 3;
+		case Layout::kRGBA:      return 4;
+		case Layout::kInvalid:
+		default:                 return 0;
 	};
 }
 
+Image::Layout Image::GuessLayout(uint _cmpCount)
+{
+	switch (_cmpCount) {
+		case 1:  return Layout::kR;
+		case 2:  return Layout::kRG;
+		case 3:  return Layout::kRGB;
+		case 4:  return Layout::kRGBA;
+		default: return Layout::kInvalid;
+	};
+}
 
 static char lowercase(char c)
 {
@@ -481,18 +463,73 @@ bool Image::IsDataTypeSigned(DataType _type)
 bool Image::IsDataTypeBpc(DataType _type, int _bpc)
 {
 	switch (_type) {
-	case DataType::kUint8:
-	case DataType::kSint8:
-		return _bpc == 8;
-	case DataType::kUint16:
-	case DataType::kSint16:
-		return _bpc == 16;
-	case DataType::kUint32:
-	case DataType::kSint32:
-	case DataType::kFloat32:
-		return _bpc == 32;
-	default:
-		break;
+		case DataType::kUint8:
+		case DataType::kSint8:
+			return _bpc == 8;
+		case DataType::kUint16:
+		case DataType::kSint16:
+			return _bpc == 16;
+		case DataType::kUint32:
+		case DataType::kSint32:
+		case DataType::kFloat32:
+			return _bpc == 32;
+		default:
+			break;
 	}
 	return false;
+}
+
+#define STB_IMAGE_STATIC
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_NO_PIC
+#define STBI_ONLY_JPEG
+#define STBI_ONLY_PNG
+#define STBI_ONLY_BMP
+#define STBI_ONLY_PSD
+#define STBI_ONLY_TGA
+#define STBI_ONLY_GIF
+#define STBI_ONLY_HDR
+#define STBI_FAILURE_USERMSG
+#define STBI_ASSERT(x) PLR_ASSERT(x)
+#include <plr/extern/stb_image.h>
+#define STB_IMAGE_WRITE_STATIC
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#define STBIW_ASSERT(x) PLR_ASSERT(x)
+#include <plr/extern/stb_image_write.h>
+
+Image::ErrorState Image::LoadDefault(const char* _path, Image* img_)
+{
+	int x, y, cmp;
+	unsigned char* d = stbi_load(_path, &x, &y, &cmp, 0);
+	if (!d) {
+		PLR_LOG_ERR("stbi_load_from_memory() failed '%s'", stbi_failure_reason());
+		return ErrorState::kFileIoError;
+	}
+	img_->m_width       = x;
+	img_->m_height      = y;
+	img_->m_depth       = img_->m_arrayCount = img_->m_mipmapCount = 1u;
+	img_->m_type        = Type::k2d;
+	img_->m_layout      = GuessLayout((uint)cmp);
+	img_->m_dataType    = DataType::kUint8;
+	img_->m_compression = CompressionType::kNone;
+	img_->alloc();
+	memcpy(img_->m_data, d, x * y * cmp); // \todo, avoid this
+	stbi_image_free(img_);
+	return ErrorState::kOk;
+}
+Image::ErrorState Image::SavePng(const char* _path, const Image* _img)
+{
+	if (!stbi_write_png(_path, (int)_img->m_width, (int)_img->m_height, (int)GetComponentCount(_img->m_layout), _img->m_data, 0)) {
+		PLR_LOG_ERR("stbi_write_png() failed");
+		return ErrorState::kFileIoError;
+	}
+	return ErrorState::kOk;
+}
+Image::ErrorState Image::SaveTga(const char* _path, const Image* _img)
+{
+	if (!stbi_write_tga(_path, (int)_img->m_width, (int)_img->m_height, (int)GetComponentCount(_img->m_layout), _img->m_data)) {
+		PLR_LOG_ERR("stbi_write_tga() failed");
+		return ErrorState::kFileIoError;
+	}
+	return ErrorState::kOk;
 }
