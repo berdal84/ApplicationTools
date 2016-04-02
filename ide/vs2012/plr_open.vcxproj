@@ -14,6 +14,7 @@
     <ClCompile Include="..\..\src\all\plr\ArgList.cpp" />
     <ClCompile Include="..\..\src\all\plr\def.cpp" />
     <ClCompile Include="..\..\src\all\plr\extern\dds.cpp" />
+    <ClCompile Include="..\..\src\all\plr\FileBase.cpp" />
     <ClCompile Include="..\..\src\all\plr\FilePath.cpp" />
     <ClCompile Include="..\..\src\all\plr\hash.cpp" />
     <ClCompile Include="..\..\src\all\plr\Image.cpp" />
@@ -22,14 +23,17 @@
     <ClCompile Include="..\..\src\all\plr\memory.cpp" />
     <ClCompile Include="..\..\src\all\plr\StringHash.cpp" />
     <ClCompile Include="..\..\src\all\plr\TextParser.cpp" />
+    <ClCompile Include="..\..\src\win\plr\FileImpl.cpp" />
     <ClCompile Include="..\..\src\win\plr\platform.cpp" />
-    <ClCompile Include="..\..\src\win\plr\Time.cpp" />
+    <ClCompile Include="..\..\src\win\plr\TimeImpl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\all\plr\ArgList.h" />
     <ClInclude Include="..\..\src\all\plr\def.h" />
     <ClInclude Include="..\..\src\all\plr\extern\stb_image.h" />
     <ClInclude Include="..\..\src\all\plr\extern\stb_image_write.h" />
+    <ClInclude Include="..\..\src\all\plr\File.h" />
+    <ClInclude Include="..\..\src\all\plr\FileBase.h" />
     <ClInclude Include="..\..\src\all\plr\FilePath.h" />
     <ClInclude Include="..\..\src\all\plr\hash.h" />
     <ClInclude Include="..\..\src\all\plr\Image.h" />
@@ -40,6 +44,7 @@
     <ClInclude Include="..\..\src\all\plr\StringHash.h" />
     <ClInclude Include="..\..\src\all\plr\TextParser.h" />
     <ClInclude Include="..\..\src\all\plr\Time.h" />
+    <ClInclude Include="..\..\src\win\plr\FileImpl.h" />
     <ClInclude Include="..\..\src\win\plr\platform.h" />
     <ClInclude Include="..\..\src\win\plr\win.h" />
   </ItemGroup>
