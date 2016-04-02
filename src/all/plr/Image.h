@@ -19,8 +19,6 @@ namespace plr {
 ///   to be clearer (e.g. include "bytes" in the name).
 /// \todo Load*() functions and setRawData() should correctly release the 
 ///   existing image first (or only if the load succeeded).
-/// \todo Implement load-from-memory variant of the load interface, to allow 
-///   interop with external file loading code.
 /// \todo Support loading all stbi formats (jpg, gif, psd, hdr, etc.)
 /// \todo Conversion behaviour between data types is not well define. Need to
 ///   consider how to manage unnormalized floating point data.
@@ -29,15 +27,6 @@ class Image
 {
 public:
 	static const uint kMaxMipmapCount = 32;
-
-	enum class ErrorState
-	{
-		kOk = 0,
-		kFileNotFound,
-		kFileIoError,
-		kFileFormatUnsupported,
-		kBadAlloc
-	};
 
 	enum class Type
 	{
@@ -92,9 +81,16 @@ public:
 
 	enum class FileFormat
 	{
+	 // load + save supported
+		kBmp,
 		kDds,
 		kPng,
 		kTga,
+
+	 // load only
+		kJpg, 
+		kGif,
+		kPsd,
 
 		kInvalid
 	};
@@ -128,26 +124,19 @@ public:
 
 	/// Load from a file specified by _path. If _format is not provided, the format
 	/// is assumed from the extension in _path.
-	/// \return kOk if the operation succeeded, kFileFormatUnsupported if
-	///   requested file format doesn't support the image format, kFileIoError
-	///   if a write error occurred.
-	static ErrorState Load(Image* img_, const char* _path, FileFormat _format = FileFormat::kInvalid);
+	/// \return false if an error occurred, in which case img_ remains unchanged.
+	static bool Load(Image* img_, const char* _path, FileFormat _format = FileFormat::kInvalid);
 
 	/// Save _img to the file specified by _path. The file format is specified by
 	/// _format. Mipmaps, array layers, cubemap faces and 3d slices will be saved as 
 	/// separate files if the format doesn't support them. In this case the filename
 	/// will be appended with "layer_mip", e.g. "img001_03". If _format is not 
 	/// provided, the format is assumed from the extension in _path.
-	/// \return kOk if the operation succeeded, kFileFormatUnsupported if
-	///   requested file format doesn't support the image format, kFileIoError
-	///   if a write error occurred.
-	static ErrorState Save(Image* _img, const char* _path, FileFormat _format = FileFormat::kInvalid);
+	/// \return false if an error occurred.
+	//static bool Save(Image* _img, const char* _path, FileFormat _format = FileFormat::kInvalid);
 
 	/// \return The maximum number of mips for an image.
 	static uint GetMaxMipmapSize(uint _width, uint _height, uint _depth = 1u);
-
-	/// \return String version of an error state.
-	static const char* GetErrorString(ErrorState _err);
 
 	/// Default ctor, initializes metadata but doesn't allocate any memory.
 	Image(): m_data(0)                           { init(); }
@@ -205,7 +194,7 @@ private:
 	uint m_mipSizes[kMaxMipmapCount];    //< Data size (bytes) per mipmap level.
 
 	/// \return true if the file format supports the image layout, data type 
-	///   and compression
+	///   and compression (non-savable file formats will always return false).
 	bool validateFileFormat(FileFormat _format) const;
 
 	/// \return Size (bytes) of the data type.
@@ -227,12 +216,12 @@ private:
 
 
 	// extern/dds.cpp
-	static ErrorState LoadDds(const char* _path, Image* img_);
-	static ErrorState SaveDds(const char* _path, const Image* _img);
+	static bool LoadDds(Image* img_, const char* _data, uint _dataSize);
+	//static bool SaveDds(const char* _path, const Image* _img);
 	// Image.cpp
-	static ErrorState LoadDefault(const char* _path, Image* img_);
-	static ErrorState SavePng(const char* _path, const Image* _img);
-	static ErrorState SaveTga(const char* _path, const Image* _img);
+	static bool LoadDefault(Image* img_, const char* _data, uint _dataSize);
+	//static bool SavePng(const char* _path, const Image* _img);
+	//static bool SaveTga(const char* _path, const Image* _img);
 
 }; // class Image
 

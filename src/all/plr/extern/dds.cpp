@@ -404,78 +404,12 @@ typedef struct
 /*******************************************************************************/
 
 #include <plr/def.h>
+#include <plr/log.h>
 #include <plr/Image.h>
 
 #include <algorithm>
-#include <fstream>
 
 using namespace plr;
-
-/// Read _path into memory (buf_ is allocated, call delete[] when done!)
-static Image::ErrorState ReadFileBuf(const char* _path, char*& buf_, unsigned long& bufSize_)
-{
-	PLR_ASSERT(_path != 0);
-	PLR_ASSERT(buf_ == 0);
-
-	Image::ErrorState ret = Image::ErrorState::kOk;
-
-	std::ifstream fin;
-	fin.open(_path, std::ios::in | std::ios::binary);
-	if (!fin.is_open()) {
-		return Image::ErrorState::kFileNotFound;
-	}
-	std::streampos fsize = 0;
-	fin.seekg(0, std::ios::end);
-	fsize = fin.tellg();
-	fin.seekg(0, std::ios::beg); // rewind for reading
-	bufSize_ = (unsigned long)fsize;
-	if (bufSize_ == 0u) {
-		ret = Image::ErrorState::kFileIoError;
-		goto ReadFileBuf_End;
-	}
-
-	buf_ = new char[bufSize_];
-	if (!buf_) {
-		ret = Image::ErrorState::kBadAlloc;
-		goto ReadFileBuf_End;
-	}
-	fsize = fin.read(buf_, bufSize_).tellg();
-	if (fin.bad() || (unsigned long)fsize != bufSize_) {
-		ret = Image::ErrorState::kFileIoError;
-		delete[] buf_;
-		buf_ = 0;
-		goto ReadFileBuf_End;
-	}
-
-ReadFileBuf_End:
-	fin.close();
-	return ret;
-}
-
-/// Write _bufSize bytes from _buf to _path.
-static Image::ErrorState WriteFileBuf(const char* _path, const char* _buf, uint _bufSize)
-{
-	PLR_ASSERT(_path != 0);
-	PLR_ASSERT(_buf != 0);
-	PLR_ASSERT(_bufSize != 0);
-
-	Image::ErrorState ret = Image::ErrorState::kOk;
-
-	std::ofstream fout;
-	fout.open(_path, std::ios::out | std::ios::binary);
-	if (!fout.is_open()) {
-		return Image::ErrorState::kFileNotFound;
-	}
-	fout.write(_buf, _bufSize);
-	if (fout.bad()) {
-		ret = Image::ErrorState::kFileIoError;
-		goto WriteFileBuf_End;
-	}
-
-WriteFileBuf_End:
-	fout.close();
-	return ret;
-}
 
 static uint GetImageSize(uint _w, uint _h, uint _d, const Image* _img)
 {
@@ -495,30 +429,21 @@ static uint GetImageSize(uint _w, uint _h, uint _d, const Image* _img)
 	return _w * _h * _d * _img->getTexelSize();
 }
 
-Image::ErrorState Image::LoadDds(const char* _path, Image* img_)
+bool Image::LoadDds(Image* img_, const char* _data, uint _dataSize)
 {
-	PLR_ASSERT(_path != 0);
+	PLR_ASSERT(_data != 0);
+	PLR_ASSERT(_dataSize > (sizeof(DWORD) + sizeof(DDS_HEADER)));
 	PLR_ASSERT(img_ != 0);
 
-	Image::ErrorState ret = Image::ErrorState::kOk;
-
- // read file into memory
-	unsigned long buflen;
-	char* buf = 0;
-	ret = ReadFileBuf(_path, buf, buflen);
-	if (ret != Image::ErrorState::kOk) {
-		goto ReadDds_End;
-	}
-
  // validate DDS_MAGIC, get header ptrs
-	if (*(DWORD*)buf != DDS_MAGIC) {
-		ret = Image::ErrorState::kFileFormatUnsupported;
-		goto ReadDds_End;
+	if (*(DWORD*)_data != DDS_MAGIC) {
+		PLR_LOG_ERR("Invalid DDS");
+		return false;
 	}
-	const DDS_HEADER *ddsh = (const DDS_HEADER*)(buf + sizeof(DWORD));
+	const DDS_HEADER *ddsh = (const DDS_HEADER*)(_data + sizeof(DWORD));
 	const DDS_HEADER_DXT10 *dxt10h = 0;
 	if ((ddsh->ddspf.dwFlags & DDS_FOURCC) && (MAKEFOURCC('D','X','1','0') == ddsh->ddspf.dwFourCC)) {
-		dxt10h = (const DDS_HEADER_DXT10*)(buf + sizeof(DWORD) + sizeof(DDS_HEADER));
+		dxt10h = (const DDS_HEADER_DXT10*)(_data + sizeof(DWORD) + sizeof(DDS_HEADER));
 	}
 
  // extract image metadata
@@ -537,9 +462,9 @@ Image::ErrorState Image::LoadDds(const char* _path, Image* img_)
 			case DDS_RESOURCE_DIMENSION_TEXTURE1D: img_->m_type = Image::Type::k1d; break;
 			case DDS_RESOURCE_DIMENSION_TEXTURE2D: img_->m_type = Image::Type::k2d; break;
 			case DDS_RESOURCE_DIMENSION_TEXTURE3D: img_->m_type = Image::Type::k3d; break;
-			case DDS_RESOURCE_DIMENSION_BUFFER:    ret = Image::ErrorState::kFileFormatUnsupported; goto ReadDds_End;
+			case DDS_RESOURCE_DIMENSION_BUFFER:
 			case DDS_RESOURCE_DIMENSION_UNKNOWN:   
-			default:                               ret = Image::ErrorState::kFileFormatUnsupported; goto ReadDds_End;
+			default:                               PLR_LOG_ERR("DDS: Unknown image type"); return false;
 		};
 		if (dxt10h->miscFlag & DDS_RESOURCE_MISC_TEXTURECUBE) {
 			img_->m_type = Image::Type::kCubemap;
@@ -562,7 +487,7 @@ Image::ErrorState Image::LoadDds(const char* _path, Image* img_)
 			case Image::Type::k2d:      img_->m_type = Image::Type::k2dArray; break;
 			case Image::Type::k3d:      img_->m_type = Image::Type::k3dArray; break;
 			case Image::Type::kCubemap: img_->m_type = Image::Type::kCubemapArray; break;
-			default:                   ret = Image::ErrorState::kFileFormatUnsupported; goto ReadDds_End;
+			default:                    PLR_LOG_ERR("DDS: Unknown image type"); return false;
 		};
 	}
 	// layout, data type, compression format
@@ -708,7 +633,7 @@ Image::ErrorState Image::LoadDds(const char* _path, Image* img_)
 			case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
 			case DXGI_FORMAT_B8G8R8X8_TYPELESS:
 			case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:			
-			default: ret = Image::ErrorState::kFileFormatUnsupported; goto ReadDds_End;
+			default: PLR_LOG_ERR("DDS: Unsupported format (dxt10h->dxgiFormat = %d)", dxt10h->dxgiFormat); return false;
 		};
 		if (img_->m_compression != Image::CompressionType::kNone) {
 			img_->m_dataType = Image::DataType::kInvalid;
@@ -725,7 +650,7 @@ Image::ErrorState Image::LoadDds(const char* _path, Image* img_)
 				case MAKEFOURCC('B','C','4','U'): img_->m_layout = Image::Layout::kR;    img_->m_compression = Image::CompressionType::kBC4; break;
 				case MAKEFOURCC('B','C','5','S'):
 				case MAKEFOURCC('B','C','5','U'): img_->m_layout = Image::Layout::kRG;   img_->m_compression = Image::CompressionType::kBC5; break;
-				default: ret = Image::ErrorState::kFileFormatUnsupported; goto ReadDds_End;
+				default: PLR_LOG_ERR("DDS: Unsupported format (ddsh->ddspf.dwFourCC = %d)", ddsh->ddspf.dwFourCC); return false;
 			};
 			img_->m_dataType = Image::DataType::kInvalid;
 		} else {
@@ -766,13 +691,12 @@ Image::ErrorState Image::LoadDds(const char* _path, Image* img_)
 	img_->m_data = new char[img_->m_arrayLayerSize * img_->m_arrayCount];
 	PLR_ASSERT(img_->m_data);
 	if (!img_->m_data) {
-		ret = Image::ErrorState::kBadAlloc;
-		goto ReadDds_End;
+		return false;
 	}
 	unsigned doff = sizeof(DWORD) + sizeof(DDS_HEADER) + (dxt10h ? sizeof(DDS_HEADER_DXT10) : 0);
 	if (img_->m_depth > 1 && img_->m_mipmapCount > 1) {
 	 // 3d textures are stored mip-wise (all slices for mip0 followed by all slices for mip1, etc).
-		char* src = buf + doff + img_->m_mipSizes[0];
+		const char* src = _data + doff + img_->m_mipSizes[0];
 		for (unsigned i = 0; i < img_->m_mipmapCount; ++i) {
 			char* dst = img_->m_data;
 			dst += i > 0 ? img_->m_mipSizes[i - 1] : 0;
@@ -784,15 +708,13 @@ Image::ErrorState Image::LoadDds(const char* _path, Image* img_)
 		}
 	} else {
 	 // non-3d textures are stored slice-wise (all mips for slice0 followed by all mips for slice1, etc).
-		memcpy(img_->m_data, buf + doff, img_->m_arrayLayerSize * img_->m_arrayCount);
+		memcpy(img_->m_data, _data + doff, img_->m_arrayLayerSize * img_->m_arrayCount);
 	}
-	
-ReadDds_End:
-	delete[] buf;
-	return ret;
+
+	return true;
 }
 
-Image::ErrorState Image::SaveDds(const char* _path, const Image* _img)
+/*Image::ErrorState Image::SaveDds(const char* _path, const Image* _img)
 {
 	PLR_ASSERT(_path != 0);
 	PLR_ASSERT(_img != 0);
@@ -944,3 +866,4 @@ WriteDds_End:
 	delete[] buf;
 	return ret;
 }
+*/
