@@ -6,9 +6,8 @@
 #include <plr/IniFile.h>
 
 #include <plr/log.h>
+#include <plr/File.h>
 #include <plr/TextParser.h>
-
-#include <fstream>
 
 using namespace plr;
 
@@ -31,42 +30,16 @@ IniFile::~IniFile()
 	}
 }
 
-IniFile::Error IniFile::load(const char* _path)
+bool IniFile::load(const char* _path)
 {
-	std::ifstream fin;
-	fin.open(_path, std::ios::in | std::ios::binary);
-	if (!fin.is_open()) {
-		return Error::kFileNotFound;
+	File f;
+	if (File::Load(&f, _path)) {
+		return parse(f.getData());
 	}
-
-	Error ret = Error::kOk;
-	char* fdata = 0;
-	fin.seekg(0, std::ios::end);
-	sint flen = fin.tellg();
-	fin.seekg(0, std::ios::beg);
-	
-	if (flen <= 0) {
-		ret = Error::kFileIo;
-		goto IniFile_load_fail;
-	}
-
-	fdata = new char[flen + 1];
-	PLR_ASSERT(fdata);
-	PLR_VERIFY(fin.read(fdata, flen).tellg() == flen);
-	if (fin.bad()) {
-		ret = Error::kFileIo;
-		goto IniFile_load_fail;
-	}
-	fdata[flen] = 0;
-	ret = parse(fdata);
-
-IniFile_load_fail:
-	delete[] fdata;
-	fin.close();
-	return ret;
+	return false;
 }
 
-IniFile::Error IniFile::parse(const char* _str)
+bool IniFile::parse(const char* _str)
 {
 	PLR_ASSERT(_str);
 	
@@ -87,7 +60,7 @@ IniFile::Error IniFile::parse(const char* _str)
 			const char* beg = tp;
 			if (!tp.advanceToNext(']')) {
 				INI_ERROR(tp.getLineCount(beg), "Unterminated section");
-				return Error::kSyntax;
+				return false;
 			}
 			Section s = { StringHash(beg, tp - beg), 0u, m_keys.size() };
 			m_sections.push_back(s);
@@ -95,7 +68,7 @@ IniFile::Error IniFile::parse(const char* _str)
 		} else if (*tp == '=' || *tp == ',') {
 			if (m_keys.empty()) {
 				INI_ERROR(tp.getLineCount(), "Unexpected '=' or ',' no property name was specified");
-				return Error::kSyntax;
+				return false;
 			}
 			Key& k = m_keys.back();
 			ValueType t = k.m_type; // for sanity check below
@@ -114,7 +87,7 @@ IniFile::Error IniFile::parse(const char* _str)
 				const char* beg = tp;
 				if (!tp.advanceToNext('"')) {
 					INI_ERROR(tp.getLineCount(beg), "Unterminated string");
-					return Error::kSyntax;
+					return false;
 				}
 
 				Value v;
@@ -162,25 +135,25 @@ IniFile::Error IniFile::parse(const char* _str)
 
 			} else {
 				INI_ERROR(tp.getLineCount(vbeg), "Invalid value");
-				return Error::kSyntax;
+				return false;
 			}
 
 			if (k.m_count > 0u && k.m_type != t) {
 				INI_ERROR(tp.getLineCount(vbeg), "Invalid array (arrays must be homogeneous)");
-				return Error::kSyntax;
+				return false;
 			}
 			++k.m_count;
 		} else if (!tp.isNull()) {
 		 // new data
 			if (tp.isNum()) {
 				INI_ERROR(tp.getLineCount(), "Property names cannot begin with a number");
-				return Error::kSyntax;
+				return false;
 			}
 
 			const char* beg = tp;
 			if (!tp.advanceToNextNonAlphaNum()) {
 				INI_ERROR(tp.getLineCount(), "Unexpected end of file");
-				return Error::kSyntax;
+				return false;
 			}
 
 			Key k;
@@ -192,7 +165,7 @@ IniFile::Error IniFile::parse(const char* _str)
 			++m_sections.back().m_count;
 		}
 	};
-	return Error::kOk;
+	return true;
 }
 
 IniFile::Property IniFile::getProperty(const char* _key, const char* _section)

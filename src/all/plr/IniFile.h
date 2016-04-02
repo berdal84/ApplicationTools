@@ -39,14 +39,6 @@ class IniFile
 {
 public:
 
-	enum class Error
-	{
-		kOk = 0,
-		kFileNotFound,
-		kFileIo,
-		kSyntax
-	};
-
 	enum class ValueType
 	{
 		kBool, kInt, kDouble, kString
@@ -90,9 +82,8 @@ public:
 	/// Load and parse the file specified by _path. This can be called multiple 
 	/// times to accumulate properties from several files. This invalidates any
 	/// existing Property instances returned by getProperty().
-	/// \return Error state. If kErrorSyntax, an error message will be printed via
-	///   PLR_LOG_ERR().
-	Error load(const char* _path);
+	/// \return false if an error occurred.
+	bool load(const char* _path);
 	
 	/// Retrieve a named property, optionally specifying the section to search.
 	/// Note that the returned Property instance is only valid during the lifetime
@@ -122,7 +113,7 @@ private:
 	std::vector<Key>     m_keys;
 	std::vector<Value>   m_values;
 
-	Error parse(const char* _str);
+	bool parse(const char* _str);
 
 }; // class IniFile
 
