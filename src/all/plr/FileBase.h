@@ -8,7 +8,6 @@
 #endif
 
 #include <plr/def.h>
-#include <plr/FilePath.h>
 
 namespace plr { namespace internal {
 
@@ -19,24 +18,22 @@ namespace plr { namespace internal {
 ////////////////////////////////////////////////////////////////////////////////
 class FileBase
 {
-public:
-	const char* getPath() const       { return m_path; }
-	const char* getData() const       { return m_data; }
-	char* getData()                   { return m_data; }
-	uint getDataSize() const          { return m_dataSize; }
-
-	void setPath(const char* _path);
-	void setData(const char* _data, uint _size);
-
 protected:
 	FileBase();
 	~FileBase();
 
+	const char* getPath() const       { return m_path; }
+	const char* getData() const       { return m_data; }
+	char* getData()                   { return m_data; }
+	uint64 getDataSize() const        { return m_dataSize; }
+
+	void setPath(const char* _path);
+	void setData(const char* _data, uint64 _size);
 	void swap(FileBase& _file_);
 
-	char  m_path[PLR_MAX_PATH_LENGTH];
+	char* m_path;
 	char* m_data;
-	uint  m_dataSize;
+	uint64 m_dataSize;
 
 }; // class FileBase
 

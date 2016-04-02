@@ -15,10 +15,20 @@ using namespace internal;
 
 void FileBase::setPath(const char* _path)
 {
+	size_t newlen = strlen(_path);
+	if (m_path) {
+		size_t oldlen = strlen(m_path);
+		if (newlen > oldlen) {
+			delete[] m_path;
+			m_path = new char[newlen + 1];
+		}
+	} else {
+		m_path = new char[newlen + 1];
+	}	
 	strcpy(m_path, _path);
 }
 
-void FileBase::setData(const char* _data, uint _size)
+void FileBase::setData(const char* _data, uint64 _size)
 {
 	PLR_ASSERT(_data);
 	PLR_ASSERT(_size > 0);
@@ -36,14 +46,17 @@ void FileBase::setData(const char* _data, uint _size)
 // PROTECTED
 
 FileBase::FileBase()
-	: m_data(0)
+	: m_path(0)
+	, m_data(0)
 	, m_dataSize(0u)
 {
-	memset(m_path, 0, PLR_ARRAY_LENGTH(m_path));
 }
 
 FileBase::~FileBase()
 {
+	if (m_path) {
+		delete[] m_path;
+	}
 	if (m_data) {
 		delete[] m_data;
 	}
