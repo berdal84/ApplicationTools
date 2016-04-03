@@ -68,7 +68,7 @@ void TestIniFile()
 {
 	PLR_TIME_DBG("TestIniFile()");
 	IniFile ini;
-	PLR_VERIFY(ini.load("test.ini") == IniFile::Error::kOk);
+	PLR_VERIFY(ini.load("test.ini"));
 	
 	CheckTestIniProperties(ini);
 	CheckTestIniProperties(ini, "section0");
