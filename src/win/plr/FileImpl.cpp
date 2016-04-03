@@ -51,6 +51,7 @@ bool FileImpl::Load(FileImpl* file_, const char* _path)
 
 	bool ret = false;
 	const char* err = "";
+	char* data = 0;
 
  	HANDLE h = CreateFile(
 		_path,
@@ -73,7 +74,7 @@ bool FileImpl::Load(FileImpl* file_, const char* _path)
 	}
 	DWORD dataSize = (DWORD)li.QuadPart; // ReadFile can only read DWORD bytes
 
-	char* data = new char[dataSize + 2]; // +2 for null terminator
+	data = new char[dataSize + 2]; // +2 for null terminator
 	PLR_ASSERT(data);
 	if (!ReadFile(h, data, dataSize, 0, 0)) {
 		err = GetPlatformErrorString(GetLastError());
