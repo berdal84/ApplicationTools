@@ -77,7 +77,7 @@
 #define PLR_TOKEN_CONCATENATE(_t0, _t1)  PLR_TOKEN_CONCATENATE_(_t0, _t1)
 #define PLR_UNIQUE_NAME(_base) PLR_TOKEN_CONCATENATE(_base, __COUNTER__)
 
-#define PLR_ARRAY_LENGTH(_arr) plr::internal::ArrayLength(_arr)
+#define PLR_ARRAY_COUNT(_arr) plr::internal::ArrayCount(_arr)
 
 #define PLR_MIN(a, b) plr::internal::Min(a, b)
 #define PLR_MAX(a, b) plr::internal::Max(a, b)
@@ -135,8 +135,8 @@ namespace plr { namespace internal {
 AssertBehavior AssertAndCallback(const char* e, const char* file, int line, const char* msg, ...);
 const char* StripPath(const char* path);
 
-template <typename tType, unsigned kSize>
-inline unsigned ArrayLength(const tType (&)[kSize]) { return kSize; }
+template <typename tType, unsigned kCount>
+inline unsigned ArrayCount(const tType (&)[kCount]) { return kCount; }
 
 template <typename tType>
 inline tType Min(tType a, tType b) { return a < b ? a : b; }
