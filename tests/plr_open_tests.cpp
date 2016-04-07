@@ -5,9 +5,12 @@
 
 #include <new>
 
+#include <plr/IniFile.h>
+#include <plr/File.h>
+#include <plr/Image.h>
+
 using namespace plr;
 
-#include <plr/IniFile.h>
 #include <cstring> // strcmp
 void CheckTestIniProperties(IniFile& _ini, const char* _section = 0)
 {
@@ -68,7 +71,7 @@ void TestIniFile()
 {
 	PLR_TIME_DBG("TestIniFile()");
 	IniFile ini;
-	PLR_VERIFY(ini.load("test.ini") == IniFile::Error::kOk);
+	PLR_VERIFY(ini.load("test.ini"));
 	
 	CheckTestIniProperties(ini);
 	CheckTestIniProperties(ini, "section0");

@@ -280,7 +280,7 @@ void Image::setRawImage(uint _array, uint _mip, const void* _src, Layout _layout
 		case DataType::kUint16:  CONVERT_FROM(kUint16); break;
 		case DataType::kUint32:  CONVERT_FROM(kUint32); break;
 		case DataType::kFloat32: CONVERT_FROM(kFloat32); break;
-		default: PLR_ASSERT(false);
+		default: PLR_ASSERT_MSG(false, "Unknown data type");
 	};
 	#undef CONVERT_FROM
 }

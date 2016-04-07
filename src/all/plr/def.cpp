@@ -27,7 +27,7 @@ plr::AssertCallback* plr::GetAssertCallback() {
 
 plr::AssertBehavior plr::DefaultAssertCallback(const char* e, const char* msg, const char* file, int line) 
 {
-	PLR_LOG_ERR("PLR_ASSERT (\"%s\", line %d)\n\t'%s' %s", file, line, e ? e : "", msg ? msg : "");
+	PLR_LOG_ERR("PLR_ASSERT (%s, line %d)\n\t'%s' %s", file, line, e ? e : "", msg ? msg : "");
 	return AssertBehavior::kBreak;
 }
 

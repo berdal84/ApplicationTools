@@ -20,7 +20,7 @@ namespace plr {
 ///    {
 ///    protected: // must be either protected or public
 ///       void Init();
-///       void Shutdown;
+///       void Shutdown();
 ///    };
 ///    PLR_DECLARE_STATIC_INIT(MonoState);
 ///
