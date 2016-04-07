@@ -46,7 +46,7 @@ public:
 	/// Init from command line arguments.
 	ArgList(int _argc, char* _argv[]);
 
-	uint getArgCount()                   { return (uint)m_args.size(); }
+	uint getArgCount() const             { return (uint)m_args.size(); }
 	const Arg& getArg(uint i)            { PLR_ASSERT(i < m_args.size()); return m_args[i]; }
 	const Arg& operator[](uint i) const  { PLR_ASSERT(i < m_args.size()); return m_args[i]; }
 
