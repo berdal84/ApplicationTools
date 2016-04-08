@@ -176,6 +176,8 @@ inline tType Max(tType a, tType b) { return a > b ? a : b; }
 
 #define PLR_STATIC_ASSERT(e) { (void)sizeof(char[(e) ? 1 : -1]); }
 
+namespace plr {
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \class non_copyable
 /// Mixin class, forces a derived class to be non-copyable.
@@ -209,5 +211,7 @@ class non_instantiable: private non_copyable<tType>
 private:
 	non_instantiable();
 };
+
+} // namespace plr
 
 #endif // plr_def_h
