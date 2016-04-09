@@ -11,7 +11,7 @@ const char* plr::GetPlatformErrorString(unsigned int _err)
 {
 	const unsigned kMessageMax = 1024;
 	PLR_THREAD_LOCAL static char buf[kMessageMax];
-	buf[0] = 0; // effectively clear the buffer
+	buf[0] = 0;
 	PLR_VERIFY(
 		FormatMessage(
 			FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, 
