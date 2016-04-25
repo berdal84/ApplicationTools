@@ -17,11 +17,11 @@ namespace plr {
 ///   only, then alloc() on the first call to set data/load?
 /// \todo Clean the *Size functions, add descriptive comments and/or rename them
 ///   to be clearer (e.g. include "bytes" in the name).
-/// \todo Load*() functions and setRawData() should correctly release the 
+/// \todo Read*() functions and setRawData() should correctly release the 
 ///   existing image first (or only if the load succeeded).
-/// \todo Support loading all stbi formats (jpg, gif, psd, hdr, etc.)
 /// \todo Conversion behaviour between data types is not well define. Need to
 ///   consider how to manage unnormalized floating point data.
+/// \todo Use File API for stbi_write
 ////////////////////////////////////////////////////////////////////////////////
 class Image
 {
@@ -122,18 +122,18 @@ public:
 	/// Release memory, _image_ is set to 0.
 	static void Destroy(Image*& _image_);
 
-	/// Load from a file specified by _path. If _format is not provided, the format
+	/// Read from a file specified by _path. If _format is not provided, the format
 	/// is assumed from the extension in _path.
 	/// \return false if an error occurred, in which case img_ remains unchanged.
-	static bool Load(Image* img_, const char* _path, FileFormat _format = FileFormat::kInvalid);
+	static bool Read(Image* img_, const char* _path, FileFormat _format = FileFormat::kInvalid);
 
-	/// Save _img to the file specified by _path. The file format is specified by
+	/// Write _img to the file specified by _path. The file format is specified by
 	/// _format. Mipmaps, array layers, cubemap faces and 3d slices will be saved as 
 	/// separate files if the format doesn't support them. In this case the filename
 	/// will be appended with "layer_mip", e.g. "img001_03". If _format is not 
 	/// provided, the format is assumed from the extension in _path.
 	/// \return false if an error occurred.
-	//static bool Save(Image* _img, const char* _path, FileFormat _format = FileFormat::kInvalid);
+	static bool Write(Image* _img, const char* _path, FileFormat _format = FileFormat::kInvalid);
 
 	/// \return The maximum number of mips for an image.
 	static uint GetMaxMipmapSize(uint _width, uint _height, uint _depth = 1u);
@@ -216,12 +216,13 @@ private:
 
 
 	// extern/dds.cpp
-	static bool LoadDds(Image* img_, const char* _data, uint _dataSize);
-	//static bool SaveDds(const char* _path, const Image* _img);
+	static bool ReadDds(Image* img_, const char* _data, uint _dataSize);
+	static bool WriteDds(const char* _path, const Image* _img);
 	// Image.cpp
-	static bool LoadDefault(Image* img_, const char* _data, uint _dataSize);
-	//static bool SavePng(const char* _path, const Image* _img);
-	//static bool SaveTga(const char* _path, const Image* _img);
+	static bool ReadDefault(Image* img_, const char* _data, uint _dataSize);
+	static bool WriteBmp(const char* _path, const Image* _img);
+	static bool WritePng(const char* _path, const Image* _img);
+	static bool WriteTga(const char* _path, const Image* _img);
 
 }; // class Image
 

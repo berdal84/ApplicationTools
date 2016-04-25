@@ -150,7 +150,7 @@ void Image::Destroy(Image*& _img_)
 	}
 }
 
-bool Image::Load(Image* img_, const char* _path, FileFormat _format)
+bool Image::Read(Image* img_, const char* _path, FileFormat _format)
 {
 
 	if (_format == FileFormat::kInvalid) {
@@ -161,58 +161,60 @@ bool Image::Load(Image* img_, const char* _path, FileFormat _format)
 	}
 
 	File f;
-	if (!File::Load(&f, _path)) {
+	if (!File::Read(&f, _path)) {
 		return false;
 	}
 
 	img_->init(); // \todo don't affect the image before loading succeeded
 	switch (_format) {
-		case FileFormat::kDds: return LoadDds(img_, f.getData(), f.getDataSize());
+		case FileFormat::kDds: return ReadDds(img_, f.getData(), f.getDataSize());
 		case FileFormat::kBmp:
 		case FileFormat::kGif:
 		case FileFormat::kJpg:
 		case FileFormat::kPng:
 		case FileFormat::kPsd:
-		case FileFormat::kTga: return LoadDefault(img_, f.getData(), f.getDataSize());
+		case FileFormat::kTga: return ReadDefault(img_, f.getData(), f.getDataSize());
 		default: return false;
 	};
 
 	return true;
 }
 
-/*bool Image::Save(Image* _img, const char* _path, FileFormat _format)
+bool Image::Write(Image* _img, const char* _path, FileFormat _format)
 {
 	PLR_ASSERT(_img);
 	PLR_ASSERT(_path);
 
-	ErrorState ret = ErrorState::kOk;
+	bool ret = false;
 
 	if (_format == FileFormat::kInvalid) {
 		_format = GuessFormat(_path);
 		if (_format == FileFormat::kInvalid) {
-			ret = ErrorState::kFileFormatUnsupported;
+			PLR_ASSERT(false);
 			goto Image_Save_end;
 		}
 	}
 
 	if (!_img->validateFileFormat(_format)) {
-		ret = ErrorState::kFileFormatUnsupported;
+		PLR_ASSERT(false);
 		goto Image_Save_end;
 	}
 
 	switch (_format) {
-		case FileFormat::kDds: ret = SaveDds(_path, _img); break;
-		case FileFormat::kPng: ret = SavePng(_path, _img); break;
-		case FileFormat::kTga: ret = SaveTga(_path, _img); break;
-		default: ret = ErrorState::kFileFormatUnsupported; goto Image_Save_end;
+		case FileFormat::kBmp: ret = WriteBmp(_path, _img); break;
+		case FileFormat::kDds: ret = WriteDds(_path, _img); break;
+		case FileFormat::kPng: ret = WritePng(_path, _img); break;
+		case FileFormat::kTga: ret = WriteTga(_path, _img); break;
+		default: PLR_ASSERT(false); goto Image_Save_end;
 	};
 
+	ret = true;
+
 Image_Save_end:
-	if (ret != ErrorState::kOk) {
-		PLR_LOG_ERR("Error saving to '%s':\n\t%s", _path, GetErrorString(ret));
+	if (!ret) {
 	}
 	return ret;
-}*/
+}
 
 uint Image::GetMaxMipmapSize(uint _width, uint _height, uint _depth)
 {
@@ -495,12 +497,13 @@ bool Image::IsDataTypeBpc(DataType _type, int _bpc)
 #define STBI_FAILURE_USERMSG
 #define STBI_ASSERT(x) PLR_ASSERT(x)
 #include <plr/extern/stb_image.h>
+
 #define STB_IMAGE_WRITE_STATIC
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define STBIW_ASSERT(x) PLR_ASSERT(x)
 #include <plr/extern/stb_image_write.h>
 
-bool Image::LoadDefault(Image* img_, const char* _data, uint _dataSize)
+bool Image::ReadDefault(Image* img_, const char* _data, uint _dataSize)
 {
 	int x, y, cmp;
 	unsigned char* d = stbi_load_from_memory((unsigned char*)_data, (int)_dataSize, &x, &y, &cmp, 0);
@@ -520,7 +523,15 @@ bool Image::LoadDefault(Image* img_, const char* _data, uint _dataSize)
 	stbi_image_free(img_);
 	return true;
 }
-/*bool Image::SavePng(const char* _path, const Image* _img)
+bool Image::WriteBmp(const char* _path, const Image* _img)
+{
+	if (!stbi_write_bmp(_path, (int)_img->m_width, (int)_img->m_height, (int)GetComponentCount(_img->m_layout), _img->m_data)) {
+		PLR_LOG_ERR("stbi_write_bmp() failed");
+		return false;
+	}
+	return true;
+}
+bool Image::WritePng(const char* _path, const Image* _img)
 {
 	if (!stbi_write_png(_path, (int)_img->m_width, (int)_img->m_height, (int)GetComponentCount(_img->m_layout), _img->m_data, 0)) {
 		PLR_LOG_ERR("stbi_write_png() failed");
@@ -528,11 +539,11 @@ bool Image::LoadDefault(Image* img_, const char* _data, uint _dataSize)
 	}
 	return true;
 }
-bool Image::SaveTga(const char* _path, const Image* _img)
+bool Image::WriteTga(const char* _path, const Image* _img)
 {
 	if (!stbi_write_tga(_path, (int)_img->m_width, (int)_img->m_height, (int)GetComponentCount(_img->m_layout), _img->m_data)) {
 		PLR_LOG_ERR("stbi_write_tga() failed");
 		return false;
 	}
 	return true;
-}*/
+}
