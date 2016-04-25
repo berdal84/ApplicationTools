@@ -33,7 +33,7 @@ IniFile::~IniFile()
 bool IniFile::load(const char* _path)
 {
 	File f;
-	if (File::Load(&f, _path)) {
+	if (File::Read(&f, _path)) {
 		return parse(f.getData());
 	}
 	return false;
