@@ -492,21 +492,18 @@ bool Image::ReadDds(Image* img_, const char* _data, uint _dataSize)
 		};
 	}
 	// layout, data type, compression format
-	Image::Layout&  layout = img_->m_layout;
-	Image::DataType& dataType = img_->m_dataType;
-	Image::CompressionType compType = img_->m_compression;
 	if (dxt10h != 0) {
 		switch (DXGI_INFO[dxt10h->dxgiFormat].dataType) {
 			case DATA_TYPE_FLOAT:
-				dataType = Image::DataType::kFloat32;
+				img_->m_dataType = Image::DataType::kFloat32;
 				break;
 			case DATA_TYPE_SINT:
 			case DATA_TYPE_SNORM:
 				switch (DXGI_INFO[dxt10h->dxgiFormat].bitsPerChannel) {
-					case 32:  dataType = Image::DataType::kSint32; break;
-					case 16:  dataType = Image::DataType::kSint16; break;
+					case 32:  img_->m_dataType = Image::DataType::kSint32; break;
+					case 16:  img_->m_dataType = Image::DataType::kSint16; break;
 					case 8:   
-					default:  dataType = Image::DataType::kSint8; break;
+					default:  img_->m_dataType = Image::DataType::kSint8; break;
 				};
 				break;
 			
@@ -515,10 +512,10 @@ bool Image::ReadDds(Image* img_, const char* _data, uint _dataSize)
 			case DATA_TYPE_TYPELESS: // assume uint if typeless
 			default:
 				switch (DXGI_INFO[dxt10h->dxgiFormat].bitsPerChannel) {
-					case 32:  dataType = Image::DataType::kUint32; break;
-					case 16:  dataType = Image::DataType::kUint16; break;
+					case 32:  img_->m_dataType = Image::DataType::kUint32; break;
+					case 16:  img_->m_dataType = Image::DataType::kUint16; break;
 					case 8:   
-					default:  dataType = Image::DataType::kUint8; break;
+					default:  img_->m_dataType = Image::DataType::kUint8; break;
 				};
 				break;
 		}
@@ -841,7 +838,7 @@ bool Image::WriteDds(const char* _path, const Image* _img)
 		default:                         dxt10h->resourceDimension = DDS_RESOURCE_DIMENSION_UNKNOWN; break;
 	};
 	dxt10h->miscFlag   = (_img->isCubemap() ? DDS_RESOURCE_MISC_TEXTURECUBE : 0);
-	dxt10h->arraySize  = (UINT)(_img->m_arrayCount > 1 ? _img->m_arrayCount : 0);
+	dxt10h->arraySize  = (UINT)_img->m_arrayCount;
 	dxt10h->miscFlags2 = 0;
 	
 // write data
@@ -862,8 +859,8 @@ bool Image::WriteDds(const char* _path, const Image* _img)
 	}
 
 // output to file
-	f.setData(buf, buflen); f.setPath(_path); // \todo create the file upfront and use its buffer directly
-	ret = File::Write(&f);
+	f.setData(buf, buflen); // \todo create the file upfront and use its buffer directly
+	ret = File::Write(&f, _path);
 
 WriteDds_End:
 	delete[] buf;
