@@ -44,7 +44,7 @@ bool FileImpl::Exists(const char* _path)
 	return GetFileAttributes(_path) != INVALID_FILE_ATTRIBUTES;
 }
 
-bool FileImpl::Load(FileImpl* file_, const char* _path)
+bool FileImpl::Read(FileImpl* file_, const char* _path)
 {
 	PLR_ASSERT(file_);
 	PLR_ASSERT(_path);
@@ -94,6 +94,53 @@ FileImpl_Load_end:
 			delete[] data;
 		}
 		PLR_LOG_ERR("Error loading '%s':\n\t%s", _path, err);
+		PLR_ASSERT(false);
+	}
+	if (h != INVALID_HANDLE_VALUE) {
+		PLR_PLATFORM_VERIFY(CloseHandle(h));
+	}
+	return ret;
+}
+
+bool FileImpl::Write(const FileImpl* _file, const char* _path)
+{
+	PLR_ASSERT(_file);
+
+	if (!_path) {
+		_path = _file->getPath();
+	}
+	PLR_ASSERT(_path);
+
+	bool ret = false;
+	const char* err = "";
+	char* data = 0;
+
+ 	HANDLE h = CreateFile(
+		_path,
+		GENERIC_WRITE,
+		0, // prevent sharing while we write
+		NULL,
+		CREATE_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL
+		);
+	if (h == INVALID_HANDLE_VALUE) {
+		err = GetPlatformErrorString(GetLastError());
+		goto FileImpl_Save_end;
+	}
+
+	DWORD bytesWritten;
+	if (!WriteFile(h, _file->getData(), _file->getDataSize(), &bytesWritten, NULL)) {
+		err = GetPlatformErrorString(GetLastError());
+		goto FileImpl_Save_end;
+	}
+	PLR_ASSERT(bytesWritten == _file->getDataSize());
+
+	ret = true;
+
+FileImpl_Save_end:
+	if (!ret) {
+		PLR_LOG_ERR("Error saving '%s':\n\t%s", _path, err);
 		PLR_ASSERT(false);
 	}
 	if (h != INVALID_HANDLE_VALUE) {

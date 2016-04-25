@@ -35,11 +35,15 @@ void FileBase::setData(const char* _data, uint64 _size)
 	if (m_data) {
 		if (_size > m_dataSize) {
 			delete[] m_data;
-			m_data = new char[_size];
-			PLR_ASSERT(m_data);
+			m_data = 0;
 		}
 	}
+	if (!m_data) {
+		m_data = new char[_size];
+		PLR_ASSERT(m_data);
+	}
 	memcpy(m_data, _data, _size);
+	m_dataSize = _size;
 }
 
 

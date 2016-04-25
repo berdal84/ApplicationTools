@@ -20,6 +20,9 @@ namespace plr {
 /// Files loaded into memory via Load() have an implicit null character appended
 /// to the internal data buffer, hence getData() can be interpreted directly as
 /// C string.
+/// \todo API should include some interface for either writing to the internal 
+///   buffer directly, or setting the buffer ptr without copying all the data
+///   (prefer the former, buffer ownership issues in the latter case).
 /// \todo Checksum/hash util function.
 /// \ingroup plr_core
 ////////////////////////////////////////////////////////////////////////////////
@@ -38,12 +41,17 @@ public:
 	/// \return true if _path exists.
 	static bool Exists(const char* _path)            { return Impl::Exists(_path); }
 
-	/// Load entire file into memory, use getData() to access the resulting 
+	/// Read entire file into memory, use getData() to access the resulting 
 	/// buffer. An implicit null is appended to the data buffer, hence getData()
 	/// can be interpreted directly as a C string.
 	/// \return false if an error occurred, in which case file_ remains unchanged.
 	///    On success, any resources already associated with file_ are released.
-	static bool Load(File* file_, const char* _path) { return Impl::Load(file_, _path); }
+	static bool Read(File* file_, const char* _path) { return Impl::Read(file_, _path); }
+
+	/// Write file to _path. If _path is 0, the file's own path is used.
+	/// \return false if an error occurred, in which case any existing file at 
+	///    _path may or may not have been overwritten.
+	static bool Write(const File* _file, const char* _path = 0) { return Impl::Write(_file, _path); }
 
 	
 	const char* getPath() const                      { return Impl::getPath(); }
