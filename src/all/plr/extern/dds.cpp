@@ -8,6 +8,7 @@
 // - Handle pitch correctly (programming guide recommends copying a scanline at a time).
 // - Need to test to ensure portability of the DDS stuff (size of BYTE, UINT, DWORD, etc).
 
+#include <plr/File.h>
 
 /******************************************************************************/
 typedef unsigned char BYTE;
@@ -429,7 +430,7 @@ static uint GetImageSize(uint _w, uint _h, uint _d, const Image* _img)
 	return _w * _h * _d * _img->getTexelSize();
 }
 
-bool Image::LoadDds(Image* img_, const char* _data, uint _dataSize)
+bool Image::ReadDds(Image* img_, const char* _data, uint _dataSize)
 {
 	PLR_ASSERT(_data != 0);
 	PLR_ASSERT(_dataSize > (sizeof(DWORD) + sizeof(DDS_HEADER)));
@@ -714,12 +715,13 @@ bool Image::LoadDds(Image* img_, const char* _data, uint _dataSize)
 	return true;
 }
 
-/*Image::ErrorState Image::SaveDds(const char* _path, const Image* _img)
+bool Image::WriteDds(const char* _path, const Image* _img)
 {
 	PLR_ASSERT(_path != 0);
 	PLR_ASSERT(_img != 0);
 
-	Image::ErrorState ret = Image::ErrorState::kOk;
+	bool ret = false;
+	File f;
 
 // allocate scratch buffer
 	uint buflen = _img->m_arrayLayerSize * _img->m_arrayCount;
@@ -727,7 +729,7 @@ bool Image::LoadDds(Image* img_, const char* _data, uint _dataSize)
 	char* buf = new char[buflen];
 	PLR_ASSERT(buf);
 	if (!buf) {
-		ret = Image::ErrorState::kBadAlloc;
+		PLR_LOG_ERR("Failed to allocate %d bytes writing %s", buflen, _path);
 		goto WriteDds_End;
 	}
 
@@ -755,7 +757,7 @@ bool Image::LoadDds(Image* img_, const char* _data, uint _dataSize)
 			case Image::CompressionType::kBC6:     dxt10h->dxgiFormat = DXGI_FORMAT_BC6H_TYPELESS; break;
 			case Image::CompressionType::kBC7:     dxt10h->dxgiFormat = DXGI_FORMAT_BC7_TYPELESS; break;
 			default:
-				ret = Image::ErrorState::kFileFormatUnsupported; 
+				PLR_ASSERT(false);
 				goto WriteDds_End;
 		};
 	} else {
@@ -824,7 +826,7 @@ bool Image::LoadDds(Image* img_, const char* _data, uint _dataSize)
 				};
 				break;
 			default:
-				ret = Image::ErrorState::kFileFormatUnsupported;
+				PLR_ASSERT(false);
 				goto WriteDds_End;
 		};
 	}
@@ -860,10 +862,11 @@ bool Image::LoadDds(Image* img_, const char* _data, uint _dataSize)
 	}
 
 // output to file
-	ret = WriteFileBuf(_path, buf, buflen);
+	f.setData(buf, buflen); f.setPath(_path); // \todo create the file upfront and use its buffer directly
+	ret = File::Write(&f);
 
 WriteDds_End:
 	delete[] buf;
 	return ret;
 }
-*/
+
