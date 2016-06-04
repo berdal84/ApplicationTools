@@ -130,7 +130,7 @@ bool FileImpl::Write(const FileImpl* _file, const char* _path)
 	}
 
 	DWORD bytesWritten;
-	if (!WriteFile(h, _file->getData(), _file->getDataSize(), &bytesWritten, NULL)) {
+	if (!WriteFile(h, _file->getData(), (DWORD)_file->getDataSize(), &bytesWritten, NULL)) {
 		err = GetPlatformErrorString(GetLastError());
 		goto FileImpl_Save_end;
 	}

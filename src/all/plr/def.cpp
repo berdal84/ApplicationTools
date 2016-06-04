@@ -14,37 +14,37 @@
 #include <cstdio>  // vsnprintf
 
 static const int kAssertMsgMax = 256; // max size for message buffer in assert()
-static PLR_THREAD_LOCAL plr::AssertCallback* pfAssertCallback = &plr::DefaultAssertCallback;
+static plr::AssertCallback* g_AssertCallback = &plr::DefaultAssertCallback;
 
-void plr::SetAssertCallback(AssertCallback* pfCallback) 
+void plr::SetAssertCallback(AssertCallback* _callback) 
 {
-	pfAssertCallback = pfCallback;
+	g_AssertCallback = _callback;
 }
 
 plr::AssertCallback* plr::GetAssertCallback() {
-	return pfAssertCallback;
+	return g_AssertCallback;
 }
 
-plr::AssertBehavior plr::DefaultAssertCallback(const char* e, const char* msg, const char* file, int line) 
+plr::AssertBehavior plr::DefaultAssertCallback(const char* _e, const char* _msg, const char* _file, int _line) 
 {
-	PLR_LOG_ERR("PLR_ASSERT (%s, line %d)\n\t'%s' %s", file, line, e ? e : "", msg ? msg : "");
+	PLR_LOG_ERR("PLR_ASSERT (%s, line %d)\n\t'%s' %s", _file, _line, _e ? _e : "", _msg ? _msg : "");
 	return AssertBehavior::kBreak;
 }
 
-plr::AssertBehavior plr::internal::AssertAndCallback(const char* e, const char* file, int line, const char* msg, ...) 
+plr::AssertBehavior plr::internal::AssertAndCallback(const char* _e, const char* _file, int _line, const char* _msg, ...) 
 {
 	char buf[kAssertMsgMax];
-	if (msg != 0) {
+	if (_msg != 0) {
 		va_list args;
-		va_start(args, msg);
-		vsnprintf(buf, kAssertMsgMax, msg, args);
+		va_start(args, _msg);
+		PLR_VERIFY(vsnprintf(buf, kAssertMsgMax, _msg, args) > 0);
 		va_end(args);
 	} else {
 		buf[0] = '\0';
 	}
 
-	if (pfAssertCallback != 0) {
-		return pfAssertCallback(e, buf, plr::internal::StripPath(file), line);
+	if (g_AssertCallback != 0) {
+		return g_AssertCallback(_e, buf, plr::internal::StripPath(_file), _line);
 	}
 	return AssertBehavior::kBreak;
 }

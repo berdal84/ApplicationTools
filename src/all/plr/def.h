@@ -106,18 +106,16 @@ enum class AssertBehavior
 /// Typedef for assert callbacks. See DefaultAssertCallback for a description
 /// of the function arguments.
 /// \ingroup plr_core
-typedef AssertBehavior (AssertCallback)(const char* e, const char* msg, const char* file, int line);
+typedef AssertBehavior (AssertCallback)(const char* _e, const char* _msg, const char* _file, int _line);
 
-/// \return AssertCallback in use on this thread. 
-/// Default is DefaultAssertCallback().
+/// \return Current assert callback. Default is DefaultAssertCallback().
 /// \note This may return 0, if 0 was previously passed to SetAssertCallback().
 /// \ingroup plr_core
 AssertCallback* GetAssertCallback();
 
-/// Set the function to be called when asserts fail on this thread.
-/// Default is DefaultAssertCallback().
+/// Set the function to be called when asserts fail, which may be 0.
 /// \ingroup plr_core
-void SetAssertCallback(AssertCallback* callback);
+void SetAssertCallback(AssertCallback* _callback);
 
 /// Default assert callback, print message via PLR_LOG_ERR().
 /// \param e Stringified version of the assert expression.
@@ -125,15 +123,15 @@ void SetAssertCallback(AssertCallback* callback);
 /// \param file, line Location of the assert.
 /// \return Always AssertBehaviour::kBreak.
 /// \ingroup plr_core
-AssertBehavior DefaultAssertCallback(const char* e, const char* msg,  const char* file,  int line);
+AssertBehavior DefaultAssertCallback(const char* _e, const char* _msg,  const char* _file,  int _line);
 
 } // namespace plr
 
 
 namespace plr { namespace internal {
 
-AssertBehavior AssertAndCallback(const char* e, const char* file, int line, const char* msg, ...);
-const char* StripPath(const char* path);
+AssertBehavior AssertAndCallback(const char* _e, const char* _file, int _line, const char* _msg, ...);
+const char* StripPath(const char* _path);
 
 template <typename tType, unsigned kCount>
 inline unsigned ArrayCount(const tType (&)[kCount]) { return kCount; }
