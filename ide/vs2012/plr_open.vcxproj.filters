@@ -32,6 +32,7 @@
       <Filter>win</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\all\plr\FileBase.cpp" />
+    <ClCompile Include="..\..\src\all\plr\String.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\all\plr\ArgList.h" />
@@ -63,5 +64,6 @@
       <Filter>win</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\all\plr\FileBase.h" />
+    <ClInclude Include="..\..\src\all\plr\String.h" />
   </ItemGroup>
 </Project>

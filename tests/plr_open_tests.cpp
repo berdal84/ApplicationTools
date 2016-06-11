@@ -5,9 +5,10 @@
 
 #include <new>
 
-#include <plr/IniFile.h>
 #include <plr/File.h>
 #include <plr/Image.h>
+#include <plr/IniFile.h>
+#include <plr/String.h>
 
 using namespace plr;
 
@@ -78,6 +79,17 @@ void TestIniFile()
 	CheckTestIniProperties(ini, "section1");
 }
 
+void TestString()
+{
+	String<8> str8("Hello!");
+
+	PLR_LOG("%s", (const char*)str8);
+
+	str8.set("No, not the muffins!");
+
+	PLR_LOG("%s", (const char*)str8);
+}
+
 int main(int _argc, char** _argv)
 {
 	PLR_LOG("plr_open_tests\n--------------");
@@ -104,6 +116,7 @@ int main(int _argc, char** _argv)
 	#undef print_typeinfo
 
 	TestIniFile();
+	TestString();
 
 	return 0;
 }
