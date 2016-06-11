@@ -79,8 +79,9 @@
 
 #define PLR_ARRAY_COUNT(_arr) plr::internal::ArrayCount(_arr)
 
-#define PLR_MIN(a, b) plr::internal::Min(a, b)
-#define PLR_MAX(a, b) plr::internal::Max(a, b)
+#define PLR_MIN(_a, _b) plr::internal::Min(_a, _b)
+#define PLR_MAX(_a, _b) plr::internal::Max(_a, _b)
+#define PLR_CLAMP(_x, _min, _max) PLR_MAX(PLR_MIN(_x, _max), _min)
 
 namespace plr {
 
