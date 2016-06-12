@@ -3,12 +3,13 @@
 
 #include <plr/Time.h>
 
-#include <new>
-
+#include <plr/math.h>
 #include <plr/File.h>
 #include <plr/Image.h>
 #include <plr/IniFile.h>
 #include <plr/String.h>
+
+#include <new>
 
 using namespace plr;
 

@@ -1,0 +1,3 @@
+[submodule "src/all/plr/extern/glm"]
+	path = src/all/plr/extern/glm
+	url = https://github.com/g-truc/glm.git

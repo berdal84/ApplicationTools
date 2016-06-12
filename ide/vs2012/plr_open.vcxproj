@@ -40,6 +40,7 @@
     <ClInclude Include="..\..\src\all\plr\Image.h" />
     <ClInclude Include="..\..\src\all\plr\IniFile.h" />
     <ClInclude Include="..\..\src\all\plr\log.h" />
+    <ClInclude Include="..\..\src\all\plr\math.h" />
     <ClInclude Include="..\..\src\all\plr\memory.h" />
     <ClInclude Include="..\..\src\all\plr\static_initializer.h" />
     <ClInclude Include="..\..\src\all\plr\String.h" />
