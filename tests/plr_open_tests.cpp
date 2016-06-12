@@ -79,15 +79,15 @@ void TestIniFile()
 	CheckTestIniProperties(ini, "section1");
 }
 
+template <uint kCapacity>
 void TestString()
 {
-	String<8> str8("Hello!");
+	String<kCapacity> str;
 
-	PLR_LOG("%s", (const char*)str8);
+	uint len = str.appendf("Int: %d", 12);
+	len = str.appendf("Int: %d", 48);
 
-	str8.set("No, not the muffins!");
-
-	PLR_LOG("%s", (const char*)str8);
+//	PLR_LOG("%s = %d", (const char*)str, len);
 }
 
 int main(int _argc, char** _argv)
@@ -116,7 +116,7 @@ int main(int _argc, char** _argv)
 	#undef print_typeinfo
 
 	TestIniFile();
-	TestString();
+	TestString<8>();
 
 	return 0;
 }

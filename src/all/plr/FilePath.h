@@ -23,6 +23,7 @@ namespace plr {
 /// \class FilePath
 /// Path manipulation.
 /// No memory allocation is performed, all interfaces are const char*.
+/// \todo Use the String class to reduce the footprint.
 /// \ingroup plr_core
 ////////////////////////////////////////////////////////////////////////////////
 class FilePath

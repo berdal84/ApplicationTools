@@ -1,8 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Modified from https://github.com/ocornut/str
-// This software is in the public domain. Where that dedication is not
-// recognized, you are granted a perpetual, irrevocable license to copy,
-// distribute, and modify this file as you see fit.
+// This software is distributed freely under the terms of the MIT License.
+// See http://opensource.org/licenses/MIT
 ////////////////////////////////////////////////////////////////////////////////
 #include <plr/String.h>
 
@@ -31,15 +30,6 @@ StringBase::StringBase()
 {
 }
 
-StringBase::StringBase(const char* _rhs)
-	: m_buf(g_emptyString)
-	, m_capacity(0u)
-	, m_localBufSize(0u)
-	, m_isOwned(0u)
-{
-	set(_rhs);
-}
-
 StringBase::~StringBase()
 {
 	if (m_isOwned && !isLocal()) {
@@ -47,38 +37,76 @@ StringBase::~StringBase()
 	}
 }
 
-void StringBase::set(const char* _src)
+uint StringBase::set(const char* _src)
 {
-	uint ln = strlen(_src) + 1u;
-	if (m_capacity < ln) {
-		alloc(ln);
+	uint len = strlen(_src) + 1u;
+	if (m_capacity < len) {
+		alloc(len);
 	}
-	memcpy(m_buf, _src, ln);
-	m_isOwned = 1u;
+	memcpy(m_buf, _src, len);
+	return len - 1u;
 }
 
-int StringBase::setf(const char* _fmt, ...)
+uint StringBase::setf(const char* _fmt, ...)
 {
 	va_list args;
 	va_start(args, _fmt);
-	int ret = setfv(_fmt, args);
+	uint ret = setfv(_fmt, args);
 	va_end(args);
 	return ret;
 }
 
-int StringBase::setfv(const char* _fmt, va_list _args)
+uint StringBase::setfv(const char* _fmt, va_list _args)
 {
-	va_list valist;
-	va_copy(valist, _args);
+	va_list args;
+	va_copy(args, _args);
 
-	int ln = vsnprintf(m_isOwned ? m_buf : 0, m_isOwned ? m_capacity : 0u, _fmt, valist) + 1u; // +1 for null terminator
-	if (m_capacity < ln) {
-		alloc(ln);
-		ln = vsnprintf(m_buf, m_capacity, _fmt, valist);
+	int len = vsnprintf(m_isOwned ? m_buf : 0, m_capacity, _fmt, args);
+	PLR_ASSERT(len >= 0);
+	len += 1;
+	if (m_capacity < len) {
+		alloc(len);
+		PLR_VERIFY(vsnprintf(m_buf, m_capacity, _fmt, args) >= 0);
 	}
+	
+	return (uint)len - 1u;
+}
 
-	m_isOwned = 1;
-	return ln;
+uint StringBase::append(const char* _src)
+{
+	uint len = getLength();
+	uint srclen = strlen(_src) + 1u;
+	if (m_capacity < len + srclen) {
+		realloc(len + srclen);
+	}
+	strcpy(m_buf + len, _src);
+	return len + srclen - 1u;
+}
+
+uint StringBase::appendf(const char* _fmt, ...)
+{
+	va_list args;
+	va_start(args, _fmt);
+	uint ret = appendfv(_fmt, args);
+	va_end(args);
+	return ret;
+}
+
+uint StringBase::appendfv(const char* _fmt, va_list _args)
+{
+	va_list args;
+	va_copy(args, _args);
+
+	uint len = getLength();
+	int srclen = vsnprintf(0, 0u, _fmt, args);
+	PLR_ASSERT(srclen > 0);
+	srclen += 1;
+	if (m_capacity < len + srclen) {
+		realloc(len + srclen);
+	}
+	PLR_VERIFY(vsnprintf(m_buf + len, (uint)srclen, _fmt, args) >= 0);
+	
+	return (uint)srclen + len - 1u;;
 }
 
 uint StringBase::getLength() const
@@ -127,38 +155,34 @@ void StringBase::alloc(uint _capacity)
 {
 	PLR_ASSERT(_capacity <= kMaxCapacity);
 
-	if (_capacity <= m_capacity) {
-		return;
-	}
-
-	if (m_isOwned && !isLocal()) {
+	if (!isLocal() && m_isOwned) {
 		free(m_buf);
 	}
-
-	if (_capacity < m_localBufSize) {
-		m_buf = getLocalBuf();
-		m_capacity = m_localBufSize;
-
-	} else {
-		m_buf = (char*)malloc(_capacity * sizeof(char));
-		m_capacity = _capacity;
-	}
+	m_buf = (char*)malloc(_capacity * sizeof(char));
+	m_capacity = _capacity;
+	m_isOwned = 1u;
 }
 
 void StringBase::realloc(uint _capacity)
 {
 	PLR_ASSERT(_capacity <= kMaxCapacity);
 
-	if (_capacity <= m_capacity) {
-		return;
-	}
-
 	if (_capacity < m_localBufSize) {
+		if (!isLocal()) {
+			strncpy(getLocalBuf(), m_buf, m_localBufSize);
+		}
 		m_buf = getLocalBuf();
 		m_capacity = m_localBufSize;
 
+	} else if (isLocal()) {
+		m_buf = (char*)malloc(_capacity * sizeof(char));
+		strncpy(m_buf, getLocalBuf(), _capacity);
+		m_capacity = _capacity;
+	
 	} else {
 		m_buf = (char*)::realloc(m_buf, _capacity * sizeof(char));
 		m_capacity = _capacity;
 	}
+
+	m_isOwned = 1u;
 }

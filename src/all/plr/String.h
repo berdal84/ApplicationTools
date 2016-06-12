@@ -1,8 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Modified from https://github.com/ocornut/str
-// This software is in the public domain. Where that dedication is not
-// recognized, you are granted a perpetual, irrevocable license to copy,
-// distribute, and modify this file as you see fit.
+// This software is distributed freely under the terms of the MIT License.
+// See http://opensource.org/licenses/MIT
 ////////////////////////////////////////////////////////////////////////////////
 #pragma once
 #ifndef plr_String_h
@@ -21,6 +20,11 @@ namespace plr {
 /// reference a literal or an external buffer (see setRef()) in which case it is 
 /// non-owned, but performing any mutating operations on the string data will
 /// cause the referenced buffer to be copied.
+/// All `const char*` interfaces expect null-terminated strings.
+/// \todo Implement setRef().
+/// \todo Do we ever want to 'revert' storage back to the local buffer? Seems 
+///   unlikely that this will ever happen.
+/// \todo Copy/move ctors in StringBase.
 /// \ingroup plr_core
 ////////////////////////////////////////////////////////////////////////////////
 class StringBase
@@ -28,20 +32,28 @@ class StringBase
 public:
 
 	StringBase();
-	StringBase(const char* _rhs);
 
 	~StringBase();
 
-	/// Copy string content from _src.
-	void set(const char* _src);
+	/// Copy content from _src.
+	/// \return New length of the string, excluding the null terminator.
+	uint set(const char* _src);
+	/// Set formatted content.
+	/// \return New length of the string, excluding the null terminator.
+	uint setf(const char* _fmt, ...);
+	uint setfv(const char* _fmt, va_list _args);
 
-	/// Write formatted string content.
-	int setf(const char* _fmt, ...);
-	int setfv(const char* _fmt, va_list _args);
+	/// Append content from _src.
+	/// \return New length of the string, excluding the null terminator.
+	uint append(const char* _src);
+	/// Append formatted content.
+	/// \return New length of the string, excluding the null terminator.
+	uint appendf(const char* _fmt, ...);
+	uint appendfv(const char* _fmt, va_list _args);
 
-
-	/// String length is not stored internally, hence length() is not constant
-	/// time.
+	/// String length, excluding the terminating null.
+	/// \note String length is not stored internally, hence getLength() is *not*
+	///    a constant time operation.
 	uint getLength() const;
 
 	void clear();
