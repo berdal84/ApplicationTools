@@ -113,6 +113,14 @@ int main(int _argc, char** _argv)
 	print_typeinfo(uint);
 	print_typeinfo(float);
 	print_typeinfo(double);
+	// math types
+	print_typeinfo(vec2);
+	print_typeinfo(vec3);
+	print_typeinfo(vec4);
+	print_typeinfo(mat2);
+	print_typeinfo(mat3);
+	print_typeinfo(mat4);
+	print_typeinfo(quat);
 
 	#undef print_typeinfo
 
