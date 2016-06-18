@@ -8,7 +8,7 @@
 #define plr_math_h
 
 #ifdef PLR_DEBUG
-	#define GLM_MESSAGES
+	//#define GLM_MESSAGES
 #endif
 
 // \hack glm typedefs sized ints with the same names as plr; to get around the
