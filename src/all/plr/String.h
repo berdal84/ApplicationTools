@@ -23,7 +23,8 @@ namespace plr {
 /// All `const char*` interfaces expect null-terminated strings.
 /// \todo Implement setRef().
 /// \todo Do we ever want to 'revert' storage back to the local buffer? Seems 
-///   unlikely that this will ever happen.
+///   unlikely that this will ever happen, in which case m_localBufferSize can
+///   be merged with m_capacity.
 /// \todo Copy/move ctors in StringBase.
 /// \ingroup plr_core
 ////////////////////////////////////////////////////////////////////////////////

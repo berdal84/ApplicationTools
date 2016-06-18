@@ -61,6 +61,16 @@ uint StringBase::setfv(const char* _fmt, va_list _args)
 	va_list args;
 	va_copy(args, _args);
 
+#ifdef PLR_COMPILER_MSVC
+ // vsnprintf returns -1 on overflow, forces use to always do 2 passes
+	int len = vsnprintf(0, 0u, _fmt, args);
+	PLR_ASSERT(len >= 0);
+	len += 1;
+	if (m_capacity < len) {
+		alloc(len);
+	}
+	PLR_VERIFY(vsnprintf(m_buf, m_capacity, _fmt, args) >= 0);
+#else
 	int len = vsnprintf(m_isOwned ? m_buf : 0, m_capacity, _fmt, args);
 	PLR_ASSERT(len >= 0);
 	len += 1;
@@ -68,6 +78,7 @@ uint StringBase::setfv(const char* _fmt, va_list _args)
 		alloc(len);
 		PLR_VERIFY(vsnprintf(m_buf, m_capacity, _fmt, args) >= 0);
 	}
+#endif
 	
 	return (uint)len - 1u;
 }
