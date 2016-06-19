@@ -6,6 +6,7 @@
 #include <plr/TextParser.h>
 
 #include <cctype>
+#include <cstring>
 
 using namespace plr;
 
@@ -24,6 +25,10 @@ inline bool TextParser::isNum() const
 inline bool TextParser::isAlphaNum() const
 {
 	return isalnum(*m_pos) != 0;
+}
+inline bool TextParser::isLineEnd() const
+{
+	return *m_pos == '\n';
 }
 
 char TextParser::advanceToNext(char _c)
@@ -128,17 +133,13 @@ char TextParser::skipWhitespace()
 
 char TextParser::containsAny(const char* _beg, const char* _list)
 {
-	while (*_beg != 0 && _beg != m_pos) {
-		const char* c = _list;
-		while (*c != 0) {
-			if (*_beg == *c) {
-				return *c;
-			}
-			++c;
-		}
-		++_beg;
-	}
-	return (char)0;
+	const char* ret = strpbrk(_beg, _list);
+	return ret == 0 ? (char)0 : *ret;
+}
+
+bool TextParser::matches(const char *_beg, const char* _str)
+{
+	return strncmp(_beg, _str, _beg - m_pos) == 0;
 }
 
 uint TextParser::getLineCount(const char* _pos) const

@@ -35,6 +35,7 @@ public:
 	bool isAlpha() const;
 	bool isNum() const;
 	bool isAlphaNum() const;
+	bool isLineEnd() const;
 
 	/// advance*() and skip*() functions return the character they stop on, which
 	/// is 0 if the function hit the end of the string.
@@ -56,6 +57,10 @@ public:
 	/// \return First occurence of any characters from _list in the region
 	///   between _beg and the current position, or 0 if none.
 	char containsAny(const char* _beg, const char* _list);
+
+	/// \return True if the region between _beg and the current position
+	///  exactly matches _str.
+	bool matches(const char *_beg, const char* _str);
 
 	/// \return Occurences of '\n' up to and including _pos (or the current
 	///   position if _pos is 0).
