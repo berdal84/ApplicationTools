@@ -133,8 +133,17 @@ char TextParser::skipWhitespace()
 
 char TextParser::containsAny(const char* _beg, const char* _list)
 {
-	const char* ret = strpbrk(_beg, _list);
-	return ret == 0 ? (char)0 : *ret;
+	while (*_beg != 0 && _beg != m_pos) {
+		const char* c = _list;
+		while (*c != 0) {
+			if (*_beg == *c) {
+				return *c;
+			}
+			++c;
+		}
+		++_beg;
+	}
+	return (char)0;
 }
 
 bool TextParser::matches(const char *_beg, const char* _str)
