@@ -148,7 +148,7 @@ char TextParser::containsAny(const char* _beg, const char* _list)
 
 bool TextParser::matches(const char *_beg, const char* _str)
 {
-	return strncmp(_beg, _str, _beg - m_pos) == 0;
+	return strncmp(_beg, _str, m_pos - _beg) == 0;
 }
 
 uint TextParser::getLineCount(const char* _pos) const
