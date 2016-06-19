@@ -10,23 +10,23 @@
 
 using namespace plr;
 
-inline bool TextParser::isWhitespace() const
+bool TextParser::isWhitespace() const
 {
 	return isspace(*m_pos) != 0;
 }
-inline bool TextParser::isAlpha() const
+bool TextParser::isAlpha() const
 {
 	return isalpha(*m_pos) != 0;
 }
-inline bool TextParser::isNum() const
+bool TextParser::isNum() const
 {
 	return isdigit(*m_pos) != 0;
 }
-inline bool TextParser::isAlphaNum() const
+bool TextParser::isAlphaNum() const
 {
 	return isalnum(*m_pos) != 0;
 }
-inline bool TextParser::isLineEnd() const
+bool TextParser::isLineEnd() const
 {
 	return *m_pos == '\n';
 }
