@@ -36,17 +36,19 @@ public:
 
 	~StringBase();
 
-	/// Copy content from _src.
+	/// Copy _count characters from _src. If _count == 0, all of _src is
+	/// copied.
 	/// \return New length of the string, excluding the null terminator.
-	uint set(const char* _src);
+	uint set(const char* _src, uint _count = 0u);
 	/// Set formatted content.
 	/// \return New length of the string, excluding the null terminator.
 	uint setf(const char* _fmt, ...);
 	uint setfv(const char* _fmt, va_list _args);
 
-	/// Append content from _src.
+	/// Append _count characters from _src. If _count == 0, all of _src is
+	/// appended.
 	/// \return New length of the string, excluding the null terminator.
-	uint append(const char* _src);
+	uint append(const char* _src, uint _count = 0u);
 	/// Append formatted content.
 	/// \return New length of the string, excluding the null terminator.
 	uint appendf(const char* _fmt, ...);

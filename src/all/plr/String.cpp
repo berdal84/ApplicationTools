@@ -37,14 +37,18 @@ StringBase::~StringBase()
 	}
 }
 
-uint StringBase::set(const char* _src)
+uint StringBase::set(const char* _src, uint _count)
 {
-	uint len = strlen(_src) + 1u;
+	uint len = strlen(_src);
+	len = _count == 0u ? len : PLR_MIN(len, _count);
+	len += 1u;
 	if (m_capacity < len) {
 		alloc(len);
 	}
+	len -= 1u;
 	memcpy(m_buf, _src, len);
-	return len - 1u;
+	m_buf[len] = '\0';
+	return len;
 }
 
 uint StringBase::setf(const char* _fmt, ...)
@@ -83,15 +87,20 @@ uint StringBase::setfv(const char* _fmt, va_list _args)
 	return (uint)len - 1u;
 }
 
-uint StringBase::append(const char* _src)
+uint StringBase::append(const char* _src, uint _count)
 {
 	uint len = getLength();
-	uint srclen = strlen(_src) + 1u;
+	uint srclen = strlen(_src);
+	srclen = _count == 0u ? srclen : PLR_MIN(srclen, _count);
+	srclen += 1u;
 	if (m_capacity < len + srclen) {
 		realloc(len + srclen);
 	}
-	strcpy(m_buf + len, _src);
-	return len + srclen - 1u;
+	srclen -= 1u;
+	memcpy(m_buf + len, _src, srclen);
+	len += srclen;
+	m_buf[len] = '\0';
+	return len;
 }
 
 uint StringBase::appendf(const char* _fmt, ...)
