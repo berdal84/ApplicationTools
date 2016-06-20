@@ -10,6 +10,7 @@
 #include <plr/def.h>
 
 #include <cstdarg> // va_list
+#include <utility> // std::move
 
 namespace plr {
 
@@ -25,17 +26,13 @@ namespace plr {
 /// \todo Do we ever want to 'revert' storage back to the local buffer? Seems 
 ///   unlikely that this will ever happen, in which case m_localBufferSize can
 ///   be merged with m_capacity.
-/// \todo Copy/move ctors in StringBase.
+/// \todo Revisit copy/move ctors. Should be able to copy and move between 
+///   strings of different capacity.
 /// \ingroup plr_core
 ////////////////////////////////////////////////////////////////////////////////
 class StringBase
 {
 public:
-
-	StringBase();
-
-	~StringBase();
-
 	/// Copy _count characters from _src. If _count == 0, all of _src is
 	/// copied.
 	/// \return New length of the string, excluding the null terminator.
@@ -74,7 +71,12 @@ public:
 	char& operator[](int _i)        { return m_buf[_i]; }
 
 protected:
+	
+	StringBase();
 	StringBase(uint _localBufferSize);
+	StringBase(StringBase&& _rhs);
+
+	~StringBase();
 
 	char* getLocalBuf()             { return (char*)this + sizeof(StringBase); }
 	const char* getLocalBuf() const { return (char*)this + sizeof(StringBase); }
@@ -102,6 +104,8 @@ class String: public StringBase
 public:
 	String(): StringBase(kCapacity) {}
 	String(const char* _rhs): StringBase(kCapacity) { set(_rhs); }
+	String(const String<kCapacity>& _rhs): StringBase(kCapacity) { set(_rhs); }
+	String(String<kCapacity>&& _rhs): StringBase(std::move(_rhs)) {}
 };
 
 } // namespace plr

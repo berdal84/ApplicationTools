@@ -22,21 +22,6 @@ static char* g_emptyString      = (char*)"\0NULL";
 
 // PUBLIC
 
-StringBase::StringBase()
-	: m_buf(g_emptyString)
-	, m_capacity(0u)
-	, m_localBufSize(0u)
-	, m_isOwned(0u)
-{
-}
-
-StringBase::~StringBase()
-{
-	if (m_isOwned && !isLocal()) {
-		delete[] m_buf;
-	}
-}
-
 uint StringBase::set(const char* _src, uint _count)
 {
 	uint len = strlen(_src);
@@ -159,6 +144,14 @@ bool StringBase::operator==(const char* _rhs) const
 
 // PROTECTED
 
+StringBase::StringBase()
+	: m_buf(g_emptyString)
+	, m_capacity(0u)
+	, m_localBufSize(0u)
+	, m_isOwned(0u)
+{
+}
+
 StringBase::StringBase(uint _localBufferSize)
 	: m_buf(getLocalBuf())
 	, m_capacity(_localBufferSize)
@@ -167,6 +160,28 @@ StringBase::StringBase(uint _localBufferSize)
 {
 	PLR_ASSERT(_localBufferSize < kMaxLocalBufferSize);
 	m_buf[0] = '\0';
+}
+
+StringBase::StringBase(StringBase&& _rhs)
+	: m_capacity(_rhs.m_capacity)
+	, m_localBufSize(_rhs.m_localBufSize)
+	, m_isOwned(_rhs.m_isOwned)
+{
+	if (_rhs.isLocal()) {
+		m_buf = getLocalBuf();
+		memcpy(m_buf, _rhs.m_buf, m_localBufSize);
+	} else {
+		m_buf = _rhs.m_buf;
+		_rhs.m_buf = _rhs.getLocalBuf();
+		_rhs.m_capacity = _rhs.m_localBufSize;
+	}
+}
+
+StringBase::~StringBase()
+{
+	if (m_isOwned && !isLocal()) {
+		delete[] m_buf;
+	}
 }
 
 // PRIVATE
