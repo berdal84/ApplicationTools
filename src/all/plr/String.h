@@ -103,9 +103,15 @@ class String: public StringBase
 
 public:
 	String(): StringBase(kCapacity) {}
-	String(const char* _rhs): StringBase(kCapacity) { set(_rhs); }
-	String(const String<kCapacity>& _rhs): StringBase(kCapacity) { set(_rhs); }
+	String(const String<kCapacity>& _rhs): StringBase(kCapacity)  { set(_rhs); }
 	String(String<kCapacity>&& _rhs): StringBase(std::move(_rhs)) {}
+	String(const char* _fmt, ...): StringBase(kCapacity)
+	{
+		va_list args;
+		va_start(args, _fmt);
+		setfv(_fmt, args);
+		va_end(args);
+	}
 };
 
 } // namespace plr
