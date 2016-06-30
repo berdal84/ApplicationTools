@@ -16,8 +16,6 @@
 
 using namespace plr;
 
-static uint kMaxCapacity        = 2097151; // 2^21 - 1
-static uint kMaxLocalBufferSize = 1023; // 2^10 - 1
 static char* g_emptyString      = (char*)"\0NULL";
 
 // PUBLIC
@@ -25,13 +23,13 @@ static char* g_emptyString      = (char*)"\0NULL";
 uint StringBase::set(const char* _src, uint _count)
 {
 	uint len = strlen(_src);
-	len = _count == 0u ? len : PLR_MIN(len, _count);
+	len = (_count == 0u) ? len : PLR_MIN(len, _count);
 	len += 1u;
 	if (m_capacity < len) {
 		alloc(len);
 	}
 	len -= 1u;
-	memcpy(m_buf, _src, len);
+	strncpy(m_buf, _src, _count);
 	m_buf[len] = '\0';
 	return len;
 }
@@ -119,24 +117,6 @@ uint StringBase::getLength() const
 	return strlen(m_buf);
 }
 
-void StringBase::clear()
-{
-	if (m_isOwned && !isLocal()) {
-		free(m_buf);
-	}
-	if (m_localBufSize > 0u) {
-		m_buf = getLocalBuf();
-		m_buf[0] = '\0';
-		m_capacity = m_localBufSize;
-		m_isOwned = 1u;
-
-	} else {
-		m_buf = g_emptyString;
-		m_capacity = 0u;
-		m_localBufSize =  0u;
-	}
-}
-
 bool StringBase::operator==(const char* _rhs) const
 {
 	return strcmp(_rhs, m_buf) == 0;
@@ -147,40 +127,33 @@ bool StringBase::operator==(const char* _rhs) const
 StringBase::StringBase()
 	: m_buf(g_emptyString)
 	, m_capacity(0u)
-	, m_localBufSize(0u)
-	, m_isOwned(0u)
 {
 }
 
 StringBase::StringBase(uint _localBufferSize)
 	: m_buf(getLocalBuf())
 	, m_capacity(_localBufferSize)
-	, m_localBufSize(_localBufferSize)
-	, m_isOwned(1u)
 {
-	PLR_ASSERT(_localBufferSize < kMaxLocalBufferSize);
 	m_buf[0] = '\0';
 }
 
 StringBase::StringBase(StringBase&& _rhs)
 	: m_capacity(_rhs.m_capacity)
-	, m_localBufSize(_rhs.m_localBufSize)
-	, m_isOwned(_rhs.m_isOwned)
 {
 	if (_rhs.isLocal()) {
 		m_buf = getLocalBuf();
-		memcpy(m_buf, _rhs.m_buf, m_localBufSize);
+		memcpy(m_buf, _rhs.m_buf, m_capacity);
 	} else {
 		m_buf = _rhs.m_buf;
 		_rhs.m_buf = _rhs.getLocalBuf();
-		_rhs.m_capacity = _rhs.m_localBufSize;
+		_rhs.m_capacity = 0u;
 	}
 }
 
 StringBase::~StringBase()
 {
-	if (m_isOwned && !isLocal()) {
-		delete[] m_buf;
+	if (!isLocal()) {
+		free(m_buf);
 	}
 }
 
@@ -188,28 +161,23 @@ StringBase::~StringBase()
 
 void StringBase::alloc(uint _capacity)
 {
-	PLR_ASSERT(_capacity <= kMaxCapacity);
-
-	if (!isLocal() && m_isOwned) {
+	if (!isLocal()) {
 		free(m_buf);
 	}
 	m_buf = (char*)malloc(_capacity * sizeof(char));
 	m_capacity = _capacity;
-	m_isOwned = 1u;
 }
 
 void StringBase::realloc(uint _capacity)
 {
-	PLR_ASSERT(_capacity <= kMaxCapacity);
-
-	if (_capacity < m_localBufSize) {
+	/*if (_capacity < m_localBufSize) {
 		if (!isLocal()) {
 			strncpy(getLocalBuf(), m_buf, m_localBufSize);
 		}
 		m_buf = getLocalBuf();
 		m_capacity = m_localBufSize;
 
-	} else if (isLocal()) {
+	} else */if (isLocal()) {
 		m_buf = (char*)malloc(_capacity * sizeof(char));
 		strncpy(m_buf, getLocalBuf(), _capacity);
 		m_capacity = _capacity;
@@ -218,6 +186,4 @@ void StringBase::realloc(uint _capacity)
 		m_buf = (char*)::realloc(m_buf, _capacity * sizeof(char));
 		m_capacity = _capacity;
 	}
-
-	m_isOwned = 1u;
 }

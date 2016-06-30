@@ -17,15 +17,14 @@ namespace plr {
 ////////////////////////////////////////////////////////////////////////////////
 /// \class StringBase
 /// Base for string class with an optional local buffer. If/when the local 
-/// buffer overflows it is replaced with a heap-allocated buffer. String may 
-/// reference a literal or an external buffer (see setRef()) in which case it is 
-/// non-owned, but performing any mutating operations on the string data will
-/// cause the referenced buffer to be copied.
+/// buffer overflows it is replaced with a heap-allocated buffer. Once the 
+/// buffer is heap-allocated it never returns to using the local buffer.
 /// All `const char*` interfaces expect null-terminated strings.
-/// \todo Implement setRef().
-/// \todo Do we ever want to 'revert' storage back to the local buffer? Seems 
-///   unlikely that this will ever happen, in which case m_localBufferSize can
-///   be merged with m_capacity.
+/// \todo Redesign: store capacity, followed by the local buf which must be at
+///   least the size of a ptr. When the local buf overflows allocate a new buf
+///   and store the ptr at the location of localbuf. You MUST ensure correct
+///   alignment of local buf (alignof(char*) = 8 bytes on x86-64). Therefore
+///   overhead is 16 bytes on 64 bit platform.
 /// \todo Revisit copy/move ctors. Should be able to copy and move between 
 ///   strings of different capacity.
 /// \ingroup plr_core
@@ -33,8 +32,11 @@ namespace plr {
 class StringBase
 {
 public:
-	/// Copy _count characters from _src. If _count == 0, all of _src is
-	/// copied.
+	/// Copy _count characters from _src. If _count == 0, all of _src is copied
+	/// If the end of _src is found  before _count characters have been copied,
+	/// the result is padded with zeros until _count characters have been written
+	/// (as per strncpy). Unlike strncpy, an implicit null char is appended to
+	/// the end of the result.
 	/// \return New length of the string, excluding the null terminator.
 	uint set(const char* _src, uint _count = 0u);
 	/// Set formatted content.
@@ -56,11 +58,9 @@ public:
 	///    a constant time operation.
 	uint getLength() const;
 
-	void clear();
+	void clear()                    { m_buf[0] = '\0'; }
 
-	bool isOwned() const            { return m_isOwned != 0u; }
-	bool isLocal() const            { return m_buf == getLocalBuf() && m_localBufSize != 0u; }
-
+	bool isLocal() const            { return m_buf == getLocalBuf(); }
 	uint getCapacity() const        { return m_capacity; }
 
 
@@ -82,10 +82,8 @@ protected:
 	const char* getLocalBuf() const { return (char*)this + sizeof(StringBase); }
 
 private:
-	char* m_buf;               //< Ptr to local buffer, or heap allocated.
-	uint  m_capacity     : 21; //< Max 2mb.
-	uint  m_localBufSize : 10; //< Max 1023 bytes.
-	uint  m_isOwned      : 1;  //< If m_buf is owned by this instance.
+	char* m_buf;       //< Ptr to local buffer, or heap allocated.
+	uint  m_capacity;  //< Local buffer/allocated size.
 
 	/// Resize m_buf to _capacity, discard contents.
 	void alloc(uint _capacity);
@@ -102,10 +100,10 @@ class String: public StringBase
 	char m_localBuf[kCapacity];
 
 public:
-	String(): StringBase(kCapacity) {}
-	String(const String<kCapacity>& _rhs): StringBase(kCapacity)  { set(_rhs); }
-	String(String<kCapacity>&& _rhs): StringBase(std::move(_rhs)) {}
-	String(const char* _fmt, ...): StringBase(kCapacity)
+	String():                              StringBase(kCapacity)       {}
+	String(const String<kCapacity>& _rhs): StringBase(kCapacity)       { set(_rhs); }
+	String(String<kCapacity>&& _rhs):      StringBase(std::move(_rhs)) {}
+	String(const char* _fmt, ...):         StringBase(kCapacity)
 	{
 		va_list args;
 		va_start(args, _fmt);
