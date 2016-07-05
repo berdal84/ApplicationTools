@@ -71,7 +71,7 @@ namespace plr {
 	
 		void seed(uint _seed)               { PLR_ASSERT(_seed > 0u); m_seed = _seed; }
 		void discard(uint _count = 1u)      { while (_count > 0) { rand(); --_count; } }
-	
+
 		int rand()                          { return (int)urand(); }
 		int rand(int _max)                  { return (int)urand() % _max; }
 		int rand(int _min, int _max)        { return _min + (int)urand() % (_max - _min); }
@@ -80,7 +80,7 @@ namespace plr {
 		uint urand(uint _max)               { return urand() % _max; }
 		uint urand(uint _min, uint _max)    { return _min + urand() % (_max - _min); }
 
-		float frand()                       { return (float)urand() / (float)0x7fffffffU; }
+		float frand()                       { return (float)urand() / (float)0x7fffffffu; }
 		float frand(float _max)             { return frand() * _max; }
 		float frand(float _min, float _max) { return _min + frand() * (_max - _min); }
 	};

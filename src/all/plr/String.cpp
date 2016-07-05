@@ -16,7 +16,7 @@
 
 using namespace plr;
 
-static char* g_emptyString      = (char*)"\0NULL";
+static char* g_emptyString = (char*)"\0NULL";
 
 // PUBLIC
 
@@ -29,7 +29,7 @@ uint StringBase::set(const char* _src, uint _count)
 		alloc(len);
 	}
 	len -= 1u;
-	strncpy(m_buf, _src, _count);
+	strncpy(m_buf, _src, len);
 	m_buf[len] = '\0';
 	return len;
 }
@@ -80,7 +80,7 @@ uint StringBase::append(const char* _src, uint _count)
 		realloc(len + srclen);
 	}
 	srclen -= 1u;
-	memcpy(m_buf + len, _src, srclen);
+	strncpy(m_buf + len, _src, srclen);
 	len += srclen;
 	m_buf[len] = '\0';
 	return len;
@@ -152,7 +152,7 @@ StringBase::StringBase(StringBase&& _rhs)
 
 StringBase::~StringBase()
 {
-	if (!isLocal()) {
+	if (!isLocal() && !(m_buf == g_emptyString)) {
 		free(m_buf);
 	}
 }
@@ -161,7 +161,7 @@ StringBase::~StringBase()
 
 void StringBase::alloc(uint _capacity)
 {
-	if (!isLocal()) {
+	if (!isLocal() && !(m_buf == g_emptyString)) {
 		free(m_buf);
 	}
 	m_buf = (char*)malloc(_capacity * sizeof(char));
@@ -177,7 +177,7 @@ void StringBase::realloc(uint _capacity)
 		m_buf = getLocalBuf();
 		m_capacity = m_localBufSize;
 
-	} else */if (isLocal()) {
+	} else */if (isLocal() || m_buf == g_emptyString) {
 		m_buf = (char*)malloc(_capacity * sizeof(char));
 		strncpy(m_buf, getLocalBuf(), _capacity);
 		m_capacity = _capacity;

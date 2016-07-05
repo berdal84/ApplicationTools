@@ -20,13 +20,6 @@ namespace plr {
 /// buffer overflows it is replaced with a heap-allocated buffer. Once the 
 /// buffer is heap-allocated it never returns to using the local buffer.
 /// All `const char*` interfaces expect null-terminated strings.
-/// \todo Redesign: store capacity, followed by the local buf which must be at
-///   least the size of a ptr. When the local buf overflows allocate a new buf
-///   and store the ptr at the location of localbuf. You MUST ensure correct
-///   alignment of local buf (alignof(char*) = 8 bytes on x86-64). Therefore
-///   overhead is 16 bytes on 64 bit platform.
-/// \todo Revisit copy/move ctors. Should be able to copy and move between 
-///   strings of different capacity.
 /// \ingroup plr_core
 ////////////////////////////////////////////////////////////////////////////////
 class StringBase
@@ -35,8 +28,8 @@ public:
 	/// Copy _count characters from _src. If _count == 0, all of _src is copied
 	/// If the end of _src is found  before _count characters have been copied,
 	/// the result is padded with zeros until _count characters have been written
-	/// (as per strncpy). Unlike strncpy, an implicit null char is appended to
-	/// the end of the result.
+	/// (like strncpy). Unlike strncpy, an implicit null char is appended to the
+	/// end of the result.
 	/// \return New length of the string, excluding the null terminator.
 	uint set(const char* _src, uint _count = 0u);
 	/// Set formatted content.
@@ -45,7 +38,10 @@ public:
 	uint setfv(const char* _fmt, va_list _args);
 
 	/// Append _count characters from _src. If _count == 0, all of _src is
-	/// appended.
+	/// appended. If the end of _src is found  before _count characters have been 
+	/// appended, the result is padded with zeros until _count characters have been 
+	/// written (like strncpy). Unlike strncpy, an implicit null char is appended 
+	/// to the end of the result.
 	/// \return New length of the string, excluding the null terminator.
 	uint append(const char* _src, uint _count = 0u);
 	/// Append formatted content.
@@ -54,7 +50,7 @@ public:
 	uint appendfv(const char* _fmt, va_list _args);
 
 	/// String length, excluding the terminating null.
-	/// \note String length is not stored internally, hence getLength() is *not*
+	/// \note String length is not stored internally, hence getLength() is **not**
 	///    a constant time operation.
 	uint getLength() const;
 
@@ -72,8 +68,12 @@ public:
 
 protected:
 	
+	/// String always heap-allocated.
 	StringBase();
+	/// String has a local buffer of _localBufferSize chars.
 	StringBase(uint _localBufferSize);
+	/// Move ctor. If _rhs is local it *must* have the same capacity as this 
+	/// (because we don't store the local buffer size). 
 	StringBase(StringBase&& _rhs);
 
 	~StringBase();
@@ -104,6 +104,22 @@ public:
 	String(const String<kCapacity>& _rhs): StringBase(kCapacity)       { set(_rhs); }
 	String(String<kCapacity>&& _rhs):      StringBase(std::move(_rhs)) {}
 	String(const char* _fmt, ...):         StringBase(kCapacity)
+	{
+		va_list args;
+		va_start(args, _fmt);
+		setfv(_fmt, args);
+		va_end(args);
+	}
+};
+
+template <>
+class String<0>: public StringBase
+{
+public:
+	String():                      StringBase()                {}
+	String(const String<0>& _rhs): StringBase()                { set(_rhs); }
+	String(String<0>&& _rhs):      StringBase(std::move(_rhs)) {}
+	String(const char* _fmt, ...): StringBase()
 	{
 		va_list args;
 		va_start(args, _fmt);
