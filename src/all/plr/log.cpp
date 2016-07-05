@@ -5,32 +5,35 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include <plr/log.h>
 
+#include <plr/String.h>
+
 #include <cstdarg> // va_list, va_start, va_end
 #include <cstdio>  // vfprintf
 
-static const int kLogMsgMax = 1024; // max size for message buffer in DispatchLogCallback()
-static plr::LogCallback* g_LogCallback = 0;
+using namespace plr;
 
-static void DispatchLogCallback(const char* _fmt, va_list _args, plr::LogType _type)
+static const int kLogMsgMax = 1024; // max size for message buffer in DispatchLogCallback()
+static LogCallback* g_logCallback= 0;
+
+static void DispatchLogCallback(const char* _fmt, va_list _args, LogType _type)
 {
-	if (g_LogCallback) {
-		char buf[kLogMsgMax];
-		PLR_VERIFY(vsnprintf(buf, kLogMsgMax, _fmt, _args) > 0);
-		g_LogCallback(buf, _type);
+	if (g_logCallback) {
+		String<1024> buf(_fmt, _args);
+		g_logCallback(buf, _type);
 	}
 }
 
-void plr::SetLogCallback(LogCallback* _callback)
+void SetLogCallback(LogCallback* _callback)
 {
-	g_LogCallback = _callback;
+	g_logCallback= _callback;
 }
 
-plr::LogCallback* plr::GetLogCallback()
+LogCallback* GetLogCallback()
 {
-	return g_LogCallback;
+	return g_logCallback;
 }
 
-void plr::internal::Log(const char* _fmt, ...)
+void internal::Log(const char* _fmt, ...)
 {
 	va_list args;
 	va_start(args, _fmt);
@@ -39,7 +42,7 @@ void plr::internal::Log(const char* _fmt, ...)
 	va_end(args);
 }
 
-void plr::internal::LogError(const char* _fmt, ...)
+void internal::LogError(const char* _fmt, ...)
 {
 	va_list args;
 	va_start(args, _fmt);
@@ -48,7 +51,7 @@ void plr::internal::LogError(const char* _fmt, ...)
 	va_end(args);
 }
 
-void plr::internal::LogDebug(const char* _fmt, ...)
+void internal::LogDebug(const char* _fmt, ...)
 {
 	va_list args;
 	va_start(args, _fmt);
