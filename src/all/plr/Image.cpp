@@ -71,16 +71,6 @@ static void ConvertCopyImage(const void* _src, void* _dst, uint _srcCount, uint 
 	}
 }
 
-/// Data type tags (convert DataType to an actual type).
-template <Image::DataType T> struct DataTypeT {};
-	template<> struct DataTypeT<Image::DataType::kUint8>    { typedef uint8  Type; };
-	template<> struct DataTypeT<Image::DataType::kUint16>   { typedef uint16 Type; };
-	template<> struct DataTypeT<Image::DataType::kUint32>   { typedef uint32 Type; };	
-	template<> struct DataTypeT<Image::DataType::kSint8>    { typedef sint8  Type; };
-	template<> struct DataTypeT<Image::DataType::kSint16>   { typedef sint16 Type; };
-	template<> struct DataTypeT<Image::DataType::kSint32>   { typedef sint32 Type; };
-	template<> struct DataTypeT<Image::DataType::kFloat32>  { typedef float  Type; };
-
 /*******************************************************************************
 
                                    Image

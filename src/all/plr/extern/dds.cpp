@@ -495,15 +495,15 @@ bool Image::ReadDds(Image* img_, const char* _data, uint _dataSize)
 	if (dxt10h != 0) {
 		switch (DXGI_INFO[dxt10h->dxgiFormat].dataType) {
 			case DATA_TYPE_FLOAT:
-				img_->m_dataType = Image::DataType::kFloat32;
+				img_->m_dataType = DataType::kFloat32;
 				break;
 			case DATA_TYPE_SINT:
 			case DATA_TYPE_SNORM:
 				switch (DXGI_INFO[dxt10h->dxgiFormat].bitsPerChannel) {
-					case 32:  img_->m_dataType = Image::DataType::kSint32; break;
-					case 16:  img_->m_dataType = Image::DataType::kSint16; break;
+					case 32:  img_->m_dataType = DataType::kSint32; break;
+					case 16:  img_->m_dataType = DataType::kSint16; break;
 					case 8:   
-					default:  img_->m_dataType = Image::DataType::kSint8; break;
+					default:  img_->m_dataType = DataType::kSint8; break;
 				};
 				break;
 			
@@ -512,10 +512,10 @@ bool Image::ReadDds(Image* img_, const char* _data, uint _dataSize)
 			case DATA_TYPE_TYPELESS: // assume uint if typeless
 			default:
 				switch (DXGI_INFO[dxt10h->dxgiFormat].bitsPerChannel) {
-					case 32:  img_->m_dataType = Image::DataType::kUint32; break;
-					case 16:  img_->m_dataType = Image::DataType::kUint16; break;
+					case 32:  img_->m_dataType = DataType::kUint32; break;
+					case 16:  img_->m_dataType = DataType::kUint16; break;
 					case 8:   
-					default:  img_->m_dataType = Image::DataType::kUint8; break;
+					default:  img_->m_dataType = DataType::kUint8; break;
 				};
 				break;
 		}
@@ -634,7 +634,7 @@ bool Image::ReadDds(Image* img_, const char* _data, uint _dataSize)
 			default: PLR_LOG_ERR("DDS: Unsupported format (dxt10h->dxgiFormat = %d)", dxt10h->dxgiFormat); return false;
 		};
 		if (img_->m_compression != Image::CompressionType::kNone) {
-			img_->m_dataType = Image::DataType::kInvalid;
+			img_->m_dataType = DataType::kInvalid;
 		}
 	} else {
 		if (ddsh->ddspf.dwFlags & DDS_FOURCC) {
@@ -650,7 +650,7 @@ bool Image::ReadDds(Image* img_, const char* _data, uint _dataSize)
 				case MAKEFOURCC('B','C','5','U'): img_->m_layout = Image::Layout::kRG;   img_->m_compression = Image::CompressionType::kBC5; break;
 				default: PLR_LOG_ERR("DDS: Unsupported format (ddsh->ddspf.dwFourCC = %d)", ddsh->ddspf.dwFourCC); return false;
 			};
-			img_->m_dataType = Image::DataType::kInvalid;
+			img_->m_dataType = DataType::kInvalid;
 		} else {
 		 // uncompressed format
 			switch (ddsh->ddspf.dwRGBBitCount) {
@@ -660,7 +660,7 @@ bool Image::ReadDds(Image* img_, const char* _data, uint _dataSize)
 				case 32:  
 				default:  img_->m_layout = Image::Layout::kRGBA;
 			};
-			img_->m_dataType = Image::DataType::kUint8;
+			img_->m_dataType = DataType::kUint8;
 		}
 	}
 	if (img_->m_compression == Image::CompressionType::kNone) {
@@ -759,7 +759,7 @@ bool Image::WriteDds(const char* _path, const Image* _img)
 		};
 	} else {
 		switch (_img->m_dataType) {
-			case Image::DataType::kFloat32:
+			case DataType::kFloat32:
 				switch (_img->m_layout) {
 					case Image::Layout::kR:    dxt10h->dxgiFormat = DXGI_FORMAT_R32_FLOAT; break;
 					case Image::Layout::kRG:   dxt10h->dxgiFormat = DXGI_FORMAT_R32G32_FLOAT; break;
@@ -768,7 +768,7 @@ bool Image::WriteDds(const char* _path, const Image* _img)
 					default:                   dxt10h->dxgiFormat = DXGI_FORMAT_R32G32B32A32_FLOAT; break;
 				};
 				break;
-			case Image::DataType::kUint32:
+			case DataType::kUint32:
 				switch (_img->m_layout) {
 					case Image::Layout::kR:    dxt10h->dxgiFormat = DXGI_FORMAT_R32_UINT; break;
 					case Image::Layout::kRG:   dxt10h->dxgiFormat = DXGI_FORMAT_R32G32_UINT; break;
@@ -777,7 +777,7 @@ bool Image::WriteDds(const char* _path, const Image* _img)
 					default:                   dxt10h->dxgiFormat = DXGI_FORMAT_R32G32B32A32_UINT; break;
 				};
 				break;
-			case Image::DataType::kSint32:
+			case DataType::kSint32:
 				switch (_img->m_layout) {
 					case Image::Layout::kR:    dxt10h->dxgiFormat = DXGI_FORMAT_R32_SINT; break;
 					case Image::Layout::kRG:   dxt10h->dxgiFormat = DXGI_FORMAT_R32G32_SINT; break;
@@ -786,7 +786,7 @@ bool Image::WriteDds(const char* _path, const Image* _img)
 					default:                   dxt10h->dxgiFormat = DXGI_FORMAT_R32G32B32A32_SINT; break;
 				};
 				break;
-			case Image::DataType::kUint16:
+			case DataType::kUint16:
 				switch (_img->m_layout) {
 					case Image::Layout::kR:    dxt10h->dxgiFormat = DXGI_FORMAT_R16_UINT; break;
 					case Image::Layout::kRG:   dxt10h->dxgiFormat = DXGI_FORMAT_R16G16_UINT; break;
@@ -795,7 +795,7 @@ bool Image::WriteDds(const char* _path, const Image* _img)
 					default:                  dxt10h->dxgiFormat = DXGI_FORMAT_R16G16B16A16_UINT; break;
 				};
 				break;
-			case Image::DataType::kSint16:
+			case DataType::kSint16:
 				switch (_img->m_layout) {
 					case Image::Layout::kR:    dxt10h->dxgiFormat = DXGI_FORMAT_R16_SINT; break;
 					case Image::Layout::kRG:   dxt10h->dxgiFormat = DXGI_FORMAT_R16G16_SINT; break;
@@ -804,7 +804,7 @@ bool Image::WriteDds(const char* _path, const Image* _img)
 					default:                  dxt10h->dxgiFormat = DXGI_FORMAT_R16G16B16A16_SINT; break;
 				};
 				break;
-			case Image::DataType::kUint8:
+			case DataType::kUint8:
 				switch (_img->m_layout) {
 					case Image::Layout::kR:    dxt10h->dxgiFormat = DXGI_FORMAT_R8_UNORM; break;
 					case Image::Layout::kRG:   dxt10h->dxgiFormat = DXGI_FORMAT_R8G8_UNORM; break;
@@ -813,7 +813,7 @@ bool Image::WriteDds(const char* _path, const Image* _img)
 					default:                   dxt10h->dxgiFormat = DXGI_FORMAT_R8G8B8A8_UNORM; break;
 				};
 				break;
-			case Image::DataType::kSint8:
+			case DataType::kSint8:
 				switch (_img->m_layout) {
 					case Image::Layout::kR:    dxt10h->dxgiFormat = DXGI_FORMAT_R8_SNORM; break;
 					case Image::Layout::kRG:   dxt10h->dxgiFormat = DXGI_FORMAT_R8G8_SNORM; break;

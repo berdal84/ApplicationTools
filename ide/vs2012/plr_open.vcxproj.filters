@@ -66,5 +66,6 @@
     <ClInclude Include="..\..\src\all\plr\extern\stb_image_write.h">
       <Filter>extern</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\all\plr\types.h" />
   </ItemGroup>
 </Project>

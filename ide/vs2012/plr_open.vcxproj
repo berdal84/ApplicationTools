@@ -47,6 +47,7 @@
     <ClInclude Include="..\..\src\all\plr\StringHash.h" />
     <ClInclude Include="..\..\src\all\plr\TextParser.h" />
     <ClInclude Include="..\..\src\all\plr\Time.h" />
+    <ClInclude Include="..\..\src\all\plr\types.h" />
     <ClInclude Include="..\..\src\win\plr\FileImpl.h" />
     <ClInclude Include="..\..\src\win\plr\platform.h" />
     <ClInclude Include="..\..\src\win\plr\win.h" />

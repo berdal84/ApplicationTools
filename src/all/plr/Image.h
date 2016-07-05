@@ -8,6 +8,7 @@
 #define plr_Image_h
 
 #include <plr/def.h>
+#include <plr/types.h>
 
 namespace plr {
 
@@ -54,19 +55,6 @@ public:
 		kBC7,
 	
 		kInvalid
-	};
-	
-	enum class DataType
-	{
-		kUint8,
-		kUint16,
-		kUint32,
-		kSint8,
-		kSint16,
-		kSint32,
-		kFloat32,
-	
-		kInvalid // set for compressed formats
 	};
 
 	enum class Layout
