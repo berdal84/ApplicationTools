@@ -102,6 +102,7 @@ class String: public StringBase
 public:
 	String():                              StringBase(kCapacity)       {}
 	String(const String<kCapacity>& _rhs): StringBase(kCapacity)       { set(_rhs); }
+	String<kCapacity>& operator=(const String<kCapacity>& _rhs)        { set(_rhs); return *this; }
 	String(String<kCapacity>&& _rhs):      StringBase(std::move(_rhs)) {}
 	String(const char* _fmt, ...):         StringBase(kCapacity)
 	{
@@ -118,6 +119,7 @@ class String<0>: public StringBase
 public:
 	String():                      StringBase()                {}
 	String(const String<0>& _rhs): StringBase()                { set(_rhs); }
+	String<0>& operator=(const String<0>& _rhs)                { set(_rhs); return *this; }
 	String(String<0>&& _rhs):      StringBase(std::move(_rhs)) {}
 	String(const char* _fmt, ...): StringBase()
 	{
