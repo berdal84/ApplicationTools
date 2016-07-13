@@ -56,6 +56,7 @@ public:
 
 	void clear()                    { m_buf[0] = '\0'; }
 
+	bool isEmpty() const            { return m_buf[0] == '\0'; }
 	bool isLocal() const            { return m_buf == getLocalBuf(); }
 	uint getCapacity() const        { return m_capacity; }
 
