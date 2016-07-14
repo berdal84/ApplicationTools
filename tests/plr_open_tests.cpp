@@ -83,12 +83,15 @@ void TestIniFile()
 template <uint kCapacity>
 void TestString()
 {
+	String<0> heapAlways;
+	heapAlways.set("heapAlways", 4u);
+	heapAlways.append("1234567890", 300);
+	PLR_LOG("%s", (const char*)heapAlways);
+	
 	String<kCapacity> str;
-
 	uint len = str.appendf("Int: %d", 12);
 	len = str.appendf("Int: %d", 48);
-
-//	PLR_LOG("%s = %d", (const char*)str, len);
+    PLR_LOG("%s = %d", (const char*)str, len);
 }
 
 int main(int _argc, char** _argv)
@@ -98,21 +101,22 @@ int main(int _argc, char** _argv)
 	PLR_LOG_DBG("DEBUG");
 	PLR_TIME_DBG("plr_open_tests");
 
-	#define print_typeinfo(t) PLR_LOG("sizeof(%s)\t%d\talignof(%s)\t%d", #t, sizeof(t), #t, PLR_ALIGNOF(t));
+	#define print_typeinfo(t) PLR_LOG("sizeof(%s)\t\t%d\talignof(%s)\t\t%d", #t, sizeof(t), #t, PLR_ALIGNOF(t));
 	print_typeinfo(char);
 	print_typeinfo(char*);
 	print_typeinfo(sint8);
-	print_typeinfo(uint8);
 	print_typeinfo(sint16);
-	print_typeinfo(uint16);
 	print_typeinfo(sint32);
-	print_typeinfo(uint32);
 	print_typeinfo(sint64);
+	print_typeinfo(uint8);
+	print_typeinfo(uint16);
+	print_typeinfo(uint32);
 	print_typeinfo(uint64);
+	//print_typeinfo(float16);
+	print_typeinfo(float32);
+	print_typeinfo(float64);
 	print_typeinfo(sint);
 	print_typeinfo(uint);
-	print_typeinfo(float);
-	print_typeinfo(double);
 	// math types
 	print_typeinfo(vec2);
 	print_typeinfo(vec3);
@@ -124,8 +128,8 @@ int main(int _argc, char** _argv)
 
 	#undef print_typeinfo
 
-	TestIniFile();
-	TestString<8>();
+	//TestIniFile();
+	//TestString<8>();
 
 	return 0;
 }

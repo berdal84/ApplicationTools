@@ -7,10 +7,8 @@
 #ifndef plr_types_h
 #define plr_types_h
 
-
 #include <cstddef> // size_t
 #include <cstdint>
-
 
 namespace plr {
 
@@ -29,30 +27,6 @@ typedef double          float64;
 
 typedef std::ptrdiff_t  sint;
 typedef std::size_t     uint;
-
-namespace internal {
-	#include <plr/extern/half.h>
-}
-class float16
-{
-	float16(float32 _val)              { m_val = internal::half_from_float((uint32)_val); }
-	float16& operator=(float32 _val)   { m_val = internal::half_from_float((uint32)_val); return *this; }
-	operator float32() const           { return (float32)internal::half_to_float(m_val); }
-
-	float16 operator+(float16 _rhs)    { return float16(internal::half_add(m_val, _rhs.m_val)); }
-	float16 operator-(float16 _rhs)    { return float16(internal::half_sub(m_val, _rhs.m_val)); }
-	float16 operator*(float16 _rhs)    { return float16(internal::half_mul(m_val, _rhs.m_val)); }
-	float16 operator/(float16 _rhs)    { return float16(internal::half_mul(m_val, (float16(1.0f) / _rhs).m_val)); } 
-
-	float16& operator+=(float16 _rhs)  { m_val = internal::half_add(m_val, _rhs.m_val); return *this; }
-	float16& operator-=(float16 _rhs)  { m_val = internal::half_add(m_val, _rhs.m_val); return *this; }
-	float16& operator*=(float16 _rhs)  { m_val = internal::half_mul(m_val, _rhs.m_val); return *this; }
-	float16& operator/=(float16 _rhs)  { m_val = internal::half_mul(m_val, (float16(1.0f) / _rhs).m_val); return *this; }
-
-private:
-	float16(uint16 _raw): m_val(_raw)  {}
-	uint16 m_val;
-};
 
 enum class DataType
 {
@@ -75,17 +49,20 @@ enum class DataType
 
 /// Data type tags (convert DataType to an actual type).
 template <DataType T> struct DataTypeT {};
-	template<> struct DataTypeT<DataType::kSint8>    { typedef sint8  Type; };
-	template<> struct DataTypeT<DataType::kSint16>   { typedef sint16 Type; };
-	template<> struct DataTypeT<DataType::kSint32>   { typedef sint32 Type; };
-	template<> struct DataTypeT<DataType::kSint64>   { typedef sint64 Type; };
-	template<> struct DataTypeT<DataType::kUint8>    { typedef uint8  Type; };
-	template<> struct DataTypeT<DataType::kUint16>   { typedef uint16 Type; };
-	template<> struct DataTypeT<DataType::kUint32>   { typedef uint32 Type; };
-	template<> struct DataTypeT<DataType::kUint64>   { typedef uint64 Type; };
-	template<> struct DataTypeT<DataType::kFloat16>  { typedef float16 Type; };
-	template<> struct DataTypeT<DataType::kFloat32>  { typedef float32  Type; };
-	template<> struct DataTypeT<DataType::kFloat64>  { typedef float64  Type; };
+	template<> struct DataTypeT<DataType::kSint8>    { typedef sint8   Type; };
+	template<> struct DataTypeT<DataType::kSint16>   { typedef sint16  Type; };
+	template<> struct DataTypeT<DataType::kSint32>   { typedef sint32  Type; };
+	template<> struct DataTypeT<DataType::kSint64>   { typedef sint64  Type; };
+	template<> struct DataTypeT<DataType::kUint8>    { typedef uint8   Type; };
+	template<> struct DataTypeT<DataType::kUint16>   { typedef uint16  Type; };
+	template<> struct DataTypeT<DataType::kUint32>   { typedef uint32  Type; };
+	template<> struct DataTypeT<DataType::kUint64>   { typedef uint64  Type; };
+	//template<> struct DataTypeT<DataType::kFloat16>  { typedef float16 Type; }; // todo
+	template<> struct DataTypeT<DataType::kFloat32>  { typedef float32 Type; };
+	template<> struct DataTypeT<DataType::kFloat64>  { typedef float64 Type; };
+
+/// \return Size (bytes) of DataType _type.
+uint DataTypeSize(const DataType _type);
 
 } // namespace plr
 

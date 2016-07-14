@@ -23,6 +23,9 @@
 #define uint32  glm_uint32
 #define uint64  glm_uint64
 #define uint    glm_uint
+#define float16 glm_float16
+#define float32 glm_float32
+#define float64 glm_float64
 
 #define GLM_FORCE_SIZE_FUNC
 #define GLM_FORCE_NO_CTOR_INIT
@@ -42,6 +45,9 @@
 #undef uint32
 #undef uint64
 #undef uint
+#undef float16
+#undef float32
+#undef float64
 
 #include <plr/def.h>
 
