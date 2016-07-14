@@ -7,8 +7,7 @@
 #ifndef plr_def_h
 #define plr_def_h
 
-#include <cstddef> // size_t
-#include <cstdint> // sized ints
+#include <plr/types.h>
 
 // Compiler
 #if defined(__GNUC__)
@@ -84,19 +83,6 @@
 #define PLR_CLAMP(_x, _min, _max) PLR_MAX(PLR_MIN(_x, _max), _min)
 
 namespace plr {
-
-typedef std::int8_t     sint8;
-typedef std::uint8_t    uint8;
-typedef std::int16_t    sint16;
-typedef std::uint16_t   uint16;
-typedef std::int32_t    sint32;
-typedef std::uint32_t   uint32;
-typedef std::int64_t    sint64;
-typedef std::uint64_t   uint64;
-
-typedef std::ptrdiff_t  sint;
-typedef std::size_t     uint;
-
 
 enum class AssertBehavior
 {
