@@ -511,7 +511,7 @@ bool Image::ReadDefault(Image* img_, const char* _data, uint _dataSize)
 	img_->m_compression = CompressionType::kNone;
 	img_->alloc();
 	memcpy(img_->m_data, d, x * y * cmp); // \todo, avoid this
-	stbi_image_free(img_);
+	stbi_image_free(d);
 	return true;
 }
 bool Image::WriteBmp(const char* _path, const Image* _img)
