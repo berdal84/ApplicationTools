@@ -478,9 +478,11 @@ bool Image::ReadDds(Image* img_, const char* _data, uint _dataSize)
 		if (img_->m_depth > 1) {
 			img_->m_type = Image::Type::k3d;
 		}
-		if (ddsh->dwCaps & DDS_SURFACE_FLAGS_CUBEMAP) {
-			img_->m_type = Image::Type::kCubemap;
-		}
+	 // \note the following test is (incorrectly) positive for DDS with a mip chain exported
+	 //   from the NVidia Photoshop tool
+		//if (ddsh->dwCaps & DDS_SURFACE_FLAGS_CUBEMAP) {
+		//	img_->m_type = Image::Type::kCubemap;
+		//}
 	}
 	if (img_->m_arrayCount > 1) {
 		switch (img_->m_type) {
@@ -642,8 +644,9 @@ bool Image::ReadDds(Image* img_, const char* _data, uint _dataSize)
 			switch (ddsh->ddspf.dwFourCC) {
 				case MAKEFOURCC('D','X','T','1'): img_->m_layout = Image::Layout::kRGB;  img_->m_compression = Image::CompressionType::kBC1; break; // layout could also be rgba
 				case MAKEFOURCC('D','X','T','2'): img_->m_layout = Image::Layout::kRGBA; img_->m_compression = Image::CompressionType::kBC2; break;
-				case MAKEFOURCC('D','X','T','3'): img_->m_layout = Image::Layout::kRGBA; img_->m_compression = Image::CompressionType::kBC3; break;
+				case MAKEFOURCC('D','X','T','3'): img_->m_layout = Image::Layout::kRGBA; img_->m_compression = Image::CompressionType::kBC2; break;
 				case MAKEFOURCC('D','X','T','4'): img_->m_layout = Image::Layout::kRGBA; img_->m_compression = Image::CompressionType::kBC3; break;
+				case MAKEFOURCC('D','X','T','5'): img_->m_layout = Image::Layout::kRGBA; img_->m_compression = Image::CompressionType::kBC3; break;
 				case MAKEFOURCC('B','C','4','S'):
 				case MAKEFOURCC('B','C','4','U'): img_->m_layout = Image::Layout::kR;    img_->m_compression = Image::CompressionType::kBC4; break;
 				case MAKEFOURCC('B','C','5','S'):
