@@ -138,6 +138,7 @@ public:
 	uint getMipmapCount() const                  { return m_mipmapCount; }
 	uint getTexelSize() const                    { return m_texelSize; }
 	Type getType() const                         { return m_type; }
+	Layout getLayout() const                     { return m_layout; }
 	DataType getImageDataType() const            { return m_dataType; }
 	CompressionType getCompressionType() const   { return m_compression; }
 

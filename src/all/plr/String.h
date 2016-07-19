@@ -49,6 +49,11 @@ public:
 	uint appendf(const char* _fmt, ...);
 	uint appendfv(const char* _fmt, va_list _args);
 
+	/// Find the first (or last) occurence of any character in _list (which is 
+	/// null-terminated). If no match is found return null.
+	const char* findFirst(const char* _list) const;
+	const char* findLast(const char* _list) const;
+
 	/// String length, excluding the terminating null.
 	/// \note String length is not stored internally, hence getLength() is **not**
 	///    a constant time operation.

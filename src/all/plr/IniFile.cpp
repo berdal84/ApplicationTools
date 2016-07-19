@@ -15,8 +15,6 @@ static const char* kLineEnd = "\n";
 
 #define INI_ERROR(line, msg) PLR_LOG_ERR("Ini syntax error, line %d: '%s'", line, msg)
 
-const StringHash IniFile::kDefaultSection = StringHash::kInvalidHash;
-
 IniFile::~IniFile()
 {
 	for (uint i = 0u; i < m_keys.size(); ++i) {
@@ -24,7 +22,7 @@ IniFile::~IniFile()
 		if (k.m_type != ValueType::kString) {
 			continue;
 		}
-		for (uint j = k.m_valueOffset; j < k.m_valueOffset + k.m_count; ++j) {
+		for (uint j = k.m_valueOffset; j < k.m_valueOffset + k.m_valueCount; ++j) {
 			delete[] m_values[j].m_string;
 		}
 	}
@@ -44,7 +42,7 @@ bool IniFile::parse(const char* _str)
 	PLR_ASSERT(_str);
 	
 	if (m_sections.empty()) {
-		Section s = { kDefaultSection, 0u, m_keys.size() };
+		Section s = { "", 0u, m_keys.size() };
 		m_sections.push_back(s);
 	}
 
@@ -62,7 +60,8 @@ bool IniFile::parse(const char* _str)
 				INI_ERROR(tp.getLineCount(beg), "Unterminated section");
 				return false;
 			}
-			Section s = { StringHash(beg, tp - beg), 0u, m_keys.size() };
+			Section s = { NameStr(), 0u, m_keys.size() };
+			s.m_name.set(beg, tp - beg);
 			m_sections.push_back(s);
 			tp.advance(); // skip ']'
 		} else if (*tp == '=' || *tp == ',') {
@@ -138,11 +137,11 @@ bool IniFile::parse(const char* _str)
 				return false;
 			}
 
-			if (k.m_count > 0u && k.m_type != t) {
+			if (k.m_valueCount > 0u && k.m_type != t) {
 				INI_ERROR(tp.getLineCount(vbeg), "Invalid array (arrays must be homogeneous)");
 				return false;
 			}
-			++k.m_count;
+			++k.m_valueCount;
 		} else if (!tp.isNull()) {
 		 // new data
 			if (tp.isNum()) {
@@ -157,43 +156,36 @@ bool IniFile::parse(const char* _str)
 			}
 
 			Key k;
-			k.m_key = StringHash(beg, tp - beg);
+			k.m_name.set(beg, tp - beg);
 			k.m_valueOffset = m_values.size();
-			k.m_count = 0;
+			k.m_valueCount = 0u;
 			m_keys.push_back(k);
 
-			++m_sections.back().m_count;
+			++m_sections.back().m_propertyCount;
 		}
 	};
 	return true;
 }
 
-IniFile::Property IniFile::getProperty(const char* _key, const char* _section)
-{
-	StringHash k(_key);
-	StringHash s = _section ? StringHash(_section) : StringHash::kInvalidHash;
-	return getProperty(k, s);
-}
-
-IniFile::Property IniFile::getProperty(StringHash _key, StringHash _section)
+IniFile::Property IniFile::getProperty(const char* _name, const char* _section)
 {
 	Property ret(ValueType::kBool, 0u, 0);
 
 	uint koff = 0u;
 	uint kcount = m_keys.size();
-	if (_section != StringHash::kInvalidHash) {
+	if (_section) {
 		for (uint i = 0u; i < m_sections.size(); ++i) {
 			if (m_sections[i].m_name == _section) {
 				koff = m_sections[i].m_keyOffset;
-				kcount = m_sections[i].m_count;
+				kcount = m_sections[i].m_propertyCount;
 				break;
 			}
 		}
 	}
 	for (uint i = koff, n = koff + kcount; i < n; ++i) {
-		if (m_keys[i].m_key == _key) {
+		if (m_keys[i].m_name == _name) {
 			ret.m_type = (uint)m_keys[i].m_type;
-			ret.m_count = m_keys[i].m_count;
+			ret.m_count = m_keys[i].m_valueCount;
 			ret.m_first = &m_values[m_keys[i].m_valueOffset];
 			break;
 		}

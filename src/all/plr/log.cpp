@@ -38,6 +38,7 @@ void internal::Log(const char* _fmt, ...)
 	va_list args;
 	va_start(args, _fmt);
 	PLR_VERIFY((vfprintf(stdout, _fmt, args)) > 0);
+	PLR_VERIFY((fprintf(stdout, "\n")) > 0);
 	DispatchLogCallback(_fmt, args, LogType::kLog);
 	va_end(args);
 }
@@ -47,6 +48,7 @@ void internal::LogError(const char* _fmt, ...)
 	va_list args;
 	va_start(args, _fmt);
 	PLR_VERIFY((vfprintf(stderr, _fmt, args)) > 0);
+	PLR_VERIFY((fprintf(stderr, "\n")) > 0);
 	DispatchLogCallback(_fmt, args, LogType::kError);
 	va_end(args);
 }
@@ -56,6 +58,7 @@ void internal::LogDebug(const char* _fmt, ...)
 	va_list args;
 	va_start(args, _fmt);
 	PLR_VERIFY((vfprintf(stdout, _fmt, args)) > 0);
+	PLR_VERIFY((fprintf(stdout, "\n")) > 0);
 	DispatchLogCallback(_fmt, args, LogType::kDebug);
 	va_end(args);
 }

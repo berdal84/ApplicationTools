@@ -178,10 +178,11 @@ public:
 	}
 };
 
+#define PLR_AUTOTIMER(name) plr::AutoTimer PLR_UNIQUE_NAME(_plrAutoTimer_)(name)
 #ifdef PLR_DEBUG
-	#define PLR_TIME_DBG(name) plr::AutoTimer PLR_UNIQUE_NAME(_plrAutoTimer_)(name)
+	#define PLR_AUTOTIMER_DBG(name) PLR_AUTOTIMER(name)
 #else
-	#define PLR_TIME_DBG(name) PLR_UNUSED(name)
+	#define PLR_AUTOTIMER_DBG(name) PLR_UNUSED(name)
 #endif
 
 } // namespace plr

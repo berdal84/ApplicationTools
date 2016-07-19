@@ -146,6 +146,7 @@ bool Image::Read(Image* img_, const char* _path, FileFormat _format)
 	if (_format == FileFormat::kInvalid) {
 		_format = GuessFormat(_path);
 		if (_format == FileFormat::kInvalid) {
+			PLR_LOG_ERR("Image: Unsupported file format '%s'", _path);
 			return false;
 		}
 	}
@@ -164,7 +165,8 @@ bool Image::Read(Image* img_, const char* _path, FileFormat _format)
 		case FileFormat::kPng:
 		case FileFormat::kPsd:
 		case FileFormat::kTga: return ReadDefault(img_, f.getData(), f.getDataSize());
-		default: return false;
+
+		default: PLR_ASSERT(false); return false; // should never happen as we check the ext above
 	};
 
 	return true;
@@ -180,7 +182,7 @@ bool Image::Write(Image* _img, const char* _path, FileFormat _format)
 	if (_format == FileFormat::kInvalid) {
 		_format = GuessFormat(_path);
 		if (_format == FileFormat::kInvalid) {
-			PLR_ASSERT(false);
+			PLR_LOG_ERR("Image: Unsupported file format '%s'", _path);
 			goto Image_Save_end;
 		}
 	}
@@ -195,14 +197,13 @@ bool Image::Write(Image* _img, const char* _path, FileFormat _format)
 		case FileFormat::kDds: ret = WriteDds(_path, _img); break;
 		case FileFormat::kPng: ret = WritePng(_path, _img); break;
 		case FileFormat::kTga: ret = WriteTga(_path, _img); break;
-		default: PLR_ASSERT(false); goto Image_Save_end;
+		default: PLR_LOG_ERR("Image: File format not supported for writing '%s'", _path); goto Image_Save_end;
 	};
 
 	ret = true;
 
 Image_Save_end:
-	if (!ret) {
-	}
+	PLR_ASSERT(ret);
 	return ret;
 }
 
@@ -436,7 +437,7 @@ Image::FileFormat Image::GuessFormat(const char* _path)
 			return FileFormat::kPng;
 		} else if (strcmp_ignore_case(ext, ".tga") == 0) {
 			return FileFormat::kTga;
-		} else if (strcmp_ignore_case(ext, ".jpg") || strcmp_ignore_case(ext, ".jpeg") == 0) {
+		} else if (strcmp_ignore_case(ext, ".jpg") == 0 || strcmp_ignore_case(ext, ".jpeg") == 0) {
 			return FileFormat::kJpg;
 		} else if (strcmp_ignore_case(ext, ".gif") == 0) {
 			return FileFormat::kGif;
@@ -510,7 +511,7 @@ bool Image::ReadDefault(Image* img_, const char* _data, uint _dataSize)
 	img_->m_compression = CompressionType::kNone;
 	img_->alloc();
 	memcpy(img_->m_data, d, x * y * cmp); // \todo, avoid this
-	stbi_image_free(img_);
+	stbi_image_free(d);
 	return true;
 }
 bool Image::WriteBmp(const char* _path, const Image* _img)
