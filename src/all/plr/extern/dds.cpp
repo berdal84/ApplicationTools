@@ -723,8 +723,8 @@ bool Image::WriteDds(const char* _path, const Image* _img)
 // allocate scratch buffer
 	uint buflen = _img->m_arrayLayerSize * _img->m_arrayCount;
 	buflen += sizeof(DDS_MAGIC) + sizeof(DDS_HEADER) + sizeof(DDS_HEADER_DXT10);
-	char* buf = new char[buflen];
-	PLR_ASSERT(buf);
+	f.setDataSize(buflen);
+	char* buf = f.getData();
 	if (!buf) {
 		PLR_LOG_ERR("Failed to allocate %d bytes writing %s", buflen, _path);
 		goto WriteDds_End;
@@ -859,11 +859,9 @@ bool Image::WriteDds(const char* _path, const Image* _img)
 	}
 
 // output to file
-	f.setData(buf, buflen); // \todo create the file upfront and use its buffer directly
 	ret = File::Write(&f, _path);
 
 WriteDds_End:
-	delete[] buf;
 	return ret;
 }
 

@@ -8,32 +8,43 @@
 #endif
 
 #include <plr/def.h>
+#include <plr/String.h>
 
 namespace plr { namespace internal {
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class FileBase
 /// Base class for File implementations.
+/// \todo Root path is not thread safe.
 /// \internal \ingroup plr_core
 ////////////////////////////////////////////////////////////////////////////////
 class FileBase
 {
+public:
+	static void SetRootPath(const char* _path) { s_rootPath.set(_path); }
+	static const char* GetRootPath()           { return (const char*)s_rootPath; }
+
 protected:
 	FileBase();
 	~FileBase();
+	void swap(FileBase& _file_);
+	
+	/// _data may be 0 in which case m_data is allocated but not initialized.
+	void setData(const char* _data, uint64 _size);
 
 	const char* getPath() const       { return m_path; }
+	void setPath(const char* _path)   { m_path.set(_path); }
 	const char* getData() const       { return m_data; }
 	char* getData()                   { return m_data; }
 	uint64 getDataSize() const        { return m_dataSize; }
 
-	void setPath(const char* _path);
-	void setData(const char* _data, uint64 _size);
-	void swap(FileBase& _file_);
+	typedef String<64> PathStr;
 
-	char* m_path;
-	char* m_data;
+	static PathStr s_rootPath; //< The root path is prepended to m_path during File::Read()/File::Write().
+
+	char*  m_data;
 	uint64 m_dataSize;
+	PathStr m_path;
 
 }; // class FileBase
 

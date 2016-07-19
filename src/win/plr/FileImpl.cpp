@@ -9,6 +9,7 @@
 #include <plr/log.h>
 #include <plr/platform.h>
 #include <plr/win.h>
+#include <plr/String.h>
 
 #include <utility> // std::swap
 
@@ -49,12 +50,15 @@ bool FileImpl::Read(FileImpl* file_, const char* _path)
 	PLR_ASSERT(file_);
 	PLR_ASSERT(_path);
 
+	String<64> fullPath;
+	fullPath.setf("%s%s", (const char*)s_rootPath, _path);
+
 	bool ret = false;
 	const char* err = "";
 	char* data = 0;
 
  	HANDLE h = CreateFile(
-		_path,
+		(const char*)fullPath,
 		GENERIC_READ,
 		FILE_SHARE_READ,
 		NULL,
@@ -93,7 +97,7 @@ FileImpl_Load_end:
 		if (data) {
 			delete[] data;
 		}
-		PLR_LOG_ERR("Error loading '%s':\n\t%s", _path, err);
+		PLR_LOG_ERR("Error loading '%s':\n\t%s", (const char*)fullPath, err);
 		PLR_ASSERT(false);
 	}
 	if (h != INVALID_HANDLE_VALUE) {
@@ -111,12 +115,15 @@ bool FileImpl::Write(const FileImpl* _file, const char* _path)
 	}
 	PLR_ASSERT(_path);
 
+	String<64> fullPath;
+	fullPath.setf("%s%s", (const char*)s_rootPath, _path);
+
 	bool ret = false;
 	const char* err = "";
 	char* data = 0;
 
  	HANDLE h = CreateFile(
-		_path,
+		(const char*)fullPath,
 		GENERIC_WRITE,
 		0, // prevent sharing while we write
 		NULL,
@@ -140,7 +147,7 @@ bool FileImpl::Write(const FileImpl* _file, const char* _path)
 
 FileImpl_Save_end:
 	if (!ret) {
-		PLR_LOG_ERR("Error saving '%s':\n\t%s", _path, err);
+		PLR_LOG_ERR("Error saving '%s':\n\t%s", (const char*)fullPath, err);
 		PLR_ASSERT(false);
 	}
 	if (h != INVALID_HANDLE_VALUE) {

@@ -55,11 +55,12 @@ public:
 
 	
 	const char* getPath() const                      { return Impl::getPath(); }
+	void setPath(const char* _path)                  { Impl::setPath(_path); }
 	const char* getData() const                      { return Impl::getData(); }
 	char* getData()                                  { return Impl::getData(); }
-	uint64 getDataSize() const                       { return Impl::getDataSize(); }
-	void setPath(const char* _path)                  { Impl::setPath(_path); }
 	void setData(const char* _data, uint64 _size)    { Impl::setData(_data, _size); }
+	uint64 getDataSize() const                       { return Impl::getDataSize(); }
+	void setDataSize(uint64 _size)                   { Impl::setData(0, _size); }
 
 }; // class File
 
