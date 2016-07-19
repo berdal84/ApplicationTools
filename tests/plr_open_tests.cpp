@@ -71,7 +71,7 @@ void CheckTestIniProperties(IniFile& _ini, const char* _section = 0)
 }
 void TestIniFile()
 {
-	PLR_TIME_DBG("TestIniFile()");
+	PLR_AUTOTIMER("TestIniFile()");
 	IniFile ini;
 	PLR_VERIFY(ini.load("test.ini"));
 	
@@ -99,7 +99,7 @@ int main(int _argc, char** _argv)
 	PLR_LOG("plr_open_tests\n--------------");
 	//PLR_LOG("%s", GetDateTime().asString().c_str());
 	PLR_LOG_DBG("DEBUG");
-	PLR_TIME_DBG("plr_open_tests");
+	PLR_AUTOTIMER("plr_open_tests");
 
 	#define print_typeinfo(t) PLR_LOG("sizeof(%s)\t\t%d\talignof(%s)\t\t%d", #t, sizeof(t), #t, PLR_ALIGNOF(t));
 	print_typeinfo(char);
@@ -128,7 +128,7 @@ int main(int _argc, char** _argv)
 
 	#undef print_typeinfo
 
-	//TestIniFile();
+	TestIniFile();
 	//TestString<8>();
 
 	return 0;
