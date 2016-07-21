@@ -14,6 +14,7 @@
 
 namespace plr {
 
+class File;
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class IniFile
@@ -60,8 +61,8 @@ public:
 		uint   m_count;
 		Value* m_first;
 
-		Property(ValueType _type, uint _count, Value* _first)
-			: m_type((uint)_type), m_count(_count), m_first(_first)
+		Property(ValueType _type, uint16 _count, Value* _first)
+			: m_type((uint8)_type), m_count(_count), m_first(_first)
 		{
 		}
 
@@ -75,15 +76,14 @@ public:
 		const char* asString(uint i = 0u) const { PLR_ASSERT(i < m_count); return m_first[i].m_string; }	
 	};
 	
-	static const StringHash kDefaultSection;
-
-	~IniFile();
-	
-	/// Load and parse the file specified by _path. This can be called multiple 
-	/// times to accumulate properties from several files. This invalidates any
-	/// existing Property instances returned by getProperty().
+	/// Read from a file and parse. Invalidates any existing Property instances
+	/// returned by getProperty();
 	/// \return false if an error occurred.
-	bool load(const char* _path);
+	static bool Read(IniFile* iniFile_, const File* _file);
+	static bool Read(IniFile* iniFile_, const char* _path);
+
+	IniFile() {}
+	~IniFile();
 	
 	/// Retrieve a named property, optionally specifying the section to search.
 	/// Note that the returned Property instance is only valid during the lifetime

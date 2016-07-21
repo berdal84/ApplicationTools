@@ -13,21 +13,6 @@ using namespace internal;
 
 // PUBLIC
 
-void FileBase::setPath(const char* _path)
-{
-	size_t newlen = strlen(_path);
-	if (m_path) {
-		size_t oldlen = strlen(m_path);
-		if (newlen > oldlen) {
-			delete[] m_path;
-			m_path = new char[newlen + 1];
-		}
-	} else {
-		m_path = new char[newlen + 1];
-	}	
-	strcpy(m_path, _path);
-}
-
 void FileBase::setData(const char* _data, uint64 _size)
 {
 	PLR_ASSERT(_data);

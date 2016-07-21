@@ -12,6 +12,8 @@
 
 namespace plr {
 
+class File;
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \class Image
 /// \todo Remove alloc() call from Create()? Have these functions init metadata
@@ -110,18 +112,18 @@ public:
 	/// Release memory, _image_ is set to 0.
 	static void Destroy(Image*& _image_);
 
-	/// Read from a file specified by _path. If _format is not provided, the format
-	/// is assumed from the extension in _path.
+	/// Read from a file. If _format is not provided, the format is assumed from 
+	/// the file's extension.
 	/// \return false if an error occurred, in which case img_ remains unchanged.
+	static bool Read(Image* img_, const File* _file, FileFormat _format = FileFormat::kInvalid);
 	static bool Read(Image* img_, const char* _path, FileFormat _format = FileFormat::kInvalid);
 
-	/// Write _img to the file specified by _path. The file format is specified by
-	/// _format. Mipmaps, array layers, cubemap faces and 3d slices will be saved as 
-	/// separate files if the format doesn't support them. In this case the filename
-	/// will be appended with "layer_mip", e.g. "img001_03". If _format is not 
-	/// provided, the format is assumed from the extension in _path.
+	/// Write _img to a file. If _format is not provided, the format is assumed 
+	/// from the file's extension. 
+	/// \note The File* variant only writes to memory.
 	/// \return false if an error occurred.
-	static bool Write(Image* _img, const char* _path, FileFormat _format = FileFormat::kInvalid);
+	static bool Write(const Image* _img, File* file_, FileFormat _format = FileFormat::kInvalid);
+	static bool Write(const Image* _img, const char* _path, FileFormat _format = FileFormat::kInvalid);
 
 	/// \return The maximum number of mips for an image.
 	static uint GetMaxMipmapSize(uint _width, uint _height, uint _depth = 1u);
@@ -206,12 +208,12 @@ private:
 
 	// extern/dds.cpp
 	static bool ReadDds(Image* img_, const char* _data, uint _dataSize);
-	static bool WriteDds(const char* _path, const Image* _img);
+	static bool WriteDds(File* file_, const Image* _img);
 	// Image.cpp
 	static bool ReadDefault(Image* img_, const char* _data, uint _dataSize);
-	static bool WriteBmp(const char* _path, const Image* _img);
-	static bool WritePng(const char* _path, const Image* _img);
-	static bool WriteTga(const char* _path, const Image* _img);
+	static bool WriteBmp(File* file_, const Image* _img);
+	static bool WritePng(File* file_, const Image* _img);
+	static bool WriteTga(File* file_, const Image* _img);
 
 }; // class Image
 

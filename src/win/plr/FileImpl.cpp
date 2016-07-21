@@ -64,13 +64,13 @@ bool FileImpl::Read(FileImpl* file_, const char* _path)
 		);
 	if (h == INVALID_HANDLE_VALUE) {
 		err = GetPlatformErrorString(GetLastError());
-		goto FileImpl_Load_end;
+		goto FileImpl_Read_end;
 	}
 
 	LARGE_INTEGER li;
 	if (!GetFileSizeEx(h, &li)) {
 		err = GetPlatformErrorString(GetLastError());
-		goto FileImpl_Load_end;
+		goto FileImpl_Read_end;
 	}
 	DWORD dataSize = (DWORD)li.QuadPart; // ReadFile can only read DWORD bytes
 
@@ -78,7 +78,7 @@ bool FileImpl::Read(FileImpl* file_, const char* _path)
 	PLR_ASSERT(data);
 	if (!ReadFile(h, data, dataSize, 0, 0)) {
 		err = GetPlatformErrorString(GetLastError());
-		goto FileImpl_Load_end;
+		goto FileImpl_Read_end;
 	}
 	data[dataSize] = data[dataSize + 1] = 0;
 
@@ -88,12 +88,12 @@ bool FileImpl::Read(FileImpl* file_, const char* _path)
 	file_->m_dataSize = (uint64)dataSize;
 	file_->setPath(_path);
 
-FileImpl_Load_end:
+FileImpl_Read_end:
 	if (!ret) {
 		if (data) {
 			delete[] data;
 		}
-		PLR_LOG_ERR("Error loading '%s':\n\t%s", _path, err);
+		PLR_LOG_ERR("Error reading '%s':\n\t%s", _path, err);
 		PLR_ASSERT(false);
 	}
 	if (h != INVALID_HANDLE_VALUE) {
@@ -126,21 +126,21 @@ bool FileImpl::Write(const FileImpl* _file, const char* _path)
 		);
 	if (h == INVALID_HANDLE_VALUE) {
 		err = GetPlatformErrorString(GetLastError());
-		goto FileImpl_Save_end;
+		goto FileImpl_Write_end;
 	}
 
 	DWORD bytesWritten;
 	if (!WriteFile(h, _file->getData(), (DWORD)_file->getDataSize(), &bytesWritten, NULL)) {
 		err = GetPlatformErrorString(GetLastError());
-		goto FileImpl_Save_end;
+		goto FileImpl_Write_end;
 	}
 	PLR_ASSERT(bytesWritten == _file->getDataSize());
 
 	ret = true;
 
-FileImpl_Save_end:
+FileImpl_Write_end:
 	if (!ret) {
-		PLR_LOG_ERR("Error saving '%s':\n\t%s", _path, err);
+		PLR_LOG_ERR("Error writing '%s':\n\t%s", _path, err);
 		PLR_ASSERT(false);
 	}
 	if (h != INVALID_HANDLE_VALUE) {

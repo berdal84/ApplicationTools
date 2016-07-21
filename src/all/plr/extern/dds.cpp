@@ -715,21 +715,20 @@ bool Image::ReadDds(Image* img_, const char* _data, uint _dataSize)
 	return true;
 }
 
-bool Image::WriteDds(const char* _path, const Image* _img)
+bool Image::WriteDds(File* file_, const Image* _img)
 {
-	PLR_ASSERT(_path != 0);
+	PLR_ASSERT(file_);
 	PLR_ASSERT(_img != 0);
 
 	bool ret = false;
-	File f;
 
 // allocate scratch buffer
 	uint buflen = _img->m_arrayLayerSize * _img->m_arrayCount;
 	buflen += sizeof(DDS_MAGIC) + sizeof(DDS_HEADER) + sizeof(DDS_HEADER_DXT10);
-	char* buf = new char[buflen];
-	PLR_ASSERT(buf);
+	file_->setDataSize(buflen);
+	char* buf = file_->getData();
 	if (!buf) {
-		PLR_LOG_ERR("Failed to allocate %d bytes writing %s", buflen, _path);
+		PLR_LOG_ERR("Failed to allocate %d bytes writing %s", buflen, file_->getPath());
 		goto WriteDds_End;
 	}
 
@@ -860,10 +859,6 @@ bool Image::WriteDds(const char* _path, const Image* _img)
 	 // non-3d textures are stored slice-wise (all mips for slice0 followed by all mips for slice1, etc).
 		memcpy(dst, _img->m_data, _img->m_arrayLayerSize * _img->m_arrayCount);
 	}
-
-// output to file
-	f.setData(buf, buflen); // \todo create the file upfront and use its buffer directly
-	ret = File::Write(&f, _path);
 
 WriteDds_End:
 	delete[] buf;

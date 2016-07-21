@@ -17,7 +17,7 @@ namespace plr {
 ////////////////////////////////////////////////////////////////////////////////
 /// \class File
 /// Noncopyable but movable.
-/// Files loaded into memory via Load() have an implicit null character appended
+/// Files loaded into memory via Read() have an implicit null character appended
 /// to the internal data buffer, hence getData() can be interpreted directly as
 /// C string.
 /// \todo API should include some interface for either writing to the internal 
@@ -53,13 +53,14 @@ public:
 	///    _path may or may not have been overwritten.
 	static bool Write(const File* _file, const char* _path = 0) { return Impl::Write(_file, _path); }
 
-	
-	const char* getPath() const                      { return Impl::getPath(); }
-	const char* getData() const                      { return Impl::getData(); }
-	char* getData()                                  { return Impl::getData(); }
-	uint64 getDataSize() const                       { return Impl::getDataSize(); }
-	void setPath(const char* _path)                  { Impl::setPath(_path); }
-	void setData(const char* _data, uint64 _size)    { Impl::setData(_data, _size); }
+
+	const char* getPath() const                            { return Impl::getPath(); }
+	void        setPath(const char* _path)                 { Impl::setPath(_path); }
+	const char* getData() const                            { return Impl::getData(); }
+	char*       getData()                                  { return Impl::getData(); }
+	void        setData(const char* _data, uint64 _size)   { Impl::setData(_data, _size); }
+	uint64      getDataSize() const                        { return Impl::getDataSize(); }
+	void        setDataSize(uint64 _size)                  { Impl::setData(0, _size); }
 
 }; // class File
 
