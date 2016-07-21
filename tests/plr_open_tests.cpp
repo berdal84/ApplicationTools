@@ -3,6 +3,7 @@
 
 #include <plr/Time.h>
 
+#include <plr/ArgList.h>
 #include <plr/math.h>
 #include <plr/File.h>
 #include <plr/Image.h>
@@ -10,10 +11,30 @@
 #include <plr/String.h>
 
 #include <new>
+#include <cstring> // strcmp
 
 using namespace plr;
 
-#include <cstring> // strcmp
+void TestArgList(int _argc, char** _argv)
+{
+	PLR_AUTOTIMER("TestArgList()");
+	ArgList al(_argc, _argv);
+
+	const Arg* arg;
+	if (arg = al.find("bool")) {
+		PLR_LOG("bool = %s", arg->getValue().asBool() ? "true" : "false");
+	}
+	if (arg = al.find("intPos")) {
+		PLR_LOG("intPos = %i", arg->getValue().asInt());
+	}	
+	if (arg = al.find("intNeg")) {
+		PLR_LOG("intNeg = %i", arg->getValue().asInt());
+	}
+	if (arg = al.find("double")) {
+		PLR_LOG("double = %f", arg->getValue().asDouble());
+	}
+}
+
 void CheckTestIniProperties(IniFile& _ini, const char* _section = 0)
 {
 	if (_section) {
@@ -83,6 +104,7 @@ void TestIniFile()
 template <uint kCapacity>
 void TestString()
 {
+	PLR_AUTOTIMER("TestString()");
 	String<0> heapAlways;
 	heapAlways.set("heapAlways", 4u);
 	heapAlways.append("1234567890", 300);
@@ -128,7 +150,8 @@ int main(int _argc, char** _argv)
 
 	#undef print_typeinfo
 
-	TestIniFile();
+	TestArgList(_argc, _argv);
+	//TestIniFile();
 	//TestString<8>();
 
 	return 0;
