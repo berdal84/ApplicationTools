@@ -412,29 +412,28 @@ typedef struct
 
 using namespace plr;
 
-static uint GetImageSize(uint _w, uint _h, uint _d, const Image* _img)
+static uint GetImageSize(uint _w, uint _h, uint _d, const Image& _img)
 {
-	switch (_img->getCompressionType()) {
+	switch (_img.getCompressionType()) {
 		case Image::CompressionType::kBC1:
 		case Image::CompressionType::kBC4:
-			return PLR_MAX(((_w + 3u) / 4u) * ((_h + 3u) / 4u) * 8u, (uint)1u) * _d;
+			return PLR_MAX(((_w + 3) / 4) * ((_h + 3) / 4) * 8, (uint)1) * _d;
 		case Image::CompressionType::kBC2:
 		case Image::CompressionType::kBC3:
 		case Image::CompressionType::kBC5:
 		case Image::CompressionType::kBC6:
 		case Image::CompressionType::kBC7:
-			return PLR_MAX(((_w + 3u) / 4u) * ((_h + 3u) / 4u) * 16u, (uint)1u) * _d;
+			return PLR_MAX(((_w + 3) / 4) * ((_h + 3) / 4) * 16, (uint)1) * _d;
 		default:
 			break;
 	};
-	return _w * _h * _d * _img->getTexelSize();
+	return _w * _h * _d * _img.getTexelSize();
 }
 
-bool Image::ReadDds(Image* img_, const char* _data, uint _dataSize)
+bool Image::ReadDds(Image& img_, const char* _data, uint _dataSize)
 {
-	PLR_ASSERT(_data != 0);
+	PLR_ASSERT(_data);
 	PLR_ASSERT(_dataSize > (sizeof(DWORD) + sizeof(DDS_HEADER)));
-	PLR_ASSERT(img_ != 0);
 
  // validate DDS_MAGIC, get header ptrs
 	if (*(DWORD*)_data != DDS_MAGIC) {
@@ -449,47 +448,47 @@ bool Image::ReadDds(Image* img_, const char* _data, uint _dataSize)
 
  // extract image metadata
 	// dimensions (min == 1)
-	img_->m_width       = PLR_MAX(ddsh->dwWidth, (DWORD)1u);
-	img_->m_height      = PLR_MAX(ddsh->dwHeight, (DWORD)1u);
-	img_->m_depth       = PLR_MAX(ddsh->dwDepth, (DWORD)1u);
-	img_->m_mipmapCount = PLR_MAX(ddsh->dwMipMapCount, (DWORD)1u);
-	img_->m_arrayCount  = 1u;
+	img_.m_width       = PLR_MAX(ddsh->dwWidth, (DWORD)1u);
+	img_.m_height      = PLR_MAX(ddsh->dwHeight, (DWORD)1u);
+	img_.m_depth       = PLR_MAX(ddsh->dwDepth, (DWORD)1u);
+	img_.m_mipmapCount = PLR_MAX(ddsh->dwMipMapCount, (DWORD)1u);
+	img_.m_arrayCount  = 1;
 	if (dxt10h != 0) {
-		img_->m_arrayCount = PLR_MAX(dxt10h->arraySize, (UINT)1u);
+		img_.m_arrayCount = PLR_MAX(dxt10h->arraySize, (UINT)1u);
 	}
 	// image type
 	if (dxt10h != 0) {
 		switch (dxt10h->resourceDimension) {
-			case DDS_RESOURCE_DIMENSION_TEXTURE1D: img_->m_type = Image::Type::k1d; break;
-			case DDS_RESOURCE_DIMENSION_TEXTURE2D: img_->m_type = Image::Type::k2d; break;
-			case DDS_RESOURCE_DIMENSION_TEXTURE3D: img_->m_type = Image::Type::k3d; break;
+			case DDS_RESOURCE_DIMENSION_TEXTURE1D: img_.m_type = Image::Type::k1d; break;
+			case DDS_RESOURCE_DIMENSION_TEXTURE2D: img_.m_type = Image::Type::k2d; break;
+			case DDS_RESOURCE_DIMENSION_TEXTURE3D: img_.m_type = Image::Type::k3d; break;
 			case DDS_RESOURCE_DIMENSION_BUFFER:
 			case DDS_RESOURCE_DIMENSION_UNKNOWN:   
 			default:                               PLR_LOG_ERR("DDS: Unknown image type"); return false;
 		};
 		if (dxt10h->miscFlag & DDS_RESOURCE_MISC_TEXTURECUBE) {
-			img_->m_type = Image::Type::kCubemap;
+			img_.m_type = Image::Type::kCubemap;
 		}
 	} else {
-		img_->m_type = Image::Type::k1d;
-		if (img_->m_height > 1) {
-			img_->m_type = Image::Type::k2d;
+		img_.m_type = Image::Type::k1d;
+		if (img_.m_height > 1) {
+			img_.m_type = Image::Type::k2d;
 		}
-		if (img_->m_depth > 1) {
-			img_->m_type = Image::Type::k3d;
+		if (img_.m_depth > 1) {
+			img_.m_type = Image::Type::k3d;
 		}
 	 // \note the following test is (incorrectly) positive for DDS with a mip chain exported
 	 //   from the NVidia Photoshop tool
 		//if (ddsh->dwCaps & DDS_SURFACE_FLAGS_CUBEMAP) {
-		//	img_->m_type = Image::Type::kCubemap;
+		//	img_.m_type = Image::Type::kCubemap;
 		//}
 	}
-	if (img_->m_arrayCount > 1) {
-		switch (img_->m_type) {
-			case Image::Type::k1d:      img_->m_type = Image::Type::k1dArray; break;
-			case Image::Type::k2d:      img_->m_type = Image::Type::k2dArray; break;
-			case Image::Type::k3d:      img_->m_type = Image::Type::k3dArray; break;
-			case Image::Type::kCubemap: img_->m_type = Image::Type::kCubemapArray; break;
+	if (img_.m_arrayCount > 1) {
+		switch (img_.m_type) {
+			case Image::Type::k1d:      img_.m_type = Image::Type::k1dArray; break;
+			case Image::Type::k2d:      img_.m_type = Image::Type::k2dArray; break;
+			case Image::Type::k3d:      img_.m_type = Image::Type::k3dArray; break;
+			case Image::Type::kCubemap: img_.m_type = Image::Type::kCubemapArray; break;
 			default:                    PLR_LOG_ERR("DDS: Unknown image type"); return false;
 		};
 	}
@@ -497,15 +496,15 @@ bool Image::ReadDds(Image* img_, const char* _data, uint _dataSize)
 	if (dxt10h != 0) {
 		switch (DXGI_INFO[dxt10h->dxgiFormat].dataType) {
 			case DATA_TYPE_FLOAT:
-				img_->m_dataType = DataType::kFloat32;
+				img_.m_dataType = DataType::kFloat32;
 				break;
 			case DATA_TYPE_SINT:
 			case DATA_TYPE_SNORM:
 				switch (DXGI_INFO[dxt10h->dxgiFormat].bitsPerChannel) {
-					case 32:  img_->m_dataType = DataType::kSint32; break;
-					case 16:  img_->m_dataType = DataType::kSint16; break;
+					case 32:  img_.m_dataType = DataType::kSint32; break;
+					case 16:  img_.m_dataType = DataType::kSint16; break;
 					case 8:   
-					default:  img_->m_dataType = DataType::kSint8; break;
+					default:  img_.m_dataType = DataType::kSint8; break;
 				};
 				break;
 			
@@ -514,10 +513,10 @@ bool Image::ReadDds(Image* img_, const char* _data, uint _dataSize)
 			case DATA_TYPE_TYPELESS: // assume uint if typeless
 			default:
 				switch (DXGI_INFO[dxt10h->dxgiFormat].bitsPerChannel) {
-					case 32:  img_->m_dataType = DataType::kUint32; break;
-					case 16:  img_->m_dataType = DataType::kUint16; break;
+					case 32:  img_.m_dataType = DataType::kUint32; break;
+					case 16:  img_.m_dataType = DataType::kUint16; break;
 					case 8:   
-					default:  img_->m_dataType = DataType::kUint8; break;
+					default:  img_.m_dataType = DataType::kUint8; break;
 				};
 				break;
 		}
@@ -539,13 +538,13 @@ bool Image::ReadDds(Image* img_, const char* _data, uint _dataSize)
 			case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
 			case DXGI_FORMAT_R8G8B8A8_UINT:
 			case DXGI_FORMAT_R8G8B8A8_SNORM:
-			case DXGI_FORMAT_R8G8B8A8_SINT:    img_->m_layout = Image::Layout::kRGBA; break;
+			case DXGI_FORMAT_R8G8B8A8_SINT:    img_.m_layout = Image::Layout::kRGBA; break;
 
 		 // uncompressed rgb formats
 			case DXGI_FORMAT_R32G32B32_TYPELESS:
 			case DXGI_FORMAT_R32G32B32_FLOAT:
 			case DXGI_FORMAT_R32G32B32_UINT:
-			case DXGI_FORMAT_R32G32B32_SINT:   img_->m_layout = Image::Layout::kRGB; break;
+			case DXGI_FORMAT_R32G32B32_SINT:   img_.m_layout = Image::Layout::kRGB; break;
 			
 		 // uncompressed rg formats
 			case DXGI_FORMAT_R32G32_TYPELESS:
@@ -562,7 +561,7 @@ bool Image::ReadDds(Image* img_, const char* _data, uint _dataSize)
 			case DXGI_FORMAT_R8G8_UNORM:
 			case DXGI_FORMAT_R8G8_UINT:
 			case DXGI_FORMAT_R8G8_SNORM:
-			case DXGI_FORMAT_R8G8_SINT:        img_->m_layout = Image::Layout::kRG; break;
+			case DXGI_FORMAT_R8G8_SINT:        img_.m_layout = Image::Layout::kRG; break;
 
 		 // uncompressed r formats
 			case DXGI_FORMAT_R32_TYPELESS:
@@ -583,30 +582,30 @@ bool Image::ReadDds(Image* img_, const char* _data, uint _dataSize)
 			case DXGI_FORMAT_R8_SNORM:
 			case DXGI_FORMAT_R8_SINT:
 			case DXGI_FORMAT_A8_UNORM:
-			case DXGI_FORMAT_R1_UNORM:         img_->m_layout = Image::Layout::kR; break;
+			case DXGI_FORMAT_R1_UNORM:         img_.m_layout = Image::Layout::kR; break;
 
 		 // compressed formats
 			case DXGI_FORMAT_BC1_TYPELESS:
 			case DXGI_FORMAT_BC1_UNORM:
-			case DXGI_FORMAT_BC1_UNORM_SRGB:   img_->m_layout = Image::Layout::kRGB; img_->m_compression = Image::CompressionType::kBC1; break; // layout could also be rgba
+			case DXGI_FORMAT_BC1_UNORM_SRGB:   img_.m_layout = Image::Layout::kRGB; img_.m_compression = Image::CompressionType::kBC1; break; // layout could also be rgba
 			case DXGI_FORMAT_BC2_TYPELESS:
 			case DXGI_FORMAT_BC2_UNORM:
-			case DXGI_FORMAT_BC2_UNORM_SRGB:   img_->m_layout = Image::Layout::kRGBA; img_->m_compression = Image::CompressionType::kBC2; break;
+			case DXGI_FORMAT_BC2_UNORM_SRGB:   img_.m_layout = Image::Layout::kRGBA; img_.m_compression = Image::CompressionType::kBC2; break;
 			case DXGI_FORMAT_BC3_TYPELESS:
 			case DXGI_FORMAT_BC3_UNORM:
-			case DXGI_FORMAT_BC3_UNORM_SRGB:   img_->m_layout = Image::Layout::kRGBA; img_->m_compression = Image::CompressionType::kBC3; break;
+			case DXGI_FORMAT_BC3_UNORM_SRGB:   img_.m_layout = Image::Layout::kRGBA; img_.m_compression = Image::CompressionType::kBC3; break;
 			case DXGI_FORMAT_BC4_TYPELESS:
 			case DXGI_FORMAT_BC4_UNORM:
-			case DXGI_FORMAT_BC4_SNORM:        img_->m_layout = Image::Layout::kR; img_->m_compression = Image::CompressionType::kBC4; break;
+			case DXGI_FORMAT_BC4_SNORM:        img_.m_layout = Image::Layout::kR; img_.m_compression = Image::CompressionType::kBC4; break;
 			case DXGI_FORMAT_BC5_TYPELESS:
 			case DXGI_FORMAT_BC5_UNORM:
-			case DXGI_FORMAT_BC5_SNORM:        img_->m_layout = Image::Layout::kRG; img_->m_compression = Image::CompressionType::kBC5; break;
+			case DXGI_FORMAT_BC5_SNORM:        img_.m_layout = Image::Layout::kRG; img_.m_compression = Image::CompressionType::kBC5; break;
 			case DXGI_FORMAT_BC6H_TYPELESS:
 			case DXGI_FORMAT_BC6H_UF16:
-			case DXGI_FORMAT_BC6H_SF16:        img_->m_layout = Image::Layout::kRGB; img_->m_compression = Image::CompressionType::kBC6; break;
+			case DXGI_FORMAT_BC6H_SF16:        img_.m_layout = Image::Layout::kRGB; img_.m_compression = Image::CompressionType::kBC6; break;
 			case DXGI_FORMAT_BC7_TYPELESS:
 			case DXGI_FORMAT_BC7_UNORM:
-			case DXGI_FORMAT_BC7_UNORM_SRGB:   img_->m_layout = Image::Layout::kRGBA; img_->m_compression = Image::CompressionType::kBC7; break; // layout could also be rgb
+			case DXGI_FORMAT_BC7_UNORM_SRGB:   img_.m_layout = Image::Layout::kRGBA; img_.m_compression = Image::CompressionType::kBC7; break; // layout could also be rgb
 
 		 // unsupported formats
 			case DXGI_FORMAT_R32G8X24_TYPELESS:
@@ -635,52 +634,52 @@ bool Image::ReadDds(Image* img_, const char* _data, uint _dataSize)
 			case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:			
 			default: PLR_LOG_ERR("DDS: Unsupported format (dxt10h->dxgiFormat = %d)", dxt10h->dxgiFormat); return false;
 		};
-		if (img_->m_compression != Image::CompressionType::kNone) {
-			img_->m_dataType = DataType::kInvalid;
+		if (img_.m_compression != Image::CompressionType::kNone) {
+			img_.m_dataType = DataType::kInvalid;
 		}
 	} else {
 		if (ddsh->ddspf.dwFlags & DDS_FOURCC) {
 		 // compressed format
 			switch (ddsh->ddspf.dwFourCC) {
-				case MAKEFOURCC('D','X','T','1'): img_->m_layout = Image::Layout::kRGB;  img_->m_compression = Image::CompressionType::kBC1; break; // layout could also be rgba
-				case MAKEFOURCC('D','X','T','2'): img_->m_layout = Image::Layout::kRGBA; img_->m_compression = Image::CompressionType::kBC2; break;
-				case MAKEFOURCC('D','X','T','3'): img_->m_layout = Image::Layout::kRGBA; img_->m_compression = Image::CompressionType::kBC2; break;
-				case MAKEFOURCC('D','X','T','4'): img_->m_layout = Image::Layout::kRGBA; img_->m_compression = Image::CompressionType::kBC3; break;
-				case MAKEFOURCC('D','X','T','5'): img_->m_layout = Image::Layout::kRGBA; img_->m_compression = Image::CompressionType::kBC3; break;
+				case MAKEFOURCC('D','X','T','1'): img_.m_layout = Image::Layout::kRGB;  img_.m_compression = Image::CompressionType::kBC1; break; // layout could also be rgba
+				case MAKEFOURCC('D','X','T','2'): img_.m_layout = Image::Layout::kRGBA; img_.m_compression = Image::CompressionType::kBC2; break;
+				case MAKEFOURCC('D','X','T','3'): img_.m_layout = Image::Layout::kRGBA; img_.m_compression = Image::CompressionType::kBC2; break;
+				case MAKEFOURCC('D','X','T','4'): img_.m_layout = Image::Layout::kRGBA; img_.m_compression = Image::CompressionType::kBC3; break;
+				case MAKEFOURCC('D','X','T','5'): img_.m_layout = Image::Layout::kRGBA; img_.m_compression = Image::CompressionType::kBC3; break;
 				case MAKEFOURCC('B','C','4','S'):
-				case MAKEFOURCC('B','C','4','U'): img_->m_layout = Image::Layout::kR;    img_->m_compression = Image::CompressionType::kBC4; break;
+				case MAKEFOURCC('B','C','4','U'): img_.m_layout = Image::Layout::kR;    img_.m_compression = Image::CompressionType::kBC4; break;
 				case MAKEFOURCC('B','C','5','S'):
-				case MAKEFOURCC('B','C','5','U'): img_->m_layout = Image::Layout::kRG;   img_->m_compression = Image::CompressionType::kBC5; break;
+				case MAKEFOURCC('B','C','5','U'): img_.m_layout = Image::Layout::kRG;   img_.m_compression = Image::CompressionType::kBC5; break;
 				default: PLR_LOG_ERR("DDS: Unsupported format (ddsh->ddspf.dwFourCC = %d)", ddsh->ddspf.dwFourCC); return false;
 			};
-			img_->m_dataType = DataType::kInvalid;
+			img_.m_dataType = DataType::kInvalid;
 		} else {
 		 // uncompressed format
 			switch (ddsh->ddspf.dwRGBBitCount) {
-				case 8:   img_->m_layout = Image::Layout::kR; break;
-				case 16:  img_->m_layout = Image::Layout::kRG; break;
-				case 24:  img_->m_layout = Image::Layout::kRGB; break;
+				case 8:   img_.m_layout = Image::Layout::kR; break;
+				case 16:  img_.m_layout = Image::Layout::kRG; break;
+				case 24:  img_.m_layout = Image::Layout::kRGB; break;
 				case 32:  
-				default:  img_->m_layout = Image::Layout::kRGBA;
+				default:  img_.m_layout = Image::Layout::kRGBA;
 			};
-			img_->m_dataType = DataType::kUint8;
+			img_.m_dataType = DataType::kUint8;
 		}
 	}
-	if (img_->m_compression == Image::CompressionType::kNone) {
-		img_->m_texelSize = Image::GetDataTypeSize(img_->m_dataType) * Image::GetComponentCount(img_->m_layout);
+	if (img_.m_compression == Image::CompressionType::kNone) {
+		img_.m_texelSize = Image::GetDataTypeSize(img_.m_dataType) * Image::GetComponentCount(img_.m_layout);
 	}
 
 // compute image sizes
-	img_->m_arrayLayerSize = 0;
+	img_.m_arrayLayerSize = 0;
 	uint w, h, d, c;
-	w = img_->m_width;
-	h = img_->m_height;
-	d = img_->m_depth;
-	c = Image::GetComponentCount(img_->m_layout);
-	for (unsigned i = 0; i < img_->m_mipmapCount; ++i) {
-		img_->m_mipOffsets[i] = img_->m_arrayLayerSize;
-		img_->m_mipSizes[i] = GetImageSize(w, h, d, img_);
-		img_->m_arrayLayerSize += img_->m_mipSizes[i];
+	w = img_.m_width;
+	h = img_.m_height;
+	d = img_.m_depth;
+	c = Image::GetComponentCount(img_.m_layout);
+	for (unsigned i = 0; i < img_.m_mipmapCount; ++i) {
+		img_.m_mipOffsets[i] = img_.m_arrayLayerSize;
+		img_.m_mipSizes[i] = GetImageSize(w, h, d, img_);
+		img_.m_arrayLayerSize += img_.m_mipSizes[i];
 		w = PLR_MAX(w / 2u, (uint)1u);
 		h = PLR_MAX(h / 2u, (uint)1u);
 		d = PLR_MAX(d / 2u, (uint)1u);
@@ -689,46 +688,43 @@ bool Image::ReadDds(Image* img_, const char* _data, uint _dataSize)
 // alloc & copy pixel data
  // \todo Handle bgra->rgba conversion?
  // \todo Remove pitch?
-	img_->m_data = new char[img_->m_arrayLayerSize * img_->m_arrayCount];
-	PLR_ASSERT(img_->m_data);
-	if (!img_->m_data) {
+	img_.m_data = new char[img_.m_arrayLayerSize * img_.m_arrayCount];
+	PLR_ASSERT(img_.m_data);
+	if (!img_.m_data) {
 		return false;
 	}
 	unsigned doff = sizeof(DWORD) + sizeof(DDS_HEADER) + (dxt10h ? sizeof(DDS_HEADER_DXT10) : 0);
-	if (img_->m_depth > 1 && img_->m_mipmapCount > 1) {
+	if (img_.m_depth > 1 && img_.m_mipmapCount > 1) {
 	 // 3d textures are stored mip-wise (all slices for mip0 followed by all slices for mip1, etc).
-		const char* src = _data + doff + img_->m_mipSizes[0];
-		for (unsigned i = 0; i < img_->m_mipmapCount; ++i) {
-			char* dst = img_->m_data;
-			dst += i > 0 ? img_->m_mipSizes[i - 1] : 0;
-			for (unsigned j = 0; j < img_->m_depth; ++j) {
-				memcpy(dst, src, img_->m_mipSizes[i]);
-				src += img_->m_mipSizes[i];
-				dst += img_->m_arrayLayerSize;
+		const char* src = _data + doff + img_.m_mipSizes[0];
+		for (unsigned i = 0; i < img_.m_mipmapCount; ++i) {
+			char* dst = img_.m_data;
+			dst += i > 0 ? img_.m_mipSizes[i - 1] : 0;
+			for (unsigned j = 0; j < img_.m_depth; ++j) {
+				memcpy(dst, src, img_.m_mipSizes[i]);
+				src += img_.m_mipSizes[i];
+				dst += img_.m_arrayLayerSize;
 			}
 		}
 	} else {
 	 // non-3d textures are stored slice-wise (all mips for slice0 followed by all mips for slice1, etc).
-		memcpy(img_->m_data, _data + doff, img_->m_arrayLayerSize * img_->m_arrayCount);
+		memcpy(img_.m_data, _data + doff, img_.m_arrayLayerSize * img_.m_arrayCount);
 	}
 
 	return true;
 }
 
-bool Image::WriteDds(File* file_, const Image* _img)
+bool Image::WriteDds(File& file_, const Image& _img)
 {
-	PLR_ASSERT(file_);
-	PLR_ASSERT(_img != 0);
-
 	bool ret = false;
 
 // allocate scratch buffer
-	uint buflen = _img->m_arrayLayerSize * _img->m_arrayCount;
+	uint buflen = _img.m_arrayLayerSize * _img.m_arrayCount;
 	buflen += sizeof(DDS_MAGIC) + sizeof(DDS_HEADER) + sizeof(DDS_HEADER_DXT10);
-	file_->setDataSize(buflen);
-	char* buf = file_->getData();
+	file_.setDataSize(buflen);
+	char* buf = file_.getData();
 	if (!buf) {
-		PLR_LOG_ERR("Failed to allocate %d bytes writing %s", buflen, file_->getPath());
+		PLR_LOG_ERR("Failed to allocate %d bytes writing %s", buflen, file_.getPath());
 		goto WriteDds_End;
 	}
 
@@ -736,18 +732,18 @@ bool Image::WriteDds(File* file_, const Image* _img)
 	*((DWORD*)buf)      = DDS_MAGIC;
 	DDS_HEADER *ddsh    = (DDS_HEADER*)(buf + sizeof(DWORD));
 	ddsh->dwSize        = 124; PLR_ASSERT(ddsh->dwSize == sizeof(DDS_HEADER));
-	ddsh->dwFlags       = DDS_HEADER_FLAGS_TEXTURE | (_img->m_mipmapCount > 1 ? DDS_HEADER_FLAGS_MIPMAP : 0) | (_img->m_depth > 1 ? DDS_HEADER_FLAGS_VOLUME : 0);
-	ddsh->dwWidth       = (DWORD)_img->m_width;
-	ddsh->dwHeight      = (DWORD)_img->m_height;
-	ddsh->dwDepth       = (DWORD)(_img->m_depth > 1 ? _img->m_depth : 0);
-	ddsh->dwMipMapCount = (DWORD)(_img->m_mipmapCount > 1 ? _img->m_mipmapCount : 0);
+	ddsh->dwFlags       = DDS_HEADER_FLAGS_TEXTURE | (_img.m_mipmapCount > 1 ? DDS_HEADER_FLAGS_MIPMAP : 0) | (_img.m_depth > 1 ? DDS_HEADER_FLAGS_VOLUME : 0);
+	ddsh->dwWidth       = (DWORD)_img.m_width;
+	ddsh->dwHeight      = (DWORD)_img.m_height;
+	ddsh->dwDepth       = (DWORD)(_img.m_depth > 1 ? _img.m_depth : 0);
+	ddsh->dwMipMapCount = (DWORD)(_img.m_mipmapCount > 1 ? _img.m_mipmapCount : 0);
 	ddsh->ddspf         = DDSPF_DX10;
-	ddsh->dwCaps        = DDS_SURFACE_FLAGS_TEXTURE | (_img->isCubemap() ? DDS_SURFACE_FLAGS_CUBEMAP : 0) | (_img->m_mipmapCount > 1 ? DDS_SURFACE_FLAGS_MIPMAP	: 0);
-	ddsh->dwCaps2       = (_img->isCubemap() ? DDS_CUBEMAP_ALLFACES : 0) | (_img->m_depth > 1 ? DDS_FLAGS_VOLUME : 0);
+	ddsh->dwCaps        = DDS_SURFACE_FLAGS_TEXTURE | (_img.isCubemap() ? DDS_SURFACE_FLAGS_CUBEMAP : 0) | (_img.m_mipmapCount > 1 ? DDS_SURFACE_FLAGS_MIPMAP	: 0);
+	ddsh->dwCaps2       = (_img.isCubemap() ? DDS_CUBEMAP_ALLFACES : 0) | (_img.m_depth > 1 ? DDS_FLAGS_VOLUME : 0);
 
 	DDS_HEADER_DXT10 *dxt10h = (DDS_HEADER_DXT10*)(buf + sizeof(DWORD) + sizeof(DDS_HEADER));
-	if (_img->isCompressed()) {
-		switch (_img->m_compression) {
+	if (_img.isCompressed()) {
+		switch (_img.m_compression) {
 			case Image::CompressionType::kBC1:     dxt10h->dxgiFormat = DXGI_FORMAT_BC1_TYPELESS; break;
 			case Image::CompressionType::kBC2:     dxt10h->dxgiFormat = DXGI_FORMAT_BC2_TYPELESS; break;
 			case Image::CompressionType::kBC3:     dxt10h->dxgiFormat = DXGI_FORMAT_BC3_TYPELESS; break;
@@ -760,9 +756,9 @@ bool Image::WriteDds(File* file_, const Image* _img)
 				goto WriteDds_End;
 		};
 	} else {
-		switch (_img->m_dataType) {
+		switch (_img.m_dataType) {
 			case DataType::kFloat32:
-				switch (_img->m_layout) {
+				switch (_img.m_layout) {
 					case Image::Layout::kR:    dxt10h->dxgiFormat = DXGI_FORMAT_R32_FLOAT; break;
 					case Image::Layout::kRG:   dxt10h->dxgiFormat = DXGI_FORMAT_R32G32_FLOAT; break;
 					case Image::Layout::kRGB:  dxt10h->dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT; break;
@@ -771,7 +767,7 @@ bool Image::WriteDds(File* file_, const Image* _img)
 				};
 				break;
 			case DataType::kUint32:
-				switch (_img->m_layout) {
+				switch (_img.m_layout) {
 					case Image::Layout::kR:    dxt10h->dxgiFormat = DXGI_FORMAT_R32_UINT; break;
 					case Image::Layout::kRG:   dxt10h->dxgiFormat = DXGI_FORMAT_R32G32_UINT; break;
 					case Image::Layout::kRGB:  dxt10h->dxgiFormat = DXGI_FORMAT_R32G32B32_UINT; break;
@@ -780,7 +776,7 @@ bool Image::WriteDds(File* file_, const Image* _img)
 				};
 				break;
 			case DataType::kSint32:
-				switch (_img->m_layout) {
+				switch (_img.m_layout) {
 					case Image::Layout::kR:    dxt10h->dxgiFormat = DXGI_FORMAT_R32_SINT; break;
 					case Image::Layout::kRG:   dxt10h->dxgiFormat = DXGI_FORMAT_R32G32_SINT; break;
 					case Image::Layout::kRGB:  dxt10h->dxgiFormat = DXGI_FORMAT_R32G32B32_SINT; break;
@@ -789,7 +785,7 @@ bool Image::WriteDds(File* file_, const Image* _img)
 				};
 				break;
 			case DataType::kUint16:
-				switch (_img->m_layout) {
+				switch (_img.m_layout) {
 					case Image::Layout::kR:    dxt10h->dxgiFormat = DXGI_FORMAT_R16_UINT; break;
 					case Image::Layout::kRG:   dxt10h->dxgiFormat = DXGI_FORMAT_R16G16_UINT; break;
 					//case Image::Layout::kRGB:  dxt10h->dxgiFormat = DXGI_FORMAT_R16G16B16_UINT; break;
@@ -798,7 +794,7 @@ bool Image::WriteDds(File* file_, const Image* _img)
 				};
 				break;
 			case DataType::kSint16:
-				switch (_img->m_layout) {
+				switch (_img.m_layout) {
 					case Image::Layout::kR:    dxt10h->dxgiFormat = DXGI_FORMAT_R16_SINT; break;
 					case Image::Layout::kRG:   dxt10h->dxgiFormat = DXGI_FORMAT_R16G16_SINT; break;
 					//case Image::Layout::kRGB:  dxt10h->dxgiFormat = DXGI_FORMAT_R16G16B16_UINT; break;
@@ -807,7 +803,7 @@ bool Image::WriteDds(File* file_, const Image* _img)
 				};
 				break;
 			case DataType::kUint8:
-				switch (_img->m_layout) {
+				switch (_img.m_layout) {
 					case Image::Layout::kR:    dxt10h->dxgiFormat = DXGI_FORMAT_R8_UNORM; break;
 					case Image::Layout::kRG:   dxt10h->dxgiFormat = DXGI_FORMAT_R8G8_UNORM; break;
 					//case Image::Layout::kRGB:  dxt10h->dxgiFormat = DXGI_FORMAT_R8G8B8_UNORM; break;
@@ -816,7 +812,7 @@ bool Image::WriteDds(File* file_, const Image* _img)
 				};
 				break;
 			case DataType::kSint8:
-				switch (_img->m_layout) {
+				switch (_img.m_layout) {
 					case Image::Layout::kR:    dxt10h->dxgiFormat = DXGI_FORMAT_R8_SNORM; break;
 					case Image::Layout::kRG:   dxt10h->dxgiFormat = DXGI_FORMAT_R8G8_SNORM; break;
 					//case Image::Layout::kRGB:  dxt10h->dxgiFormat = DXGI_FORMAT_R8G8B8_UINT; break;
@@ -829,7 +825,7 @@ bool Image::WriteDds(File* file_, const Image* _img)
 				goto WriteDds_End;
 		};
 	}
-	switch (_img->m_type) {
+	switch (_img.m_type) {
 		case Image::Type::k1d: 
 		case Image::Type::k1dArray:      dxt10h->resourceDimension = DDS_RESOURCE_DIMENSION_TEXTURE1D; break;
 		case Image::Type::k2d: 
@@ -839,25 +835,25 @@ bool Image::WriteDds(File* file_, const Image* _img)
 		case Image::Type::k3d:           dxt10h->resourceDimension = DDS_RESOURCE_DIMENSION_TEXTURE3D; break;
 		default:                         dxt10h->resourceDimension = DDS_RESOURCE_DIMENSION_UNKNOWN; break;
 	};
-	dxt10h->miscFlag   = (_img->isCubemap() ? DDS_RESOURCE_MISC_TEXTURECUBE : 0);
-	dxt10h->arraySize  = (UINT)_img->m_arrayCount;
+	dxt10h->miscFlag   = (_img.isCubemap() ? DDS_RESOURCE_MISC_TEXTURECUBE : 0);
+	dxt10h->arraySize  = (UINT)_img.m_arrayCount;
 	dxt10h->miscFlags2 = 0;
 	
 // write data
 	char* dst = buf + sizeof(DWORD) + sizeof(DDS_HEADER) + sizeof(DDS_HEADER_DXT10);
-	if (_img->m_depth > 1 && _img->m_mipmapCount > 1) {
+	if (_img.m_depth > 1 && _img.m_mipmapCount > 1) {
 	 // 3d textures are stored mip-wise (all slices for mip0 followed by all slices for mip1, etc).
-		for (unsigned i = 0; i < _img->m_mipmapCount; ++i) {
-			char* src = _img->m_data;
-			src += i > 0 ? _img->m_mipSizes[i - 1] : 0;
-			for (unsigned j = 0; j < _img->m_depth; ++j) {
-				memcpy(dst, src, _img->m_mipSizes[i]);
-				dst += _img->m_arrayLayerSize;
+		for (unsigned i = 0; i < _img.m_mipmapCount; ++i) {
+			char* src = _img.m_data;
+			src += i > 0 ? _img.m_mipSizes[i - 1] : 0;
+			for (unsigned j = 0; j < _img.m_depth; ++j) {
+				memcpy(dst, src, _img.m_mipSizes[i]);
+				dst += _img.m_arrayLayerSize;
 			}
 		}
 	} else {
 	 // non-3d textures are stored slice-wise (all mips for slice0 followed by all mips for slice1, etc).
-		memcpy(dst, _img->m_data, _img->m_arrayLayerSize * _img->m_arrayCount);
+		memcpy(dst, _img.m_data, _img.m_arrayLayerSize * _img.m_arrayCount);
 	}
 
 WriteDds_End:

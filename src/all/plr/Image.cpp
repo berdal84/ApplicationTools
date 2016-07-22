@@ -140,26 +140,25 @@ void Image::Destroy(Image*& _img_)
 	}
 }
 
-bool Image::Read(Image* img_, const File* _file, FileFormat _format)
+bool Image::Read(Image& img_, const File& _file, FileFormat _format)
 {
-	PLR_ASSERT(_file);
 	if (_format == FileFormat::kInvalid) {
-		_format = GuessFormat(_file->getPath());
+		_format = GuessFormat(_file.getPath());
 		if (_format == FileFormat::kInvalid) {
-			PLR_LOG_ERR("Image: Unsupported file format '%s'", _file->getPath());
+			PLR_LOG_ERR("Image: Unsupported file format '%s'", _file.getPath());
 			return false;
 		}
 	}
 
-	img_->init(); // \todo don't affect the image before loading succeeded
+	img_.init(); // \todo don't affect the image before loading succeeded
 	switch (_format) {
-		case FileFormat::kDds: return ReadDds(img_, _file->getData(), _file->getDataSize());
+		case FileFormat::kDds: return ReadDds(img_, _file.getData(), _file.getDataSize());
 		case FileFormat::kBmp:
 		case FileFormat::kGif:
 		case FileFormat::kJpg:
 		case FileFormat::kPng:
 		case FileFormat::kPsd:
-		case FileFormat::kTga: return ReadDefault(img_, _file->getData(), _file->getDataSize());
+		case FileFormat::kTga: return ReadDefault(img_, _file.getData(), _file.getDataSize());
 
 		default: PLR_ASSERT(false); return false; // should never happen as we check the ext above
 	};
@@ -167,33 +166,30 @@ bool Image::Read(Image* img_, const File* _file, FileFormat _format)
 	return true;
 }
 
-bool Image::Read(Image* img_, const char* _path, FileFormat _format)
+bool Image::Read(Image& img_, const char* _path, FileFormat _format)
 {
 	File f;
 	f.setPath(_path);
-	if (!File::Read(&f, _path)) {
+	if (!File::Read(f, _path)) {
 		return false;
 	}
-	return Read(img_, &f, _format);
+	return Read(img_, f, _format);
 }
 
 
-bool Image::Write(const Image* _img, File* file_, FileFormat _format)
+bool Image::Write(const Image& _img, File& file_, FileFormat _format)
 {
-	PLR_ASSERT(_img);
-	PLR_ASSERT(file_);
-
 	bool ret = false;
 
 	if (_format == FileFormat::kInvalid) {
-		_format = GuessFormat(file_->getPath());
+		_format = GuessFormat(file_.getPath());
 		if (_format == FileFormat::kInvalid) {
-			PLR_LOG_ERR("Image: Unsupported file format '%s'", file_->getPath());
+			PLR_LOG_ERR("Image: Unsupported file format '%s'", file_.getPath());
 			goto Image_Write_end;
 		}
 	}
 
-	if (!_img->validateFileFormat(_format)) {
+	if (!_img.validateFileFormat(_format)) {
 		PLR_ASSERT(false);
 		goto Image_Write_end;
 	}
@@ -203,7 +199,7 @@ bool Image::Write(const Image* _img, File* file_, FileFormat _format)
 		case FileFormat::kDds: ret = WriteDds(file_, _img); break;
 		case FileFormat::kPng: ret = WritePng(file_, _img); break;
 		case FileFormat::kTga: ret = WriteTga(file_, _img); break;
-		default: PLR_LOG_ERR("Image: File format not supported for writing '%s'", file_->getPath()); goto Image_Write_end;
+		default: PLR_LOG_ERR("Image: File format does not supported writing '%s'", file_.getPath()); goto Image_Write_end;
 	};
 
 	ret = true;
@@ -213,23 +209,23 @@ Image_Write_end:
 	return ret;
 }
 
-bool Image::Write(const Image* _img, const char* _path, FileFormat _format)
+bool Image::Write(const Image& _img, const char* _path, FileFormat _format)
 {
 	File f;
 	f.setPath(_path);
-	if (Write(_img, &f, _format)) {
+	if (Write(_img, f, _format)) {
 		return false;
 	}
-	return File::Write(&f, _path);
+	return File::Write(f, _path);
 }
 
 uint Image::GetMaxMipmapSize(uint _width, uint _height, uint _depth)
 {
-	const double rlog2 = 1.0 / log(2.0);
+	const double rlog2    = 1.0 / log(2.0);
 	const uint log2Width  = (uint)(log((double)_width)  * rlog2);
 	const uint log2Height = (uint)(log((double)_height) * rlog2);
 	const uint log2Depth  = (uint)(log((double)_depth)  * rlog2);
-	uint mipCount = PLR_MAX(log2Width, PLR_MAX(log2Height, log2Depth)) + 1u; // +1 for level 0
+	uint mipCount = PLR_MAX(log2Width, PLR_MAX(log2Height, log2Depth)) + 1; // +1 for level 0
 	mipCount = PLR_MIN(PLR_MIN(mipCount, (uint)1u), kMaxMipmapCount);
 	return mipCount;
 }
@@ -305,19 +301,19 @@ Image::~Image()
 
 void Image::init()
 {
-	m_width = m_height = m_depth = 1u;
-	m_arrayCount = 1u;
-	m_mipmapCount = 1u;
-	m_type = Type::kInvalid;
+	m_width       = m_height = m_depth = 1;
+	m_arrayCount  = 1;
+	m_mipmapCount = 1;
+	m_type        = Type::kInvalid;
 	m_compression = CompressionType::kNone;
-	m_layout = Layout::kInvalid;
-	m_dataType = DataType::kInvalid;
+	m_layout      = Layout::kInvalid;
+	m_dataType    = DataType::kInvalid;
 	
 	char* m_data = 0;
-	memset(m_mipOffsets, 0u, sizeof(uint) * kMaxMipmapCount);
-	memset(m_mipSizes, 0u, sizeof(uint) * kMaxMipmapCount);
-	m_arrayLayerSize = 0u;
-	m_texelSize = 0u;
+	memset(m_mipOffsets, 0, sizeof(uint) * kMaxMipmapCount);
+	memset(m_mipSizes,   0, sizeof(uint) * kMaxMipmapCount);
+	m_arrayLayerSize = 0;
+	m_texelSize = 0;
 }
 
 void Image::alloc()
@@ -334,18 +330,15 @@ void Image::alloc()
 		m_mipOffsets[i] = m_arrayLayerSize;
 		m_mipSizes[i] = m_texelSize * w * h * d;
 		m_arrayLayerSize += m_mipSizes[i];
-		w = PLR_MAX(w / 2u, (uint)1u);
-		h = PLR_MAX(h / 2u, (uint)1u);
-		d = PLR_MAX(d / 2u, (uint)1u);
+		w = PLR_MAX(w / 2, (uint)1);
+		h = PLR_MAX(h / 2, (uint)1);
+		d = PLR_MAX(d / 2, (uint)1);
 		++i;
 		PLR_ASSERT(i < kMaxMipmapCount);
 	} while (i < lim);
 
 	m_data = new char[m_arrayLayerSize * m_arrayCount];
 	PLR_ASSERT(m_data);
-	//if (!m_data) {
-	//	m_errorState = ErrorState::kBadAlloc;
-	//}
 }
 
 bool Image::validateFileFormat(FileFormat _format) const
@@ -445,7 +438,7 @@ Image::FileFormat Image::GuessFormat(const char* _path)
 {
 	const char* ext = strrchr(_path, (int)'.');
 	if (ext) {
-		if (strcmp_ignore_case(ext, ".bmp") == 0) {
+		if        (strcmp_ignore_case(ext, ".bmp") == 0) {
 			return FileFormat::kBmp;
 		} else if (strcmp_ignore_case(ext, ".dds") == 0) {
 			return FileFormat::kDds;
@@ -518,7 +511,7 @@ static void StbiWriteFile(void* file_, void* _data, int _size)
 	f->setData((const char*)_data, _size);
 }
 
-bool Image::ReadDefault(Image* img_, const char* _data, uint _dataSize)
+bool Image::ReadDefault(Image& img_, const char* _data, uint _dataSize)
 {
 	int x, y, cmp;
 	unsigned char* d = stbi_load_from_memory((unsigned char*)_data, (int)_dataSize, &x, &y, &cmp, 0);
@@ -526,38 +519,38 @@ bool Image::ReadDefault(Image* img_, const char* _data, uint _dataSize)
 		PLR_LOG_ERR("stbi_load_from_memory() failed '%s'", stbi_failure_reason());
 		return false;
 	}
-	img_->m_width       = x;
-	img_->m_height      = y;
-	img_->m_depth       = img_->m_arrayCount = img_->m_mipmapCount = 1u;
-	img_->m_type        = Type::k2d;
-	img_->m_layout      = GuessLayout((uint)cmp);
-	img_->m_dataType    = DataType::kUint8;
-	img_->m_compression = CompressionType::kNone;
-	img_->alloc();
-	memcpy(img_->m_data, d, x * y * cmp); // \todo, avoid this
+	img_.m_width       = x;
+	img_.m_height      = y;
+	img_.m_depth       = img_.m_arrayCount = img_.m_mipmapCount = 1;
+	img_.m_type        = Type::k2d;
+	img_.m_layout      = GuessLayout((uint)cmp);
+	img_.m_dataType    = DataType::kUint8;
+	img_.m_compression = CompressionType::kNone;
+	img_.alloc();
+	memcpy(img_.m_data, d, x * y * cmp); // \todo, avoid this
 	stbi_image_free(d);
 	return true;
 }
-bool Image::WriteBmp(File* file_, const Image* _img)
+bool Image::WriteBmp(File& file_, const Image& _img)
 {
-	if (!stbi_write_bmp_to_func(StbiWriteFile, file_, (int)_img->m_width, (int)_img->m_height, (int)GetComponentCount(_img->m_layout), _img->m_data)) {
-		PLR_LOG_ERR("stbi_write_bmp() failed");
+	if (!stbi_write_bmp_to_func(StbiWriteFile, &file_, (int)_img.m_width, (int)_img.m_height, (int)GetComponentCount(_img.m_layout), _img.m_data)) {
+		PLR_LOG_ERR("stbi_write_bmp_to_func() failed");
 		return false;
 	}
 	return true;
 }
-bool Image::WritePng(File* file_, const Image* _img)
+bool Image::WritePng(File& file_, const Image& _img)
 {
-	if (!stbi_write_png_to_func(StbiWriteFile, file_, (int)_img->m_width, (int)_img->m_height, (int)GetComponentCount(_img->m_layout), _img->m_data, 0)) {
-		PLR_LOG_ERR("stbi_write_png() failed");
+	if (!stbi_write_png_to_func(StbiWriteFile, &file_, (int)_img.m_width, (int)_img.m_height, (int)GetComponentCount(_img.m_layout), _img.m_data, 0)) {
+		PLR_LOG_ERR("stbi_write_png_to_func() failed");
 		return false;
 	}
 	return true;
 }
-bool Image::WriteTga(File* file_, const Image* _img)
+bool Image::WriteTga(File& file_, const Image& _img)
 {
-	if (!stbi_write_tga_to_func(StbiWriteFile, file_, (int)_img->m_width, (int)_img->m_height, (int)GetComponentCount(_img->m_layout), _img->m_data)) {
-		PLR_LOG_ERR("stbi_write_tga() failed");
+	if (!stbi_write_tga_to_func(StbiWriteFile, &file_, (int)_img.m_width, (int)_img.m_height, (int)GetComponentCount(_img.m_layout), _img.m_data)) {
+		PLR_LOG_ERR("stbi_write_tga_to_func() failed");
 		return false;
 	}
 	return true;

@@ -45,9 +45,11 @@ bool FileImpl::Exists(const char* _path)
 	return GetFileAttributes(_path) != INVALID_FILE_ATTRIBUTES;
 }
 
-bool FileImpl::Read(FileImpl* file_, const char* _path)
+bool FileImpl::Read(FileImpl& file_, const char* _path)
 {
-	PLR_ASSERT(file_);
+	if (!_path) {
+		_path = file_.getPath();
+	}
 	PLR_ASSERT(_path);
 
 	bool ret = false;
@@ -84,10 +86,10 @@ bool FileImpl::Read(FileImpl* file_, const char* _path)
 	data[dataSize] = data[dataSize + 1] = 0;
 
 	ret = true;
-	file_->~FileImpl(); // close existing handle, release data
-	file_->m_data = data;
-	file_->m_dataSize = (uint64)dataSize;
-	file_->setPath(_path);
+	file_.~FileImpl(); // close existing handle, release data
+	file_.m_data = data;
+	file_.m_dataSize = (uint64)dataSize;
+	file_.setPath(_path);
 
 FileImpl_Read_end:
 	if (!ret) {
@@ -103,12 +105,10 @@ FileImpl_Read_end:
 	return ret;
 }
 
-bool FileImpl::Write(const FileImpl* _file, const char* _path)
+bool FileImpl::Write(const FileImpl& _file, const char* _path)
 {
-	PLR_ASSERT(_file);
-
 	if (!_path) {
-		_path = _file->getPath();
+		_path = _file.getPath();
 	}
 	PLR_ASSERT(_path);
 
@@ -131,11 +131,11 @@ bool FileImpl::Write(const FileImpl* _file, const char* _path)
 	}
 
 	DWORD bytesWritten;
-	if (!WriteFile(h, _file->getData(), (DWORD)_file->getDataSize(), &bytesWritten, NULL)) {
+	if (!WriteFile(h, _file.getData(), (DWORD)_file.getDataSize(), &bytesWritten, NULL)) {
 		err = GetPlatformErrorString(GetLastError());
 		goto FileImpl_Write_end;
 	}
-	PLR_ASSERT(bytesWritten == _file->getDataSize());
+	PLR_ASSERT(bytesWritten == _file.getDataSize());
 
 	ret = true;
 

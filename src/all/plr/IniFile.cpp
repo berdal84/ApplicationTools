@@ -15,21 +15,18 @@ static const char* kLineEnd = "\n";
 
 #define INI_ERROR(line, msg) PLR_LOG_ERR("Ini syntax error, line %d: '%s'", line, msg)
 
-bool IniFile::Read(IniFile* iniFile_, const File* _file)
+bool IniFile::Read(IniFile& iniFile_, const File& _file)
 {
-	PLR_ASSERT(iniFile_);
-	PLR_ASSERT(_file);
-	return iniFile_->parse(_file->getData());
+	return iniFile_.parse(_file.getData());
 }
 
-bool IniFile::Read(IniFile* iniFile_, const char* _path)
+bool IniFile::Read(IniFile& iniFile_, const char* _path)
 {
-	PLR_ASSERT(iniFile_);
 	File f;
-	if (!File::Read(&f, _path)) {
+	if (!File::Read(f, _path)) {
 		return false;
 	}
-	return Read(iniFile_, &f);
+	return Read(iniFile_, f);
 }
 
 IniFile::~IniFile()

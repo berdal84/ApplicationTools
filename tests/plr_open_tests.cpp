@@ -94,7 +94,7 @@ void TestIniFile()
 {
 	PLR_AUTOTIMER("TestIniFile()");
 	IniFile ini;
-	PLR_VERIFY(ini.load("test.ini"));
+	PLR_VERIFY(IniFile::Read(ini, "test.ini"));
 	
 	CheckTestIniProperties(ini);
 	CheckTestIniProperties(ini, "section0");
@@ -150,8 +150,8 @@ int main(int _argc, char** _argv)
 
 	#undef print_typeinfo
 
-	TestArgList(_argc, _argv);
-	//TestIniFile();
+	//TestArgList(_argc, _argv);
+	TestIniFile();
 	//TestString<8>();
 
 	return 0;

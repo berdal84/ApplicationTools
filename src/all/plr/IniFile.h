@@ -80,8 +80,8 @@ public:
 	/// Read from a file and parse. Invalidates any existing Property instances
 	/// returned by getProperty();
 	/// \return false if an error occurred.
-	static bool Read(IniFile* iniFile_, const File* _file);
-	static bool Read(IniFile* iniFile_, const char* _path);
+	static bool Read(IniFile& iniFile_, const File& _file);
+	static bool Read(IniFile& iniFile_, const char* _path);
 
 	IniFile() {}
 	~IniFile();

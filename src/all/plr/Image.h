@@ -24,7 +24,6 @@ class File;
 ///   existing image first (or only if the load succeeded).
 /// \todo Conversion behaviour between data types is not well define. Need to
 ///   consider how to manage unnormalized floating point data.
-/// \todo Use File API for stbi_write
 ////////////////////////////////////////////////////////////////////////////////
 class Image
 {
@@ -91,21 +90,21 @@ public:
 		uint            _width,
 		Layout          _layout, 
 		DataType        _dataType, 
-		uint            _mipmapCount = 1u,
+		uint            _mipmapCount = 1,
 		CompressionType _compressionType = CompressionType::kNone
 		);
 	static Image* Create2d(
 		uint _width, uint _height, 
 		Layout          _layout, 
 		DataType        _dataType, 
-		uint            _mipmapCount = 1u,
+		uint            _mipmapCount = 1,
 		CompressionType _compressionType = CompressionType::kNone
 		);
 	static Image* Create3d(
 		uint            _width, uint _height, uint _depth,
 		Layout          _layout, 
 		DataType        _dataType, 
-		uint            _mipmapCount = 1u,
+		uint            _mipmapCount = 1,
 		CompressionType _compressionType = CompressionType::kNone
 		);
 
@@ -115,15 +114,16 @@ public:
 	/// Read from a file. If _format is not provided, the format is assumed from 
 	/// the file's extension.
 	/// \return false if an error occurred, in which case img_ remains unchanged.
-	static bool Read(Image* img_, const File* _file, FileFormat _format = FileFormat::kInvalid);
-	static bool Read(Image* img_, const char* _path, FileFormat _format = FileFormat::kInvalid);
+	static bool Read(Image& img_, const File& _file, FileFormat _format = FileFormat::kInvalid);
+	static bool Read(Image& img_, const char* _path, FileFormat _format = FileFormat::kInvalid);
 
 	/// Write _img to a file. If _format is not provided, the format is assumed 
 	/// from the file's extension. 
-	/// \note The File* variant only writes to memory.
+	/// \note The File* variant only writes to memory. A subsequent call to 
+	///   File::Write() is required to actually write to disk.
 	/// \return false if an error occurred.
-	static bool Write(const Image* _img, File* file_, FileFormat _format = FileFormat::kInvalid);
-	static bool Write(const Image* _img, const char* _path, FileFormat _format = FileFormat::kInvalid);
+	static bool Write(const Image& _img, File& file_, FileFormat _format = FileFormat::kInvalid);
+	static bool Write(const Image& _img, const char* _path, FileFormat _format = FileFormat::kInvalid);
 
 	/// \return The maximum number of mips for an image.
 	static uint GetMaxMipmapSize(uint _width, uint _height, uint _depth = 1u);
@@ -132,31 +132,31 @@ public:
 	Image(): m_data(0)                           { init(); }
 	~Image();
 
-	uint getWidth() const                        { return m_width; }
-	uint getHeight() const                       { return m_height; }
-	uint getDepth() const                        { return m_depth; }
-	uint getArrayCount() const                   { return m_arrayCount; }
-	uint getArrayLayerSize() const               { return m_arrayLayerSize; }
-	uint getMipmapCount() const                  { return m_mipmapCount; }
-	uint getTexelSize() const                    { return m_texelSize; }
-	Type getType() const                         { return m_type; }
-	Layout getLayout() const                     { return m_layout; }
-	DataType getImageDataType() const            { return m_dataType; }
+	uint            getWidth() const             { return m_width; }
+	uint            getHeight() const            { return m_height; }
+	uint            getDepth() const             { return m_depth; }
+	uint            getArrayCount() const        { return m_arrayCount; }
+	uint            getArrayLayerSize() const    { return m_arrayLayerSize; }
+	uint            getMipmapCount() const       { return m_mipmapCount; }
+	uint            getTexelSize() const         { return m_texelSize; }
+	Type            getType() const              { return m_type; }
+	Layout          getLayout() const            { return m_layout; }
+	DataType        getImageDataType() const     { return m_dataType; }
 	CompressionType getCompressionType() const   { return m_compression; }
 
-	bool isCubemap() const                       { return m_type == Type::kCubemap; }
-	bool isCompressed() const                    { return m_compression != CompressionType::kNone; }
-	bool is1d() const                            { return m_height == 1; }
-	bool is2d() const                            { return m_depth == 1 && !isCubemap(); }
-	bool is3d() const                            { return m_depth > 1; }
-	bool isArray() const                         { return m_arrayCount > 1 && !isCubemap(); }
+	bool            isCubemap() const            { return m_type == Type::kCubemap; }
+	bool            isCompressed() const         { return m_compression != CompressionType::kNone; }
+	bool            is1d() const                 { return m_height == 1; }
+	bool            is2d() const                 { return m_depth == 1 && !isCubemap(); }
+	bool            is3d() const                 { return m_depth > 1; }
+	bool            isArray() const              { return m_arrayCount > 1 && !isCubemap(); }
 
 	/// \return Ptr to raw image data. _array < getArrayCount(), _mip < getMipmapCount(). 
 	/// The size of the returned buffer can be found via getRawImageSize().
-	const char* getRawImage(uint _array = 0u, uint _mip = 0u) const;
+	const char* getRawImage(uint _array = 0, uint _mip = 0) const;
 
 	/// \return Size (bytes) of the raw image at the specified mipmap level.
-	uint getRawImageSize(uint _mip = 0u) const;
+	uint getRawImageSize(uint _mip = 0) const;
 
 	///
 	void setRawImage(uint _array, uint _mip, const void* _src, Layout _layout, DataType _dataType, CompressionType _compressionType);
@@ -207,13 +207,13 @@ private:
 
 
 	// extern/dds.cpp
-	static bool ReadDds(Image* img_, const char* _data, uint _dataSize);
-	static bool WriteDds(File* file_, const Image* _img);
+	static bool ReadDds(Image& img_, const char* _data, uint _dataSize);
+	static bool WriteDds(File& file_, const Image& _img);
 	// Image.cpp
-	static bool ReadDefault(Image* img_, const char* _data, uint _dataSize);
-	static bool WriteBmp(File* file_, const Image* _img);
-	static bool WritePng(File* file_, const Image* _img);
-	static bool WriteTga(File* file_, const Image* _img);
+	static bool ReadDefault(Image& img_, const char* _data, uint _dataSize);
+	static bool WriteBmp(File& file_, const Image& _img);
+	static bool WritePng(File& file_, const Image& _img);
+	static bool WriteTga(File& file_, const Image& _img);
 
 }; // class Image
 
