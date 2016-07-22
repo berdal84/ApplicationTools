@@ -53,7 +53,6 @@ public:
 	///    _path may or may not have been overwritten.
 	static bool Write(const File* _file, const char* _path = 0) { return Impl::Write(_file, _path); }
 
-
 	const char* getPath() const                            { return Impl::getPath(); }
 	void        setPath(const char* _path)                 { Impl::setPath(_path); }
 	const char* getData() const                            { return Impl::getData(); }

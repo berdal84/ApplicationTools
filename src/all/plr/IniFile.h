@@ -8,7 +8,7 @@
 #define plr_IniFile_h
 
 #include <plr/def.h>
-#include <plr/StringHash.h>
+#include <plr/String.h>
 
 #include <vector>
 
@@ -31,6 +31,7 @@ class File;
 ///       "thirteen",
 ///       "fourteen"
 /// \endcode
+///
 /// \todo String escape characters
 /// \todo Line breaks within strings
 /// \todo Implement save() + api for constructing an IniFile.
@@ -40,7 +41,7 @@ class IniFile
 {
 public:
 
-	enum class ValueType
+	enum ValueType
 	{
 		kBool, kInt, kDouble, kString
 	};
@@ -57,9 +58,9 @@ public:
 	{
 		friend class IniFile;
 
-		uint   m_type;
-		uint   m_count;
-		Value* m_first;
+		uint8   m_type;
+		uint16  m_count;
+		Value*  m_first;
 
 		Property(ValueType _type, uint16 _count, Value* _first)
 			: m_type((uint8)_type), m_count(_count), m_first(_first)
@@ -67,13 +68,13 @@ public:
 		}
 
 	public:
-		bool isNull() const                     { return m_first == 0; }
-		ValueType getType() const               { return (ValueType)m_type; }
-		uint getCount() const                   { return m_count; }
-		bool asBool(uint i = 0u) const          { PLR_ASSERT(i < m_count); return m_first[i].m_bool; }
-		sint64 asInt(uint i = 0u) const         { PLR_ASSERT(i < m_count); return m_first[i].m_int; }
-		double asDouble(uint i = 0u) const      { PLR_ASSERT(i < m_count); return m_first[i].m_double; }
-		const char* asString(uint i = 0u) const { PLR_ASSERT(i < m_count); return m_first[i].m_string; }	
+		bool isNull() const                        { return m_first == 0; }
+		ValueType getType() const                  { return (ValueType)m_type; }
+		uint16 getCount() const                    { return m_count; }
+		bool asBool(uint16 _i = 0u) const          { PLR_ASSERT((ValueType)m_type == kBool);   PLR_ASSERT(_i < m_count); return m_first[_i].m_bool; }
+		sint64 asInt(uint16 _i = 0u) const         { PLR_ASSERT((ValueType)m_type == kInt);    PLR_ASSERT(_i < m_count); return m_first[_i].m_int; }
+		double asDouble(uint16 _i = 0u) const      { PLR_ASSERT((ValueType)m_type == kDouble); PLR_ASSERT(_i < m_count); return m_first[_i].m_double; }
+		const char* asString(uint16 _i = 0u) const { PLR_ASSERT((ValueType)m_type == kString); PLR_ASSERT(_i < m_count); return m_first[_i].m_string; }	
 	};
 	
 	/// Read from a file and parse. Invalidates any existing Property instances
@@ -88,25 +89,26 @@ public:
 	/// Retrieve a named property, optionally specifying the section to search.
 	/// Note that the returned Property instance is only valid during the lifetime
 	/// of the IniFile to which it belongs. Calling load() will invalidate all
-	/// Property instances previously returned by these methods.
+	/// previously returned Property instances.
 	/// \return Property instance. If no matching property was found, isNull() will
 	///   return true.
-	Property getProperty(const char* _key, const char* _section = 0);
-	Property getProperty(StringHash _key, StringHash _section = kDefaultSection);
+	Property getProperty(const char* _name, const char* _section = 0);
 
 private:
+	typedef String<32> NameStr;
+
 	struct Key
 	{
-		StringHash m_key;
+		NameStr    m_name;
 		ValueType  m_type;
-		uint       m_count;
-		uint       m_valueOffset;
+		uint16     m_valueCount;
+		uint16     m_valueOffset;
 	};
 	struct Section
 	{
-		StringHash m_name;
-		uint       m_count;
-		uint       m_keyOffset;
+		NameStr    m_name;
+		uint16     m_propertyCount;
+		uint16     m_keyOffset;      
 	};
 
 	std::vector<Section> m_sections;

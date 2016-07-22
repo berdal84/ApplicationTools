@@ -3,6 +3,7 @@
 
 #include <plr/Time.h>
 
+#include <plr/ArgList.h>
 #include <plr/math.h>
 #include <plr/File.h>
 #include <plr/Image.h>
@@ -10,10 +11,30 @@
 #include <plr/String.h>
 
 #include <new>
+#include <cstring> // strcmp
 
 using namespace plr;
 
-#include <cstring> // strcmp
+void TestArgList(int _argc, char** _argv)
+{
+	PLR_AUTOTIMER("TestArgList()");
+	ArgList al(_argc, _argv);
+
+	const Arg* arg;
+	if (arg = al.find("bool")) {
+		PLR_LOG("bool = %s", arg->getValue().asBool() ? "true" : "false");
+	}
+	if (arg = al.find("intPos")) {
+		PLR_LOG("intPos = %i", arg->getValue().asInt());
+	}	
+	if (arg = al.find("intNeg")) {
+		PLR_LOG("intNeg = %i", arg->getValue().asInt());
+	}
+	if (arg = al.find("double")) {
+		PLR_LOG("double = %f", arg->getValue().asDouble());
+	}
+}
+
 void CheckTestIniProperties(IniFile& _ini, const char* _section = 0)
 {
 	if (_section) {
@@ -71,7 +92,7 @@ void CheckTestIniProperties(IniFile& _ini, const char* _section = 0)
 }
 void TestIniFile()
 {
-	PLR_TIME_DBG("TestIniFile()");
+	PLR_AUTOTIMER("TestIniFile()");
 	IniFile ini;
 	PLR_VERIFY(ini.load("test.ini"));
 	
@@ -83,6 +104,7 @@ void TestIniFile()
 template <uint kCapacity>
 void TestString()
 {
+	PLR_AUTOTIMER("TestString()");
 	String<0> heapAlways;
 	heapAlways.set("heapAlways", 4u);
 	heapAlways.append("1234567890", 300);
@@ -99,7 +121,7 @@ int main(int _argc, char** _argv)
 	PLR_LOG("plr_open_tests\n--------------");
 	//PLR_LOG("%s", GetDateTime().asString().c_str());
 	PLR_LOG_DBG("DEBUG");
-	PLR_TIME_DBG("plr_open_tests");
+	PLR_AUTOTIMER("plr_open_tests");
 
 	#define print_typeinfo(t) PLR_LOG("sizeof(%s)\t\t%d\talignof(%s)\t\t%d", #t, sizeof(t), #t, PLR_ALIGNOF(t));
 	print_typeinfo(char);
@@ -128,6 +150,7 @@ int main(int _argc, char** _argv)
 
 	#undef print_typeinfo
 
+	TestArgList(_argc, _argv);
 	//TestIniFile();
 	//TestString<8>();
 

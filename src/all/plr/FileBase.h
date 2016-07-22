@@ -8,21 +8,26 @@
 #endif
 
 #include <plr/def.h>
+#include <plr/String.h>
 
 namespace plr { namespace internal {
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class FileBase
 /// Base class for File implementations.
+/// \todo Root path is not thread safe.
 /// \internal \ingroup plr_core
 ////////////////////////////////////////////////////////////////////////////////
 class FileBase
 {
+public:
+	static void SetRootPath(const char* _path) { s_rootPath.set(_path); }
+	static const char* GetRootPath()           { return (const char*)s_rootPath; }
+
 protected:
 	FileBase();
 	~FileBase();
-
-	void        swap(FileBase& _file_);
+	void swap(FileBase& _file_);
 	
 	/// _data may be 0 in which case m_data is allocated but not initialized.
 	void        setData(const char* _data, uint64 _size);

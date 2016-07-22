@@ -112,6 +112,24 @@ uint StringBase::appendfv(const char* _fmt, va_list _args)
 	return (uint)srclen + len - 1u;;
 }
 
+const char* StringBase::findFirst(const char* _list) const
+{
+	const char* ret = strpbrk(m_buf, _list);
+	return ret ? ret : m_buf;
+}
+const char* StringBase::findLast(const char* _list) const
+{
+ // rather than call strlen (which has to search the whole string anyway) we just make
+ // several calls to strpbrk
+	const char* ret = 0;
+	const char* tmp = m_buf;
+	do {
+		tmp = strpbrk(tmp + 1, _list);
+		ret = tmp == 0 ? ret : tmp;
+	} while (tmp != 0);
+	return ret;
+}
+
 uint StringBase::getLength() const
 {
 	return strlen(m_buf);

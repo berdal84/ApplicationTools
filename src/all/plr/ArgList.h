@@ -8,6 +8,7 @@
 #define plr_ArgList_h
 
 #include <plr/def.h>
+
 #include <vector>
 
 namespace plr {
@@ -20,15 +21,29 @@ namespace plr {
 class Arg
 {
 public:
+	class Value
+	{
+		friend class Arg;
+		const char* m_value;
+		Value(const char* _value): m_value(_value) {}
+	public:
+		operator const char*() const { return m_value; }
+
+		bool asBool() const;
+		sint64 asInt() const;
+		double asDouble() const;
+		const char* asString() const;
+	};
+
 	/// Init with _name (can be null).
 	Arg(char* _name): m_name(_name ? _name : "")   {}
 
-	const char* getName() const             { return m_name; }
-	uint  getValueCount() const             { return (uint)m_values.size(); }
-	void  pushValue(const char* _val)       { m_values.push_back(_val); }
-	const char* getValue(uint i = 0u) const { PLR_ASSERT(i < m_values.size()); return m_values[i]; }
-	const char* operator[](uint i) const    { PLR_ASSERT(i < m_values.size()); return m_values[i]; }
-
+	const char* getName() const        { return m_name; }
+	uint getValueCount() const         { return (uint)m_values.size(); }
+	void pushValue(const char* _val)   { m_values.push_back(_val); }
+	Value getValue(int _i = 0) const   { PLR_ASSERT(_i < m_values.size()); return Value(m_values[_i]); }
+	Value operator[](int _i) const     { PLR_ASSERT(_i < m_values.size()); return Value(m_values[_i]); }
+	
 private:
 	const char* m_name;
 	std::vector<const char*> m_values;
@@ -47,8 +62,8 @@ public:
 	ArgList(int _argc, char* _argv[]);
 
 	uint getArgCount() const             { return (uint)m_args.size(); }
-	const Arg& getArg(uint i)            { PLR_ASSERT(i < m_args.size()); return m_args[i]; }
-	const Arg& operator[](uint i) const  { PLR_ASSERT(i < m_args.size()); return m_args[i]; }
+	const Arg& getArg(int _i)            { PLR_ASSERT(_i < m_args.size()); return m_args[_i]; }
+	const Arg& operator[](int _i) const  { PLR_ASSERT(_i < m_args.size()); return m_args[_i]; }
 
 	/// \return Arg with matching _name, or 0 if not present.
 	const Arg* find(const char* _name) const;

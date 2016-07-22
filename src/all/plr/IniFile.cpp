@@ -39,7 +39,7 @@ IniFile::~IniFile()
 		if (k.m_type != ValueType::kString) {
 			continue;
 		}
-		for (uint j = k.m_valueOffset; j < k.m_valueOffset + k.m_count; ++j) {
+		for (uint j = k.m_valueOffset; j < k.m_valueOffset + k.m_valueCount; ++j) {
 			delete[] m_values[j].m_string;
 		}
 	}
@@ -149,7 +149,7 @@ bool IniFile::parse(const char* _str)
 				INI_ERROR(tp.getLineCount(vbeg), "Invalid array (arrays must be homogeneous)");
 				return false;
 			}
-			++k.m_count;
+			++k.m_valueCount;
 		} else if (!tp.isNull()) {
 		 // new data
 			if (tp.isNum()) {
@@ -169,37 +169,30 @@ bool IniFile::parse(const char* _str)
 			k.m_valueCount = 0;
 			m_keys.push_back(k);
 
-			++m_sections.back().m_count;
+			++m_sections.back().m_propertyCount;
 		}
 	};
 	return true;
 }
 
-IniFile::Property IniFile::getProperty(const char* _key, const char* _section)
-{
-	StringHash k(_key);
-	StringHash s = _section ? StringHash(_section) : StringHash::kInvalidHash;
-	return getProperty(k, s);
-}
-
-IniFile::Property IniFile::getProperty(StringHash _key, StringHash _section)
+IniFile::Property IniFile::getProperty(const char* _name, const char* _section)
 {
 	Property ret(ValueType::kBool, 0, 0);
 
 	uint koff = 0;
 	uint kcount = m_keys.size();
 	if (_section) {
-		for (uint i = 0; i < m_sections.size(); ++i) {
+		for (uint i = 0u; i < m_sections.size(); ++i) {
 			if (m_sections[i].m_name == _section) {
 				koff = m_sections[i].m_keyOffset;
-				kcount = m_sections[i].m_count;
+				kcount = m_sections[i].m_propertyCount;
 				break;
 			}
 		}
 	}
 	for (uint i = koff, n = koff + kcount; i < n; ++i) {
 		if (m_keys[i].m_name == _name) {
-			ret.m_type = (uint8)m_keys[i].m_type;
+			ret.m_type = (uint)m_keys[i].m_type;
 			ret.m_count = m_keys[i].m_valueCount;
 			ret.m_first = &m_values[m_keys[i].m_valueOffset];
 			break;

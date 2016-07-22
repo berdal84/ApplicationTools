@@ -5,13 +5,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include <plr/File.h>
 
-#include <cstring>
+#include <cstring> // memcpy
 #include <utility>
 
 using namespace plr;
 using namespace internal;
 
-// PUBLIC
+// PROTECTED
 
 void FileBase::setData(const char* _data, uint64 _size)
 {
@@ -27,7 +27,9 @@ void FileBase::setData(const char* _data, uint64 _size)
 		m_data = new char[_size];
 		PLR_ASSERT(m_data);
 	}
-	memcpy(m_data, _data, _size);
+	if (_data) {
+		memcpy(m_data, _data, _size);
+	}
 	m_dataSize = _size;
 }
 
@@ -35,17 +37,14 @@ void FileBase::setData(const char* _data, uint64 _size)
 // PROTECTED
 
 FileBase::FileBase()
-	: m_path(0)
+	: m_path("")
 	, m_data(0)
-	, m_dataSize(0u)
+	, m_dataSize(0)
 {
 }
 
 FileBase::~FileBase()
 {
-	if (m_path) {
-		delete[] m_path;
-	}
 	if (m_data) {
 		delete[] m_data;
 	}
