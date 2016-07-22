@@ -192,7 +192,7 @@ IniFile::Property IniFile::getProperty(const char* _name, const char* _section)
 	}
 	for (uint i = koff, n = koff + kcount; i < n; ++i) {
 		if (m_keys[i].m_name == _name) {
-			ret.m_type = (uint)m_keys[i].m_type;
+			ret.m_type = (uint8)m_keys[i].m_type;
 			ret.m_count = m_keys[i].m_valueCount;
 			ret.m_first = &m_values[m_keys[i].m_valueOffset];
 			break;

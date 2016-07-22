@@ -50,15 +50,12 @@ bool FileImpl::Read(FileImpl* file_, const char* _path)
 	PLR_ASSERT(file_);
 	PLR_ASSERT(_path);
 
-	String<64> fullPath;
-	fullPath.setf("%s%s", (const char*)s_rootPath, _path);
-
 	bool ret = false;
 	const char* err = "";
 	char* data = 0;
 
  	HANDLE h = CreateFile(
-		(const char*)fullPath,
+		_path,
 		GENERIC_READ,
 		FILE_SHARE_READ,
 		NULL,
@@ -115,15 +112,12 @@ bool FileImpl::Write(const FileImpl* _file, const char* _path)
 	}
 	PLR_ASSERT(_path);
 
-	String<64> fullPath;
-	fullPath.setf("%s%s", (const char*)s_rootPath, _path);
-
 	bool ret = false;
 	const char* err = "";
 	char* data = 0;
 
  	HANDLE h = CreateFile(
-		(const char*)fullPath,
+		_path,
 		GENERIC_WRITE,
 		0, // prevent sharing while we write
 		NULL,

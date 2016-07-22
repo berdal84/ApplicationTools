@@ -20,10 +20,6 @@ namespace plr { namespace internal {
 ////////////////////////////////////////////////////////////////////////////////
 class FileBase
 {
-public:
-	static void SetRootPath(const char* _path) { s_rootPath.set(_path); }
-	static const char* GetRootPath()           { return (const char*)s_rootPath; }
-
 protected:
 	FileBase();
 	~FileBase();
