@@ -112,10 +112,12 @@ public:
 	String(String<kCapacity>&& _rhs):      StringBase(std::move(_rhs)) {}
 	String(const char* _fmt, ...):         StringBase(kCapacity)
 	{
-		va_list args;
-		va_start(args, _fmt);
-		setfv(_fmt, args);
-		va_end(args);
+		if (_fmt) {
+			va_list args;
+			va_start(args, _fmt);
+			setfv(_fmt, args);
+			va_end(args);
+		}
 	}
 };
 
@@ -129,10 +131,12 @@ public:
 	String(String<0>&& _rhs):      StringBase(std::move(_rhs)) {}
 	String(const char* _fmt, ...): StringBase()
 	{
-		va_list args;
-		va_start(args, _fmt);
-		setfv(_fmt, args);
-		va_end(args);
+		if (_fmt) {
+			va_list args;
+			va_start(args, _fmt);
+			setfv(_fmt, args);
+			va_end(args);
+		}
 	}
 };
 
