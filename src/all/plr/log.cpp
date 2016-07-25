@@ -23,17 +23,17 @@ static void DispatchLogCallback(const char* _fmt, va_list _args, LogType _type)
 	}
 }
 
-void SetLogCallback(LogCallback* _callback)
+void plr::SetLogCallback(LogCallback* _callback)
 {
 	g_logCallback= _callback;
 }
 
-LogCallback* GetLogCallback()
+LogCallback* plr::GetLogCallback()
 {
 	return g_logCallback;
 }
 
-void internal::Log(const char* _fmt, ...)
+void plr::internal::Log(const char* _fmt, ...)
 {
 	va_list args;
 	va_start(args, _fmt);
@@ -43,7 +43,7 @@ void internal::Log(const char* _fmt, ...)
 	va_end(args);
 }
 
-void internal::LogError(const char* _fmt, ...)
+void plr::internal::LogError(const char* _fmt, ...)
 {
 	va_list args;
 	va_start(args, _fmt);
@@ -53,7 +53,7 @@ void internal::LogError(const char* _fmt, ...)
 	va_end(args);
 }
 
-void internal::LogDebug(const char* _fmt, ...)
+void plr::internal::LogDebug(const char* _fmt, ...)
 {
 	va_list args;
 	va_start(args, _fmt);
