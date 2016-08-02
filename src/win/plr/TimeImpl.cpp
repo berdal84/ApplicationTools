@@ -6,6 +6,7 @@
 #include <plr/Time.h>
 
 #include <plr/memory.h>
+#include <plr/platform.h>
 #include <plr/win.h>
 
 using namespace plr;
@@ -17,13 +18,13 @@ using namespace plr;
 *******************************************************************************/
 
 PLR_DEFINE_STATIC_INIT(Time);
-static storage<sint64, 1> g_sysFreq;
+static storage<sint64, 1>    g_sysFreq;
 static storage<Timestamp, 1> g_appInit;
 
 Timestamp Time::GetTimestamp() 
 {
 	LARGE_INTEGER t;
-	/*PLR_SYS_VERIFY(*/QueryPerformanceCounter(&t)/*)*/;
+	PLR_PLATFORM_VERIFY(QueryPerformanceCounter(&t));
 	return Timestamp(t.QuadPart);
 }
 
@@ -51,7 +52,7 @@ sint64 Time::GetSystemFrequency()
 void Time::Init()
 {
 	LARGE_INTEGER f;
-	/*PLR_SYS_VERIFY(*/QueryPerformanceFrequency(&f)/*)*/;
+	PLR_PLATFORM_VERIFY(QueryPerformanceFrequency(&f));
 	*g_sysFreq = f.QuadPart;
 	*g_appInit = GetTimestamp();
 }
@@ -80,8 +81,6 @@ double plr::Timestamp::asMicroseconds() const
 {
 	return (double)((m_raw * 1000000ll) / Time::GetSystemFrequency());
 }
-
-
 
 /*******************************************************************************
 	

@@ -70,21 +70,22 @@ public:
 	/// \return time value in seconds.
 	double asSeconds() const;
 
-	/// \return time value in milliseconds (thousandths of a second).
+	/// \return time value in milliseconds (10^-3s).
 	double asMilliseconds() const;
 
-	/// \return time value in microseconds (millionths of a second).
+	/// \return time value in microseconds (10^-6s).
 	double asMicroseconds() const;
+	
 
 	const Timestamp operator- (const Timestamp& rhs) const  { return m_raw -  rhs.m_raw; }
 	const Timestamp operator+ (const Timestamp& rhs) const  { return m_raw +  rhs.m_raw; }
-	Timestamp& operator-=(const Timestamp& rhs)             { m_raw -= rhs.m_raw; return *this; }
-	Timestamp& operator+=(const Timestamp& rhs)             { m_raw += rhs.m_raw; return *this; }
+	Timestamp&      operator-=(const Timestamp& rhs)        { m_raw -= rhs.m_raw; return *this; }
+	Timestamp&      operator+=(const Timestamp& rhs)        { m_raw += rhs.m_raw; return *this; }
 
-	bool operator> (const Timestamp& rhs) const             { return m_raw >  rhs.m_raw; }
-	bool operator>=(const Timestamp& rhs) const             { return m_raw >= rhs.m_raw; }
-	bool operator< (const Timestamp& rhs) const             { return m_raw <  rhs.m_raw; }
-	bool operator<=(const Timestamp& rhs) const             { return m_raw <= rhs.m_raw; }
+	bool            operator> (const Timestamp& rhs) const  { return m_raw >  rhs.m_raw; }
+	bool            operator>=(const Timestamp& rhs) const  { return m_raw >= rhs.m_raw; }
+	bool            operator< (const Timestamp& rhs) const  { return m_raw <  rhs.m_raw; }
+	bool            operator<=(const Timestamp& rhs) const  { return m_raw <= rhs.m_raw; }
 
 private:
 	sint64 m_raw;
@@ -137,17 +138,17 @@ public:
 	/// E.g. ISO 8601 format would be "%Y-%m-%dT%H:%M:%SZ".
 	/// \note Returns a ptr to a thread-local static buffer - for normal use
 	///   this should be fine, just print the string and don't keep the ptr.
-	const char* asString(const char* _format = 0) const;
+	const char*    asString(const char* _format = 0) const;
 
 	const DateTime operator- (const DateTime& rhs) const  { return m_raw -  rhs.m_raw; }
 	const DateTime operator+ (const DateTime& rhs) const  { return m_raw +  rhs.m_raw; }
-	DateTime& operator-=(const DateTime& rhs)             { m_raw -= rhs.m_raw; return *this; }
-	DateTime& operator+=(const DateTime& rhs)             { m_raw += rhs.m_raw; return *this; }
+	DateTime&      operator-=(const DateTime& rhs)        { m_raw -= rhs.m_raw; return *this; }
+	DateTime&      operator+=(const DateTime& rhs)        { m_raw += rhs.m_raw; return *this; }
 
-	bool operator> (const DateTime& rhs) const            { return m_raw >  rhs.m_raw; }
-	bool operator>=(const DateTime& rhs) const            { return m_raw >= rhs.m_raw; }
-	bool operator< (const DateTime& rhs) const            { return m_raw <  rhs.m_raw; }
-	bool operator<=(const DateTime& rhs) const            { return m_raw <= rhs.m_raw; }
+	bool           operator> (const DateTime& rhs) const  { return m_raw >  rhs.m_raw; }
+	bool           operator>=(const DateTime& rhs) const  { return m_raw >= rhs.m_raw; }
+	bool           operator< (const DateTime& rhs) const  { return m_raw <  rhs.m_raw; }
+	bool           operator<=(const DateTime& rhs) const  { return m_raw <= rhs.m_raw; }
 
 private:	
 	sint64 m_raw;
