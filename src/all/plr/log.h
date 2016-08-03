@@ -14,7 +14,7 @@
 #ifdef PLR_DEBUG
 	#define PLR_LOG_DBG(...)      do { plr::internal::LogDebug(__VA_ARGS__); } while (0)
 #else
-	#define PLR_LOG_DBG(...)      do { PLR_UNUSED(fmt); } while(0)
+	#define PLR_LOG_DBG(...)      do { } while(0)
 #endif
 
 namespace plr {

@@ -68,5 +68,6 @@
       <Filter>extern</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\all\plr\types.h" />
+    <ClInclude Include="..\..\src\all\plr\RingBuffer.h" />
   </ItemGroup>
 </Project>
