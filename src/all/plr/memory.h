@@ -23,6 +23,11 @@ namespace plr {
 /// \ingroup plr_core
 void* malloc_aligned(uint _size, uint _align);
 
+
+///
+/// \ingroup plr_core
+void* realloc_aligned(void* _p, uint _size, uint _align);
+
 /// Free memory previous allocated via malloc_aligned().
 /// \param _p ptr to memory previously allocated by malloc_aligned().
 /// \ingroup plr_core

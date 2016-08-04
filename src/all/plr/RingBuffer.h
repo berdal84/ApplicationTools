@@ -58,20 +58,20 @@ public:
 	uint getCapacity() const { return m_capacity; }
 
 private:
-	tType* m_buffer;
-	uint   m_capcity;
-	uint   m_front;    //< Oldest valid element in the buffer.
-	uint   m_back;     //< Next free element in the buffer.
+	tType* m_buffer;   //< Storage.
+	tType* m_front;    //< Oldest valid element in the buffer.
+	tType* m_back;     //< Next free element in the buffer.
+	uint   m_capacity;
 
 
 	void incBack()
 	{
-		if_unlikely (++m_back >= m_capacity) {
-			m_back = 0;
+		if_unlikely (++m_back >= (m_buffer + m_capacity)) {
+			m_back = m_buffer;
 		}
 		if_likely (m_back == m_front) {
-			if_unlikely (++m_front >= m_capacity) {
-				m_front = 0;
+			if_unlikely (++m_front >= (m_buffer + m_capacity)) {
+				m_front = m_buffer;
 			}
 		}
 	}

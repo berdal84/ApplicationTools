@@ -1,14 +1,15 @@
 #include <plr/def.h>
 #include <plr/log.h>
 
-#include <plr/Time.h>
 
-#include <plr/ArgList.h>
 #include <plr/math.h>
+#include <plr/memory.h>
+#include <plr/ArgList.h>
 #include <plr/File.h>
 #include <plr/Image.h>
 #include <plr/IniFile.h>
 #include <plr/String.h>
+#include <plr/Time.h>
 
 #include <new>
 #include <cstring> // strcmp
@@ -116,6 +117,18 @@ void TestString()
     PLR_LOG("%s = %d", (const char*)str, len);
 }
 
+void TestMalloc()
+{
+	uint align = 2;
+	while (align < 512) {
+		void* p = malloc_aligned(1024, align);
+		p = realloc_aligned(p, 512, align);
+		free_aligned(p);
+
+		align *= 2;
+	}
+}
+
 int main(int _argc, char** _argv)
 {
 	PLR_LOG("plr_open_tests\n--------------");
@@ -150,8 +163,10 @@ int main(int _argc, char** _argv)
 
 	#undef print_typeinfo
 
+	TestMalloc();
+
 	//TestArgList(_argc, _argv);
-	TestIniFile();
+	//TestIniFile();
 	//TestString<8>();
 
 	return 0;
