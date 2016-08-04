@@ -37,6 +37,7 @@ Rename this file to lodepng.cpp to use it for C++, or to lodepng.c to use it for
 #if defined(_MSC_VER) && (_MSC_VER >= 1310) /*Visual Studio: A few warning types are not desired here.*/
 #pragma warning( disable : 4244 ) /*implicit conversions: not warned by gcc -Wall -Wextra and requires too much casts*/
 #pragma warning( disable : 4996 ) /*VS does not like fopen, but fopen_s is not standard C so unusable here*/
+#pragma warning( disable : 4267 ) /*Added for x64 targets, conversion from size_t -> int generates a warning.*/
 #endif /*_MSC_VER */
 
 const char* LODEPNG_VERSION_STRING = "20160501";
@@ -787,7 +788,7 @@ static void boundaryPM(BPMLists* lists, BPMNode* leaves, size_t numpresent, int 
 }
 
 unsigned lodepng_huffman_code_lengths(unsigned* lengths, const unsigned* frequencies,
-                                      size_t numcodes, unsigned maxbitlen)
+                                      unsigned numcodes, unsigned maxbitlen)
 {
   unsigned error = 0;
   unsigned i;

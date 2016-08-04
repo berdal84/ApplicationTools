@@ -8,6 +8,7 @@
 #include <plr/def.h>
 #include <plr/log.h>
 #include <plr/File.h>
+#include <plr/Time.h>
 
 #include <cmath>
 #include <cstring>
@@ -502,14 +503,22 @@ bool Image::IsDataTypeBpc(DataType _type, int _bpc)
 #define STBI_WRITE_NO_STDIO
 #define STBIW_ASSERT(x) PLR_ASSERT(x)
 #include <plr/extern/stb_image_write.h>
-
-#include <plr/extern/lodepng.h>
-
 static void StbiWriteFile(void* file_, void* _data, int _size)
 {
 	PLR_ASSERT(file_);
 	File* f = (File*)file_;
 	f->setData((const char*)_data, _size);
+}
+
+#include <plr/extern/lodepng.h>
+static void SwapByteOrder(unsigned char* _d, unsigned _dsize)
+{
+    for (unsigned i = 0; i < _dsize; i += 2) {
+        unsigned j = i + 1;
+        unsigned char tmp = _d[j];
+        _d[j] = _d[i];
+        _d[i] = tmp;
+    }
 }
 
 bool Image::ReadDefault(Image& img_, const char* _data, uint _dataSize)
@@ -536,7 +545,7 @@ bool Image::ReadPng(Image& img_, const char* _data, uint _dataSize)
 {
 	LodePNGDecoderSettings settings;
     lodepng_decoder_settings_init(&settings);
-    settings.color_convert = 0;
+	settings.color_convert = 0;
     LodePNGState state;
     lodepng_state_init(&state);
     state.decoder = settings;
@@ -564,7 +573,8 @@ bool Image::ReadPng(Image& img_, const char* _data, uint _dataSize)
 	DataType dataType;	
 	switch (state.info_raw.bitdepth) {
 		case 8:                 dataType = DataType::kUint8;  break;
-		case 16:                dataType = DataType::kUint16; break;
+		case 16:                dataType = DataType::kUint16;
+		                        SwapByteOrder(d, x * y * cmp * 2); break; // \todo swizzle bytes during copy to img_
 		default:                PLR_ASSERT_MSG(false, "Unsupported bit depth (%d)", state.info_raw.bitdepth);
 		                        ret = false;
 	};
@@ -577,7 +587,7 @@ bool Image::ReadPng(Image& img_, const char* _data, uint _dataSize)
 	img_.m_dataType    = dataType;
 	img_.m_compression = CompressionType::kNone;
 	img_.alloc();
-	memcpy(img_.m_data, d, x * y * cmp); // \todo, avoid this
+	memcpy(img_.m_data, d, x * y * cmp * DataTypeSize(dataType)); // \todo, avoid this?
 
 Image_ReadPng_end:
 	free(d);
