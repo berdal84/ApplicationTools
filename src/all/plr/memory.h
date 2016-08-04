@@ -11,27 +11,20 @@
 
 namespace plr {
 
-/// Allocate memory with a specified alignment.
-/// \param _size number of bytes to allocate. malloc_aligned() guarantees to
-///    return a distinct non-null ptr if size is zero (except if the allocation
-///    fails).
-/// \param _align required alignment.
-/// \return void* to allocated block, which must be freed via free_aligned()
-///    This may be a null ptr if the allocation fails and std::new_handler 
-///    is null. If std::new_handler is not null it is called and the allocation
-///    is attempted again.
+/// Allocate _size bytes with _align aligment.
 /// \ingroup plr_core
 void* malloc_aligned(uint _size, uint _align);
 
-
-///
+/// Reallocate memory previously allocated via malloc_aligned (or allocate a new
+/// block if _p is null). The alignment of a previously allocated block may not
+/// be changed.
 /// \ingroup plr_core
 void* realloc_aligned(void* _p, uint _size, uint _align);
 
 /// Free memory previous allocated via malloc_aligned().
-/// \param _p ptr to memory previously allocated by malloc_aligned().
 /// \ingroup plr_core
 void free_aligned(void* _p);
+
 
 namespace internal {
 	template <uint kAlignment> struct aligned_base;
