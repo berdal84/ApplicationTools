@@ -211,8 +211,9 @@ private:
 	static bool WriteDds(File& file_, const Image& _img);
 	// Image.cpp
 	static bool ReadDefault(Image& img_, const char* _data, uint _dataSize);
+	static bool ReadPng(Image& img_, const char* _data, uint _dataSize);
+	static bool WritePng(File& file_, const Image& _png);
 	static bool WriteBmp(File& file_, const Image& _img);
-	static bool WritePng(File& file_, const Image& _img);
 	static bool WriteTga(File& file_, const Image& _img);
 
 }; // class Image

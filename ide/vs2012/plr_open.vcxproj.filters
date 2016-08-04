@@ -34,6 +34,9 @@
       <Filter>extern</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\all\plr\types.cpp" />
+    <ClCompile Include="..\..\src\all\plr\extern\lodepng.cpp">
+      <Filter>extern</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\all\plr\ArgList.h" />
@@ -69,5 +72,8 @@
     </ClInclude>
     <ClInclude Include="..\..\src\all\plr\types.h" />
     <ClInclude Include="..\..\src\all\plr\RingBuffer.h" />
+    <ClInclude Include="..\..\src\all\plr\extern\lodepng.h">
+      <Filter>extern</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

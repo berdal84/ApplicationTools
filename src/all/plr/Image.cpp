@@ -153,10 +153,10 @@ bool Image::Read(Image& img_, const File& _file, FileFormat _format)
 	img_.init(); // \todo don't affect the image before loading succeeded
 	switch (_format) {
 		case FileFormat::kDds: return ReadDds(img_, _file.getData(), _file.getDataSize());
+		case FileFormat::kPng: return ReadPng(img_, _file.getData(), _file.getDataSize());
 		case FileFormat::kBmp:
 		case FileFormat::kGif:
 		case FileFormat::kJpg:
-		case FileFormat::kPng:
 		case FileFormat::kPsd:
 		case FileFormat::kTga: return ReadDefault(img_, _file.getData(), _file.getDataSize());
 
@@ -213,7 +213,7 @@ bool Image::Write(const Image& _img, const char* _path, FileFormat _format)
 {
 	File f;
 	f.setPath(_path);
-	if (Write(_img, f, _format)) {
+	if (!Write(_img, f, _format)) {
 		return false;
 	}
 	return File::Write(f, _path);
@@ -357,7 +357,7 @@ bool Image::validateFileFormat(FileFormat _format) const
 			if (m_compression != CompressionType::kNone) return false;
 			if (IsDataTypeFloat(m_dataType))  return false;
 			if (IsDataTypeSigned(m_dataType)) return false;
-			if (IsDataTypeBpc(m_dataType, 16) || IsDataTypeBpc(m_dataType, 32)) return false;
+			if (IsDataTypeBpc(m_dataType, 32)) return false;
 			return true;
 		case FileFormat::kTga:
 			if (m_compression != CompressionType::kNone) return false;
@@ -491,7 +491,6 @@ bool Image::IsDataTypeBpc(DataType _type, int _bpc)
 #define STBI_ONLY_BMP
 #define STBI_ONLY_GIF
 #define STBI_ONLY_JPEG
-#define STBI_ONLY_PNG
 #define STBI_ONLY_PSD
 #define STBI_ONLY_TGA
 #define STBI_FAILURE_USERMSG
@@ -503,6 +502,8 @@ bool Image::IsDataTypeBpc(DataType _type, int _bpc)
 #define STBI_WRITE_NO_STDIO
 #define STBIW_ASSERT(x) PLR_ASSERT(x)
 #include <plr/extern/stb_image_write.h>
+
+#include <plr/extern/lodepng.h>
 
 static void StbiWriteFile(void* file_, void* _data, int _size)
 {
@@ -531,18 +532,109 @@ bool Image::ReadDefault(Image& img_, const char* _data, uint _dataSize)
 	stbi_image_free(d);
 	return true;
 }
+bool Image::ReadPng(Image& img_, const char* _data, uint _dataSize)
+{
+	LodePNGDecoderSettings settings;
+    lodepng_decoder_settings_init(&settings);
+    settings.color_convert = 0;
+    LodePNGState state;
+    lodepng_state_init(&state);
+    state.decoder = settings;
+	bool ret = true;
+	unsigned x, y, cmp;
+	unsigned char* d;
+	unsigned err = lodepng_inspect(&x, &y, &state, (const unsigned char*)_data, _dataSize);
+	if (err) {
+		goto Image_ReadPng_end;
+	}
+	err = lodepng_decode(&d, &x, &y, &state, (const unsigned char*)_data, _dataSize);
+	if (err) {
+		goto Image_ReadPng_end;
+	}
+
+	switch (state.info_raw.colortype) {
+		case LCT_GREY:          cmp = 1; break;
+		case LCT_GREY_ALPHA:    cmp = 2; break;
+		case LCT_RGB:           cmp = 3; break;
+		case LCT_RGBA:          cmp = 4; break;
+		case LCT_PALETTE:
+		default:                PLR_ASSERT_MSG(false, "Unsupported PNG format");
+		                        ret = false;
+	};
+	DataType dataType;	
+	switch (state.info_raw.bitdepth) {
+		case 8:                 dataType = DataType::kUint8;  break;
+		case 16:                dataType = DataType::kUint16; break;
+		default:                PLR_ASSERT_MSG(false, "Unsupported bit depth (%d)", state.info_raw.bitdepth);
+		                        ret = false;
+	};
+
+	img_.m_width       = x;
+	img_.m_height      = y;
+	img_.m_depth       = img_.m_arrayCount = img_.m_mipmapCount = 1;
+	img_.m_type        = Type::k2d;
+	img_.m_layout      = GuessLayout((uint)cmp);
+	img_.m_dataType    = dataType;
+	img_.m_compression = CompressionType::kNone;
+	img_.alloc();
+	memcpy(img_.m_data, d, x * y * cmp); // \todo, avoid this
+
+Image_ReadPng_end:
+	free(d);
+	lodepng_state_cleanup(&state);
+	if (err) {
+		PLR_LOG_ERR("lodepng error:\n\t'%s'", lodepng_error_text(err));
+		return false;
+	}
+	return ret;
+}
+bool Image::WritePng(File& file_, const Image& _img)
+{
+	LodePNGEncoderSettings settings;
+    lodepng_encoder_settings_init(&settings);
+    settings.auto_convert = 0;
+    LodePNGState state;
+    lodepng_state_init(&state);
+    state.encoder = settings;
+	bool ret = true;
+
+	switch (_img.m_layout) {
+		case Layout::kR:     state.info_raw.colortype = LCT_GREY;       break;
+		case Layout::kRG:    state.info_raw.colortype = LCT_GREY_ALPHA; break;
+		case Layout::kRGB:   state.info_raw.colortype = LCT_RGB;        break;
+		case Layout::kRGBA:  state.info_raw.colortype = LCT_RGBA;       break;
+		default:             PLR_ASSERT_MSG(false, "Invalid image layout");
+		                     ret = false;
+	};
+
+	switch (_img.m_dataType) {
+		case DataType::kUint8:  state.info_raw.bitdepth = 8;   break;
+		case DataType::kUint16: state.info_raw.bitdepth = 16;  break;
+		default:                PLR_ASSERT_MSG(false, "Unsupported data type");
+		                        ret = false;
+	};
+
+	unsigned char* d;
+	uint dsize;
+	unsigned err = lodepng_encode(&d, &dsize, (const unsigned char*)_img.getRawImage(), (unsigned int)_img.getWidth(), (unsigned int)_img.getHeight(), &state);
+	if (err) {
+		goto Image_WritePng_end;
+	}
+	file_.setData((const char*)d, dsize);
+
+Image_WritePng_end:
+	free(d);
+	lodepng_state_cleanup(&state);
+	if (err) {
+		PLR_LOG_ERR("lodepng error:\n\t'%s'", lodepng_error_text(err));
+		return false;
+	}
+	return ret;
+}
 bool Image::WriteBmp(File& file_, const Image& _img)
 {
 	if (!stbi_write_bmp_to_func(StbiWriteFile, &file_, (int)_img.m_width, (int)_img.m_height, (int)GetComponentCount(_img.m_layout), _img.m_data)) {
 		PLR_LOG_ERR("stbi_write_bmp_to_func() failed");
-		return false;
-	}
-	return true;
-}
-bool Image::WritePng(File& file_, const Image& _img)
-{
-	if (!stbi_write_png_to_func(StbiWriteFile, &file_, (int)_img.m_width, (int)_img.m_height, (int)GetComponentCount(_img.m_layout), _img.m_data, 0)) {
-		PLR_LOG_ERR("stbi_write_png_to_func() failed");
 		return false;
 	}
 	return true;
