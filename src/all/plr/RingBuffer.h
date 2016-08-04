@@ -20,7 +20,6 @@ namespace plr {
 /// items at the front if size() == capacity().
 /// Access via operator[] returns items between front() and back() in order. Use
 /// data() to access the underying buffer.
-/// \todo pop_back may be useful, but how to destruct the object?
 /// \ingroup plr_core
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType>
@@ -64,15 +63,28 @@ public:
 
 	void push_back(const tType& _v)
 	{
+		if_likely (!empty()) {
+			incBack();
+		}
 		*m_back = _v;
-		incBack();
+		m_size = PLR_MIN(m_size + 1, m_capacity);
 	}
 
-	tType*       front()                   { return m_front; }
-	tType*       back()                    { return m_back; }
+	void pop_front()
+	{
+		PLR_ASSERT(m_size > 0);
+		(*m_front).~tType();
+		incFront();
+		--m_size;
+	};
 
-	bool         empty() const             { return m_front == m_back; }
-	uint         size() const              { return (m_back >= m_front) ? (m_back - m_front) : (m_back - m_buffer + (m_buffer + m_capacity) - m_front); }
+	tType&       front()                   { return *m_front; }
+	const tType& front() const             { return *m_front; }
+	tType&       back()                    { return *m_back; }
+	const tType& back() const              { return *m_back; }
+
+	bool         empty() const             { return size() == 0; }
+	uint         size() const              { return m_size; }
 	uint         capacity() const          { return m_capacity; }
 
 	/// Access the storage buffer directly.
@@ -80,29 +92,40 @@ public:
 	const tType* data() const              { return m_buffer; }
 
 	/// Access elements between front() and back().
-	tType&       operator[](uint _i)       { return get(_i); }
-	const tType& operator[](uint _i) const { return get(_i); } 
+	tType&       operator[](uint _i)       { return at(_i); }
+	const tType& operator[](uint _i) const { return at(_i); } 
 
 private:
 	tType* m_buffer;   //< Storage.
-	tType* m_front;    //< Oldest valid element in the buffer.
-	tType* m_back;     //< Next free element in the buffer.
-	uint   m_capacity;
+	tType* m_front;    //< Oldest item in the buffer.
+	tType* m_back;     //< Newest item in the buffer.
+	uint   m_size;     //< Number of items in the buffer;
+	uint   m_capacity; //< Max number of items in the buffer.
 
+	void incFront()
+	{
+		tType* end = m_buffer + m_capacity;
+		if_unlikely (++m_front >= end) {
+			m_front = m_buffer;
+		}
+	}
 
 	void incBack()
 	{
-		if_unlikely (++m_back >= (m_buffer + m_capacity)) {
+		tType* end = m_buffer + m_capacity;
+		if_unlikely (++m_back >= end) {
 			m_back = m_buffer;
 		}
 		if_likely (m_back == m_front) {
-			if_unlikely (++m_front >= (m_buffer + m_capacity)) {
+			if_unlikely (++m_front >= end) {
 				m_front = m_buffer;
 			}
 		}
 	}
 
-	tType& get(uint _i)
+
+
+	tType& at(uint _i)
 	{
 		tType* ret = m_front + _i;
 		tType* end = m_buffer + m_capacity;
