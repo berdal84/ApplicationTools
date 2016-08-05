@@ -79,7 +79,8 @@ bool FileImpl::Read(FileImpl& file_, const char* _path)
 
 	data = new char[dataSize + 2]; // +2 for null terminator
 	PLR_ASSERT(data);
-	if (!ReadFile(h, data, dataSize, 0, 0)) {
+	DWORD bytesRead;
+	if (!ReadFile(h, data, dataSize, &bytesRead, 0)) {
 		err = GetPlatformErrorString(GetLastError());
 		goto FileImpl_Read_end;
 	}
