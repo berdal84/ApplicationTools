@@ -143,9 +143,9 @@ void Image::Destroy(Image*& _img_)
 
 bool Image::Read(Image& img_, const File& _file, FileFormat _format)
 {
-	if (_format == FileFormat::kInvalid) {
+	if (_format == kInvalidFileFormat) {
 		_format = GuessFormat(_file.getPath());
-		if (_format == FileFormat::kInvalid) {
+		if (_format == kInvalidFileFormat) {
 			PLR_LOG_ERR("Image: Unsupported file format '%s'", _file.getPath());
 			return false;
 		}
@@ -182,9 +182,9 @@ bool Image::Write(const Image& _img, File& file_, FileFormat _format)
 {
 	bool ret = false;
 
-	if (_format == FileFormat::kInvalid) {
+	if (_format == kInvalidFileFormat) {
 		_format = GuessFormat(file_.getPath());
-		if (_format == FileFormat::kInvalid) {
+		if (_format == kInvalidFileFormat) {
 			PLR_LOG_ERR("Image: Unsupported file format '%s'", file_.getPath());
 			goto Image_Write_end;
 		}
@@ -231,7 +231,7 @@ uint Image::GetMaxMipmapSize(uint _width, uint _height, uint _depth)
 	return mipCount;
 }
 
-const char* Image::getRawImage(uint _array, uint _mip) const
+char* Image::getRawImage(uint _array, uint _mip) const
 {
 	PLR_ASSERT(m_data);
 	PLR_ASSERT(_array < m_arrayCount);
@@ -305,9 +305,9 @@ void Image::init()
 	m_width       = m_height = m_depth = 1;
 	m_arrayCount  = 1;
 	m_mipmapCount = 1;
-	m_type        = Type::kInvalid;
+	m_type        = kInvalidType;
 	m_compression = CompressionType::kNone;
-	m_layout      = Layout::kInvalid;
+	m_layout      = kInvalidLayout;
 	m_dataType    = DataType::kInvalid;
 	
 	char* m_data = 0;
@@ -398,7 +398,7 @@ uint Image::GetComponentCount(Layout _layout)
 		case Layout::kRG:        return 2;
 		case Layout::kRGB:       return 3;
 		case Layout::kRGBA:      return 4;
-		case Layout::kInvalid:
+		case kInvalidLayout:
 		default:                 return 0;
 	};
 }
@@ -410,7 +410,7 @@ Image::Layout Image::GuessLayout(uint _cmpCount)
 		case 2:  return Layout::kRG;
 		case 3:  return Layout::kRGB;
 		case 4:  return Layout::kRGBA;
-		default: return Layout::kInvalid;
+		default: return kInvalidLayout;
 	};
 }
 
@@ -456,7 +456,7 @@ Image::FileFormat Image::GuessFormat(const char* _path)
 		}
 	}
 
-	return FileFormat::kInvalid;
+	return kInvalidFileFormat;
 }
 
 bool Image::IsDataTypeFloat(DataType _type)

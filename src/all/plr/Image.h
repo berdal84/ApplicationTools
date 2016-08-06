@@ -30,7 +30,9 @@ class Image
 public:
 	static const uint kMaxMipmapCount = 32;
 
-	enum class Type
+	typedef plr::DataType DataType;
+
+	enum Type
 	{
 		k1d,
 		k2d,
@@ -41,10 +43,10 @@ public:
 		k3dArray,
 		kCubemapArray,
 
-		kInvalid
+		kInvalidType
 	};
 
-	enum class CompressionType
+	enum CompressionType
 	{
 		kNone,
 		kBC1,
@@ -55,20 +57,20 @@ public:
 		kBC6,
 		kBC7,
 	
-		kInvalid
+		kInvalidCompressionType
 	};
 
-	enum class Layout
+	enum Layout
 	{
 		kR,
 		kRG,
 		kRGB,
 		kRGBA,
 	
-		kInvalid
+		kInvalidLayout
 	};
 
-	enum class FileFormat
+	enum FileFormat
 	{
 	 // load + save supported
 		kBmp,
@@ -81,7 +83,7 @@ public:
 		kGif,
 		kPsd,
 
-		kInvalid
+		kInvalidFileFormat
 	};
 
 	/// Allocate an image with the specified parameters. Image data can subsequently
@@ -114,16 +116,16 @@ public:
 	/// Read from a file. If _format is not provided, the format is assumed from 
 	/// the file's extension.
 	/// \return false if an error occurred, in which case img_ remains unchanged.
-	static bool Read(Image& img_, const File& _file, FileFormat _format = FileFormat::kInvalid);
-	static bool Read(Image& img_, const char* _path, FileFormat _format = FileFormat::kInvalid);
+	static bool Read(Image& img_, const File& _file, FileFormat _format = kInvalidFileFormat);
+	static bool Read(Image& img_, const char* _path, FileFormat _format = kInvalidFileFormat);
 
 	/// Write _img to a file. If _format is not provided, the format is assumed 
 	/// from the file's extension. 
 	/// \note The File* variant only writes to memory. A subsequent call to 
 	///   File::Write() is required to actually write to disk.
 	/// \return false if an error occurred.
-	static bool Write(const Image& _img, File& file_, FileFormat _format = FileFormat::kInvalid);
-	static bool Write(const Image& _img, const char* _path, FileFormat _format = FileFormat::kInvalid);
+	static bool Write(const Image& _img, File& file_, FileFormat _format = kInvalidFileFormat);
+	static bool Write(const Image& _img, const char* _path, FileFormat _format = kInvalidFileFormat);
 
 	/// \return The maximum number of mips for an image.
 	static uint GetMaxMipmapSize(uint _width, uint _height, uint _depth = 1u);
@@ -153,12 +155,13 @@ public:
 
 	/// \return Ptr to raw image data. _array < getArrayCount(), _mip < getMipmapCount(). 
 	/// The size of the returned buffer can be found via getRawImageSize().
-	const char* getRawImage(uint _array = 0, uint _mip = 0) const;
+	char* getRawImage(uint _array = 0, uint _mip = 0) const;
 
 	/// \return Size (bytes) of the raw image at the specified mipmap level.
 	uint getRawImageSize(uint _mip = 0) const;
 
-	///
+	/// Fill the image internal data buffer for a given _array/_mip, performing 
+	/// conversion to the image's internal format from the format of _src.
 	void setRawImage(uint _array, uint _mip, const void* _src, Layout _layout, DataType _dataType, CompressionType _compressionType);
 
 private:
