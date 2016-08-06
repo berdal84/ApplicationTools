@@ -14,18 +14,23 @@
 // \hack glm typedefs sized ints with the same names as plr; to get around the
 // ensuing conflict we #define them with glm_ prefixes, then #undef them again
 // below
-#define int8    glm_int8
-#define int16   glm_int16
-#define int32   glm_int32
-#define int64   glm_int64
-#define uint8   glm_uint8
-#define uint16  glm_uint16
-#define uint32  glm_uint32
-#define uint64  glm_uint64
-#define uint    glm_uint
-#define float16 glm_float16
-#define float32 glm_float32
-#define float64 glm_float64
+#define aligned glm_hack_aligned
+#define int8    glm_hack_int8
+#define int16   glm_hack_int16
+#define int32   glm_hack_int32
+#define int64   glm_hack_int64
+#define uint8   glm_hack_uint8
+#define uint16  glm_hack_uint16
+#define uint32  glm_hack_uint32
+#define uint64  glm_hack_uint64
+#define uint    glm_hack_uint
+#define float16 glm_hack_float16
+#define float32 glm_hack_float32
+#define float64 glm_hack_float64
+
+// \hack \todo need to disable SSE intrinsics because the glm types are not always 
+// correctly aligned (they should be, did the hack above break this?)
+#define GLM_FORCE_PURE
 
 #define GLM_FORCE_SIZE_FUNC
 #define GLM_FORCE_NO_CTOR_INIT
@@ -36,6 +41,7 @@
 #include "extern/glm/glm/gtc/matrix_transform.hpp"
 #include "extern/glm/glm/gtc/quaternion.hpp"
 
+#undef aligned
 #undef int8
 #undef int16
 #undef int32
