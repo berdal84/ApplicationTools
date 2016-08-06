@@ -35,13 +35,14 @@ Timestamp Time::GetApplicationElapsed()
 
 DateTime Time::GetDateTime() 
 {
-	FILETIME ft;
+	/*FILETIME ft;
 	GetSystemTimePreciseAsFileTime(&ft);
 	// MS docs recommend copying into a LARGE_INTEGER first
 	LARGE_INTEGER li;
 	li.LowPart  = ft.dwLowDateTime;
 	li.HighPart = ft.dwHighDateTime;
-	return DateTime(li.QuadPart);
+	return DateTime(li.QuadPart);*/
+	return DateTime(0);
 }
 
 sint64 Time::GetSystemFrequency() 
