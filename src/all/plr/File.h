@@ -59,6 +59,7 @@ public:
 	const char* getData() const                                 { return Impl::getData(); }
 	char*       getData()                                       { return Impl::getData(); }
 	void        setData(const char* _data, uint64 _size)        { Impl::setData(_data, _size); }
+	void        appendData(const char* _data, uint64 _size)     { Impl::appendData(_data, _size); }
 	uint64      getDataSize() const                             { return Impl::getDataSize(); }
 	void        setDataSize(uint64 _size)                       { Impl::setData(0, _size); }
 

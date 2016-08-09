@@ -507,17 +507,17 @@ static void StbiWriteFile(void* file_, void* _data, int _size)
 {
 	PLR_ASSERT(file_);
 	File* f = (File*)file_;
-	f->setData((const char*)_data, _size);
+	f->appendData((const char*)_data, _size);
 }
 
 #include <plr/extern/lodepng.h>
-static void SwapByteOrder(unsigned char* _d, unsigned _dsize)
+static void SwapByteOrder(char* _d_, unsigned _dsize)
 {
     for (unsigned i = 0; i < _dsize; i += 2) {
         unsigned j = i + 1;
-        unsigned char tmp = _d[j];
-        _d[j] = _d[i];
-        _d[i] = tmp;
+        unsigned char tmp = _d_[j];
+        _d_[j] = _d_[i];
+        _d_[i] = tmp;
     }
 }
 
@@ -574,7 +574,7 @@ bool Image::ReadPng(Image& img_, const char* _data, uint _dataSize)
 	switch (state.info_raw.bitdepth) {
 		case 8:                 dataType = DataType::kUint8;  break;
 		case 16:                dataType = DataType::kUint16;
-		                        SwapByteOrder(d, x * y * cmp * 2); break; // \todo swizzle bytes during copy to img_
+		                        SwapByteOrder((char*)d, x * y * cmp * 2); break; // \todo swizzle bytes during copy to img_
 		default:                PLR_ASSERT_MSG(false, "Unsupported bit depth (%d)", state.info_raw.bitdepth);
 		                        ret = false;
 	};
@@ -602,37 +602,44 @@ bool Image::WritePng(File& file_, const Image& _img)
 {
 	LodePNGEncoderSettings settings;
     lodepng_encoder_settings_init(&settings);
-    settings.auto_convert = 0;
+    settings.auto_convert = 1;
     LodePNGState state;
     lodepng_state_init(&state);
     state.encoder = settings;
 	bool ret = true;
 
+ // \hack \todo here we copy the image into a buffer in case we need to swap the byte order
+ //   (16 bit only). Can lodepng swizzle the bytes automatically?
+	char* buf = new char[_img.getRawImageSize()];
+	memcpy(buf, _img.getRawImage(), _img.getRawImageSize());
+
 	switch (_img.m_layout) {
-		case Layout::kR:     state.info_raw.colortype = LCT_GREY;       break;
-		case Layout::kRG:    state.info_raw.colortype = LCT_GREY_ALPHA; break;
-		case Layout::kRGB:   state.info_raw.colortype = LCT_RGB;        break;
-		case Layout::kRGBA:  state.info_raw.colortype = LCT_RGBA;       break;
+		case Layout::kR:     state.info_png.color.colortype = LCT_GREY;       break;
+		case Layout::kRG:    state.info_png.color.colortype = LCT_GREY_ALPHA; break;
+		case Layout::kRGB:   state.info_png.color.colortype = LCT_RGB;        break;
+		case Layout::kRGBA:  state.info_png.color.colortype = LCT_RGBA;       break;
 		default:             PLR_ASSERT_MSG(false, "Invalid image layout");
 		                     ret = false;
 	};
 
 	switch (_img.m_dataType) {
-		case DataType::kUint8:  state.info_raw.bitdepth = 8;   break;
-		case DataType::kUint16: state.info_raw.bitdepth = 16;  break;
+		case DataType::kUint8:  state.info_png.color.bitdepth = 8;   break;
+		case DataType::kUint16: state.info_png.color.bitdepth = 16;
+		                        break;//SwapByteOrder(buf, _img.getRawImageSize()); break;
 		default:                PLR_ASSERT_MSG(false, "Unsupported data type");
 		                        ret = false;
 	};
 
 	unsigned char* d;
 	uint dsize;
-	unsigned err = lodepng_encode(&d, &dsize, (const unsigned char*)_img.getRawImage(), (unsigned int)_img.getWidth(), (unsigned int)_img.getHeight(), &state);
+	unsigned err = lodepng_encode(&d, &dsize, (unsigned char*)_img.getRawImage(), (unsigned int)_img.getWidth(), (unsigned int)_img.getHeight(), &state);
 	if (err) {
 		goto Image_WritePng_end;
 	}
 	file_.setData((const char*)d, dsize);
 
 Image_WritePng_end:
+	delete[] buf;
 	free(d);
 	lodepng_state_cleanup(&state);
 	if (err) {

@@ -26,7 +26,8 @@ protected:
 	void swap(FileBase& _file_);
 	
 	/// _data may be 0 in which case m_data is allocated but not initialized.
-	void        setData(const char* _data, uint64 _size);
+	void        setData(const char* _data, uint64 _size);	
+	void        appendData(const char* _data, uint64 _size); // expands m_data by _size
 
 	const char* getPath() const              { return m_path; }
 	void        setPath(const char* _path)   { m_path.set(_path); }

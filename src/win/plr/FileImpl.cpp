@@ -11,7 +11,8 @@
 #include <plr/win.h>
 #include <plr/String.h>
 
-#include <utility> // std::swap
+#include <cstdlib> // malloc, free
+#include <utility> // swap
 
 using namespace plr;
 using namespace internal;
@@ -77,7 +78,7 @@ bool FileImpl::Read(FileImpl& file_, const char* _path)
 	}
 	DWORD dataSize = (DWORD)li.QuadPart; // ReadFile can only read DWORD bytes
 
-	data = new char[dataSize + 2]; // +2 for null terminator
+	data = (char*)malloc(dataSize + 2); // +2 for null terminator
 	PLR_ASSERT(data);
 	DWORD bytesRead;
 	if (!ReadFile(h, data, dataSize, &bytesRead, 0)) {
@@ -95,7 +96,7 @@ bool FileImpl::Read(FileImpl& file_, const char* _path)
 FileImpl_Read_end:
 	if (!ret) {
 		if (data) {
-			delete[] data;
+			free(data);
 		}
 		PLR_LOG_ERR("Error reading '%s':\n\t%s", _path, err);
 		PLR_ASSERT(false);

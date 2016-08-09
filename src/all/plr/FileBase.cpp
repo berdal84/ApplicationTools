@@ -5,8 +5,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include <plr/File.h>
 
+#include <cstdlib> // malloc, free
 #include <cstring> // memcpy
-#include <utility>
+#include <utility> // swap
 
 using namespace plr;
 using namespace internal;
@@ -15,22 +16,31 @@ using namespace internal;
 
 void FileBase::setData(const char* _data, uint64 _size)
 {
-	PLR_ASSERT(_data);
 	PLR_ASSERT(_size > 0);
 	if (m_data) {
 		if (_size > m_dataSize) {
-			delete[] m_data;
+			free(m_data);
 			m_data = 0;
 		}
 	}
 	if (!m_data) {
-		m_data = new char[_size];
+		m_data = (char*)malloc(_size);
 		PLR_ASSERT(m_data);
 	}
 	if (_data) {
 		memcpy(m_data, _data, _size);
 	}
 	m_dataSize = _size;
+}
+
+void FileBase::appendData(const char* _data, uint64 _size)
+{
+	PLR_ASSERT(_size > 0);
+	m_data = (char*)realloc(m_data, m_dataSize + _size);
+	if (_data) {
+		memcpy(m_data + m_dataSize, _data, _size);
+	}
+	m_dataSize += _size;
 }
 
 
@@ -46,7 +56,7 @@ FileBase::FileBase()
 FileBase::~FileBase()
 {
 	if (m_data) {
-		delete[] m_data;
+		free(m_data);
 	}
 }
 
