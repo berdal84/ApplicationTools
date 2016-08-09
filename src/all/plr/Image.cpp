@@ -295,9 +295,7 @@ void Image::setRawImage(uint _array, uint _mip, const void* _src, Layout _layout
 
 Image::~Image()
 {
-	if (m_data) {
-		delete[] m_data;
-	}
+	free(m_data);
 }
 
 void Image::init()
@@ -319,10 +317,8 @@ void Image::init()
 
 void Image::alloc()
 {
-	if (m_data) {
-		delete[] m_data;
-	}
-
+	free(m_data);
+	
 	m_texelSize = GetDataTypeSize(m_dataType) * GetComponentCount(m_layout);
 	uint w = m_width, h = m_height, d = m_depth;
 	m_arrayLayerSize = 0;
@@ -338,7 +334,7 @@ void Image::alloc()
 		PLR_ASSERT(i < kMaxMipmapCount);
 	} while (i < lim);
 
-	m_data = new char[m_arrayLayerSize * m_arrayCount];
+	m_data = (char*)malloc(m_arrayLayerSize * m_arrayCount);
 	PLR_ASSERT(m_data);
 }
 
@@ -505,6 +501,12 @@ bool Image::IsDataTypeBpc(DataType _type, int _bpc)
 #include <plr/extern/stb_image_write.h>
 static void StbiWriteFile(void* file_, void* _data, int _size)
 {
+ // \todo need a better approach here, as many calls to appendData is slow (it just calls realloc() on
+ //  the internal buffer). Maybe use a smart reallocation scheme or allocate an initial scratch buffer
+ //  with an estimated file size to reduce the number of reallocations.
+	if (_size == 0) {
+		return;
+	}
 	PLR_ASSERT(file_);
 	File* f = (File*)file_;
 	f->appendData((const char*)_data, _size);
@@ -552,11 +554,11 @@ bool Image::ReadPng(Image& img_, const char* _data, uint _dataSize)
 	bool ret = true;
 	unsigned x, y, cmp;
 	unsigned char* d;
-	unsigned err = lodepng_inspect(&x, &y, &state, (const unsigned char*)_data, _dataSize);
+	unsigned err = lodepng_inspect(&x, &y, &state, (unsigned char*)_data, _dataSize);
 	if (err) {
 		goto Image_ReadPng_end;
 	}
-	err = lodepng_decode(&d, &x, &y, &state, (const unsigned char*)_data, _dataSize);
+	err = lodepng_decode(&d, &x, &y, &state, (unsigned char*)_data, _dataSize);
 	if (err) {
 		goto Image_ReadPng_end;
 	}
@@ -600,48 +602,45 @@ Image_ReadPng_end:
 }
 bool Image::WritePng(File& file_, const Image& _img)
 {
-	LodePNGEncoderSettings settings;
-    lodepng_encoder_settings_init(&settings);
-    settings.auto_convert = 1;
-    LodePNGState state;
-    lodepng_state_init(&state);
-    state.encoder = settings;
+	
+	LodePNGColorType colorType;
+	unsigned bitdepth;
 	bool ret = true;
 
- // \hack \todo here we copy the image into a buffer in case we need to swap the byte order
- //   (16 bit only). Can lodepng swizzle the bytes automatically?
-	char* buf = new char[_img.getRawImageSize()];
-	memcpy(buf, _img.getRawImage(), _img.getRawImageSize());
+ 
+	char* buf = 0;
 
 	switch (_img.m_layout) {
-		case Layout::kR:     state.info_png.color.colortype = LCT_GREY;       break;
-		case Layout::kRG:    state.info_png.color.colortype = LCT_GREY_ALPHA; break;
-		case Layout::kRGB:   state.info_png.color.colortype = LCT_RGB;        break;
-		case Layout::kRGBA:  state.info_png.color.colortype = LCT_RGBA;       break;
+		case Layout::kR:     colorType = LCT_GREY;       break;
+		case Layout::kRG:    colorType = LCT_GREY_ALPHA; break;
+		case Layout::kRGB:   colorType = LCT_RGB;        break;
+		case Layout::kRGBA:  colorType = LCT_RGBA;       break;
 		default:             PLR_ASSERT_MSG(false, "Invalid image layout");
 		                     ret = false;
 	};
 
 	switch (_img.m_dataType) {
-		case DataType::kUint8:  state.info_png.color.bitdepth = 8;   break;
-		case DataType::kUint16: state.info_png.color.bitdepth = 16;
-		                        break;//SwapByteOrder(buf, _img.getRawImageSize()); break;
+		case DataType::kUint8:  bitdepth = 8;   break;
+		case DataType::kUint16: bitdepth = 16;
+		                        // \hack \todo Can lodepng be modified to swizzle the bytes automatically on x86?
+	                            buf = (char*)malloc(_img.getRawImageSize());
+	                            memcpy(buf, _img.getRawImage(), _img.getRawImageSize());
+		                        SwapByteOrder(buf, (unsigned)_img.getRawImageSize()); break;
 		default:                PLR_ASSERT_MSG(false, "Unsupported data type");
 		                        ret = false;
 	};
 
 	unsigned char* d;
 	uint dsize;
-	unsigned err = lodepng_encode(&d, &dsize, (unsigned char*)_img.getRawImage(), (unsigned int)_img.getWidth(), (unsigned int)_img.getHeight(), &state);
+	unsigned err = lodepng_encode_memory(&d, &dsize, (unsigned char*)(buf ? buf : _img.getRawImage()), (unsigned)_img.getWidth(), (unsigned)_img.getHeight(), colorType, bitdepth);
 	if (err) {
 		goto Image_WritePng_end;
 	}
 	file_.setData((const char*)d, dsize);
 
 Image_WritePng_end:
-	delete[] buf;
+	free(buf);
 	free(d);
-	lodepng_state_cleanup(&state);
 	if (err) {
 		PLR_LOG_ERR("lodepng error:\n\t'%s'", lodepng_error_text(err));
 		return false;
