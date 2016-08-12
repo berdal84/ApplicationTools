@@ -41,6 +41,9 @@
 #include "extern/glm/glm/gtc/matrix_transform.hpp"
 #include "extern/glm/glm/gtc/quaternion.hpp"
 
+#define GLM_GTX_norm
+#include "extern/glm/glm/gtx/norm.hpp"
+
 #undef aligned
 #undef int8
 #undef int16
