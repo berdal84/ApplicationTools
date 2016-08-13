@@ -163,6 +163,17 @@ inline tType Max(tType a, tType b) { return a > b ? a : b; }
 
 namespace plr {
 
+class ArgList;
+class File;
+class FilePath;
+class Image;
+class IniFile;
+template <typename tType> class RingBuffer;
+template <uint kCapacity> class String;
+class TextParser;
+class Timestamp;
+class Datetime;
+
 ////////////////////////////////////////////////////////////////////////////////
 /// \class non_copyable
 /// Mixin class, forces a derived class to be non-copyable.
