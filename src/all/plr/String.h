@@ -54,6 +54,13 @@ public:
 	const char* findFirst(const char* _list) const;
 	const char* findLast(const char* _list) const;
 
+	/// Replace all instanced of _find with _replace.
+	void replace(char _find, char _replace);
+
+	/// Convert to upper/lower case.
+	void toUpperCase();
+	void toLowerCase();
+
 	/// String length, excluding the terminating null.
 	/// \note String length is not stored internally, hence getLength() is **not**
 	///    a constant time operation.

@@ -5,6 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include <plr/String.h>
 
+#include <cctype>  // tolower, toupper
 #include <cstdarg> // va_list, va_start, va_end
 #include <cstdio>  // vsnprintf
 #include <cstdlib>
@@ -128,6 +129,32 @@ const char* StringBase::findLast(const char* _list) const
 		ret = tmp == 0 ? ret : tmp;
 	} while (tmp != 0);
 	return ret;
+}
+
+void StringBase::replace(char _find, char _replace)
+{
+	char* tmp = m_buf;
+	for (; *tmp != '\0'; ++tmp) {
+		if (*tmp == _find) {
+			*tmp = _replace;
+		}
+	}
+}
+
+void StringBase::toLowerCase()
+{
+	char* tmp = m_buf;
+	for (; *tmp != '\0'; ++tmp) {
+		*tmp = (char)tolower((int)*tmp);
+	}
+}
+
+void StringBase::toUpperCase()
+{
+	char* tmp = m_buf;
+	for (; *tmp != '\0'; ++tmp) {
+		*tmp = (char)toupper((int)*tmp);
+	}
 }
 
 uint StringBase::getLength() const
