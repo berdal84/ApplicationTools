@@ -75,7 +75,7 @@ public:
 
 	bool operator==(const char* _rhs) const;
 	operator const char*() const    { return m_buf; }
-	operator const char*()          { return m_buf; }
+	operator char*()                { return m_buf; }
 	char operator[](int _i) const   { return m_buf[_i]; }
 	char& operator[](int _i)        { return m_buf[_i]; }
 
