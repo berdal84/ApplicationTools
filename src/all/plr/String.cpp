@@ -17,6 +17,53 @@
 
 using namespace plr;
 
+void plr::swap(StringBase& _a, StringBase& _b)
+{
+	bool bothHeap  = !_a.isLocal() && !_b.isLocal();
+	if (_a.m_capacity == _b.m_capacity) {
+		if (bothHeap) {
+		 // neither are local, simple swap
+			std::swap(_a.m_buf, _b.m_buf);
+		} else {
+		 // swap the buffer contents
+			for (uint i = 0; i < _a.m_capacity; ++i) {
+				std::swap(_a.m_buf[i], _b.m_buf[i]);
+			}
+		}
+	} else {
+		bool bothLocal = _a.isLocal() && _b.isLocal();
+
+		if (bothHeap) {
+		 // neither are local, simple swap
+			std::swap(_a.m_buf, _b.m_buf);
+			std::swap(_a.m_capacity, _b.m_capacity);
+
+		} else if (bothLocal) {
+		 // both are local, need to alloc the smaller of the two
+			StringBase& smaller = _a.m_capacity < _b.m_capacity ? _a : _b;
+			StringBase& larger  = _a.m_capacity < _b.m_capacity ? _b : _a;
+
+			char* buf = (char*)malloc(larger.m_capacity * sizeof(char));
+			memcpy(buf, larger.m_buf, larger.m_capacity * sizeof(char));
+			memcpy(larger.m_buf, smaller.m_buf, smaller.m_capacity * sizeof(char));
+
+			smaller.m_buf = buf;
+			std::swap(_a.m_capacity, _b.m_capacity);
+
+		} else {
+		 // one is heap, alloc the other and swap (can't return to being local)
+			StringBase& local = _a.isLocal() ? _a : _b;
+
+			char* buf = (char*)malloc(local.m_capacity * sizeof(char));
+			memcpy(buf, local.m_buf, local.m_capacity * sizeof(char));
+			local.m_buf = buf;
+
+			std::swap(_a.m_buf, _b.m_buf);
+			std::swap(_a.m_capacity, _b.m_capacity);
+		}
+	}
+}
+
 static char* g_emptyString = (char*)"\0NULL";
 
 // PUBLIC
@@ -183,16 +230,10 @@ StringBase::StringBase(uint _localBufferSize)
 }
 
 StringBase::StringBase(StringBase&& _rhs)
-	: m_capacity(_rhs.m_capacity)
+	: m_buf(getLocalBuf())
+	, m_capacity(_rhs.m_capacity)
 {
-	if (_rhs.isLocal()) {
-		m_buf = getLocalBuf();
-		memcpy(m_buf, _rhs.m_buf, m_capacity);
-	} else {
-		m_buf = _rhs.m_buf;
-		_rhs.m_buf = _rhs.getLocalBuf();
-		_rhs.m_capacity = 0u;
-	}
+	swap(_rhs, *this);
 }
 
 StringBase::~StringBase()

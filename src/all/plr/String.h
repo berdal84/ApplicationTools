@@ -78,6 +78,8 @@ public:
 	operator char*()                { return m_buf; }
 	char operator[](int _i) const   { return m_buf[_i]; }
 	char& operator[](int _i)        { return m_buf[_i]; }
+	
+	friend void swap(StringBase& _a, StringBase& _b);
 
 protected:
 	
@@ -117,6 +119,7 @@ public:
 	String(const String<kCapacity>& _rhs): StringBase(kCapacity)       { set(_rhs); }
 	String<kCapacity>& operator=(const String<kCapacity>& _rhs)        { set(_rhs); return *this; }
 	String(String<kCapacity>&& _rhs):      StringBase(std::move(_rhs)) {}
+	String<kCapacity>& operator=(String<kCapacity>&& _rhs)             { swap(*this, _rhs); return *this; }
 	String(const char* _fmt, ...):         StringBase(kCapacity)
 	{
 		if (_fmt) {
@@ -136,6 +139,7 @@ public:
 	String(const String<0>& _rhs): StringBase()                { set(_rhs); }
 	String<0>& operator=(const String<0>& _rhs)                { set(_rhs); return *this; }
 	String(String<0>&& _rhs):      StringBase(std::move(_rhs)) {}
+	String<0>& operator=(String<0>&& _rhs)                     { swap(*this, _rhs); return *this; }
 	String(const char* _fmt, ...): StringBase()
 	{
 		if (_fmt) {
