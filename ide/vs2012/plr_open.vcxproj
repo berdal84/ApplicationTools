@@ -45,6 +45,7 @@
     <ClInclude Include="..\..\src\all\plr\log.h" />
     <ClInclude Include="..\..\src\all\plr\math.h" />
     <ClInclude Include="..\..\src\all\plr\memory.h" />
+    <ClInclude Include="..\..\src\all\plr\PersistentVector.h" />
     <ClInclude Include="..\..\src\all\plr\RingBuffer.h" />
     <ClInclude Include="..\..\src\all\plr\static_initializer.h" />
     <ClInclude Include="..\..\src\all\plr\String.h" />

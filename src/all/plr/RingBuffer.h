@@ -124,7 +124,6 @@ private:
 	}
 
 
-
 	tType& at(uint _i)
 	{
 		tType* ret = m_front + _i;
