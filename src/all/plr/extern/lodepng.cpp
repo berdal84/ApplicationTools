@@ -38,6 +38,7 @@ Rename this file to lodepng.cpp to use it for C++, or to lodepng.c to use it for
 #pragma warning( disable : 4244 ) /*implicit conversions: not warned by gcc -Wall -Wextra and requires too much casts*/
 #pragma warning( disable : 4996 ) /*VS does not like fopen, but fopen_s is not standard C so unusable here*/
 #pragma warning( disable : 4267 ) /*Added for x64 targets, conversion from size_t -> int generates a warning.*/
+#pragma warning( disable : 4334 ) /*Added for x64 targets, 64 bit shift cast to 32 bit warning */
 #endif /*_MSC_VER */
 
 const char* LODEPNG_VERSION_STRING = "20160501";
