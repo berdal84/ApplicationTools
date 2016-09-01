@@ -64,6 +64,12 @@ public:
 	/// Copy ctor. Elements are copy-constructed from _rhs.
 	explicit PersistentVector(const PersistentVector<tType>& _rhs);
 
+	/// Move copy/assign, swap.
+	PersistentVector(PersistentVector<tType>&& _rhs);
+	PersistentVector<tType>& operator=(PersistentVector<tType>&& _rhs);
+	template <typename tType>
+	friend void swap(PersistentVector<tType>& _a, PersistentVector<tType>& _b);
+
 	/// Empty the container (elements are destructed).
 	~PersistentVector();
 
@@ -209,6 +215,35 @@ inline PersistentVector<tType>::PersistentVector(const PersistentVector<tType>& 
 		m_blocks[i] = (tType*)plr::malloc_aligned(sizeof(tType) * m_blockSize, PLR_ALIGNOF(tType));
 		std::copy(_rhs.m_blocks[i], _rhs.m_blocks[i] + m_blockSize, m_blocks[i]);
 	}
+}
+
+template <typename tType>
+inline PersistentVector<tType>::PersistentVector(PersistentVector<tType>&& _rhs)
+	: m_blocks(0)
+	, m_blockCount(0)
+	, m_size(0)
+	, m_blockSize(0)
+	, m_back(0)
+	, m_backSize(0)
+{
+	swap(*this, _rhs);
+}
+template <typename tType>
+inline PersistentVector<tType>& PersistentVector<tType>::operator=(PersistentVector<tType>&& _rhs)
+{
+	swap(*this, _rhs);
+	return *this;
+}
+template <typename tType>
+inline void swap(PersistentVector<tType>& _a, PersistentVector<tType>& _b)
+{
+	using std::swap;
+	swap(_a.m_blocks, _b.m_blocks);
+	swap(_a.m_blockCount, _b.m_blockCount);
+	swap(_a.m_size, _b.m_size);
+	swap(_a.m_blockSize, _b.m_blockSize);
+	swap(_a.m_back, _b.m_back);
+	swap(_a.m_backSize, _b.m_backSize);
 }
 
 template <typename tType>
