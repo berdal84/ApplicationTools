@@ -24,13 +24,13 @@ FilePath::FilePath(const char* _path)
 	, m_ext(0)
 {
 	if (_path) {
-		setPath(_path);
+		set(_path);
 	} else {
 		m_buf[0] = m_pth[0] = 0;
 	}
 }
 
-void FilePath::setPath(const char* _path)
+void FilePath::set(const char* _path)
 {
 	m_len = (int)strlen(_path); // doesn't count null terminator
 	PLR_ASSERT(m_len < PLR_MAX_PATH_LENGTH);

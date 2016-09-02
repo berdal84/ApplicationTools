@@ -23,22 +23,20 @@ class FileBase
 protected:
 	FileBase();
 	~FileBase();
-	void swap(FileBase& _file_);
 	
 	/// _data may be 0 in which case m_data is allocated but not initialized.
-	void        setData(const char* _data, uint64 _size);	
-	void        appendData(const char* _data, uint64 _size); // expands m_data by _size
+	void         setData(const char* _data, uint64 _size);	
+	void         appendData(const char* _data, uint64 _size); // expands m_data by _size
 
-	const char* getPath() const              { return m_path; }
-	void        setPath(const char* _path)   { m_path.set(_path); }
-	const char* getData() const              { return m_data; }
-	char*       getData()                    { return m_data; }
-	uint64      getDataSize() const          { return m_dataSize; }
+	const char*  getPath() const              { return m_path; }
+	void         setPath(const char* _path)   { m_path.set(_path); }
+	const char*  getData() const              { return m_data; }
+	char*        getData()                    { return m_data; }
+	uint64       getDataSize() const          { return m_dataSize; }
 
-	typedef String<64> PathStr;
-	char*   m_data;
-	uint64  m_dataSize;
-	PathStr m_path;
+	char*        m_data;
+	uint64       m_dataSize;
+	String<64>   m_path;
 
 }; // class FileBase
 

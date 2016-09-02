@@ -34,9 +34,6 @@ class File
 public:
 	File()  {}
 	~File() {}
-	
-	File(File&& _file_): Impl(std::move(_file_))                {}
-	File& operator=(File&& _file_)                              { Impl::swap(_file_); return *this; }
 
 	/// \return true if _path exists.
 	static bool Exists(const char* _path)                       { return Impl::Exists(_path); }

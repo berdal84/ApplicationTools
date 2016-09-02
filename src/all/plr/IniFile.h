@@ -92,7 +92,11 @@ public:
 	static bool Read(IniFile& iniFile_, const File& _file);
 	static bool Read(IniFile& iniFile_, const char* _path);
 
-	IniFile() {}
+	/// Write to a file.
+	static bool Write(const IniFile& _iniFile, File& file_);
+	static bool Write(const IniFile& _iniFile, const char* _path);
+
+	IniFile();
 	~IniFile();
 	
 	/// Retrieve a named property, optionally specifying the section to search.
@@ -102,6 +106,14 @@ public:
 	/// \return Property instance. If no matching property was found, isNull() will
 	///   return true.
 	Property getProperty(const char* _name, const char* _section = 0) const;
+
+	void pushSection(const char* _name);
+	template <typename tType>
+	void pushValueArray(const char* _name, const tType _value[], uint16 _count);
+	void pushValueArray(const char* _name, const char* _value[], uint16 _count);
+	template <typename tType>
+	void pushValue(const char* _name, const tType& _value) { pushValueArray<tType>(_name, &_value, 1); }
+	void pushValue(const char* _name, const char* _value)  { pushValueArray(_name, &_value, 1); }
 
 private:
 	typedef String<32> NameStr;
@@ -126,6 +138,9 @@ private:
 
 	bool parse(const char* _str);
 
+	const Section* findSection(const char* _name) const;
+	const Key* findKey(const char* _name, const Section* _section) const;
+	
 }; // class IniFile
 
 } // namespace plr

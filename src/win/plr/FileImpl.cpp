@@ -29,18 +29,6 @@ FileImpl::~FileImpl()
 	}
 }
 
-FileImpl::FileImpl(FileImpl&& _file_)
-	: m_handle((void*)INVALID_HANDLE_VALUE)
-{
-	swap(_file_);
-}
-
-void FileImpl::swap(FileImpl& _file_)
-{
-	std::swap(m_handle, _file_.m_handle);
-	FileBase::swap(_file_);
-}
-
 bool FileImpl::Exists(const char* _path)
 {
 	return GetFileAttributes(_path) != INVALID_FILE_ATTRIBUTES;
@@ -117,7 +105,7 @@ bool FileImpl::Write(const FileImpl& _file, const char* _path)
 	bool ret = false;
 	const char* err = "";
 	char* data = 0;
-
+	
  	HANDLE h = CreateFile(
 		_path,
 		GENERIC_WRITE,

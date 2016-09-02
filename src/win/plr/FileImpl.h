@@ -20,8 +20,6 @@ class FileImpl: public internal::FileBase
 protected:
 	FileImpl();
 	~FileImpl();
-	FileImpl(FileImpl&& _file_);
-	void swap(FileImpl& _file_);
 	
 	static bool Exists(const char* _path);
 	static bool Read(FileImpl& file_, const char* _path);

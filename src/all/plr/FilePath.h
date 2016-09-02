@@ -34,7 +34,7 @@ public:
 	FilePath(const char* _path = 0);
 
 	/// Re-initialize from _path.
-	void setPath(const char* _path);
+	void set(const char* _path);
 
 	/// Replace the specified directory (leading separators are ignored)
 	void setDirectory(int i, const char* _dir);
@@ -46,15 +46,15 @@ public:
 	void setExtension(const char* _ext);
 
 	/// Implicit conversion to const char*.
-	operator const char*() const { return getPath(); }
+	operator const char*() const             { return getPath(); }
 
 
-	int getLength() const                    { return m_len; }
+	int         getLength() const            { return m_len; }
 	const char* getEnd() const               { return &m_buf[m_len]; }
 
 	const char* getPath() const              { return m_pth; }
 
-	int getDirectoryCount() const            { return m_dirsCount; }
+	int         getDirectoryCount() const    { return m_dirsCount; }
 	const char* getDirectory(int i) const    { PLR_ASSERT(i < m_dirsCount); return m_dirs[i];  }
 
 	const char* getFileName() const          { return m_fname; }

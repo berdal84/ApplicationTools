@@ -16,7 +16,9 @@ using namespace internal;
 
 void FileBase::setData(const char* _data, uint64 _size)
 {
-	PLR_ASSERT(_size > 0);
+	if (_size == 0) {
+		return;
+	}
 	if (m_data) {
 		if (_size > m_dataSize) {
 			free(m_data);
@@ -58,11 +60,4 @@ FileBase::~FileBase()
 	if (m_data) {
 		free(m_data);
 	}
-}
-
-void FileBase::swap(FileBase& _file_)
-{
-	std::swap(m_path, _file_.m_path);
-	std::swap(m_data, _file_.m_data);
-	std::swap(m_dataSize, _file_.m_dataSize);
 }

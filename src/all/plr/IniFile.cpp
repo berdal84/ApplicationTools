@@ -7,6 +7,7 @@
 
 #include <plr/log.h>
 #include <plr/File.h>
+#include <plr/String.h>
 #include <plr/TextParser.h>
 
 using namespace plr;
@@ -14,6 +15,8 @@ using namespace plr;
 static const char* kLineEnd = "\n";
 
 #define INI_ERROR(line, msg) PLR_LOG_ERR("Ini syntax error, line %d: '%s'", line, msg)
+
+// PUBLIC
 
 bool IniFile::Read(IniFile& iniFile_, const File& _file)
 {
@@ -29,6 +32,60 @@ bool IniFile::Read(IniFile& iniFile_, const char* _path)
 	return Read(iniFile_, f);
 }
 
+bool IniFile::Write(const IniFile& _iniFile, File& file_)
+{
+	String<0> buf;
+
+	for (uint i = 0; i < _iniFile.m_sections.size(); ++i) {
+		const Section& section = _iniFile.m_sections[i];
+		if (section.m_propertyCount == 0) { // skip empty sections
+			continue;
+		}
+		if (!section.m_name.isEmpty()) { // default empty section
+			buf.appendf("[%s]\n", (const char*)section.m_name);
+		}
+
+		for (uint j = section.m_keyOffset, n = j + section.m_propertyCount; j < n; ++j) {
+			const Key& key = _iniFile.m_keys[j];
+			buf.appendf("%s = ", (const char*)key.m_name);
+			for (uint16 k = key.m_valueOffset, m = k + key.m_valueCount; k < m; ++k) {
+				const Value& val = _iniFile.m_values[k];
+				switch (key.m_type) {
+				case ValueType::kBool:   buf.append(val.m_bool ? "true" : "false"); break;
+				case ValueType::kInt:    buf.appendf("%d", val.m_int); break;
+				case ValueType::kDouble: buf.appendf("%f", val.m_double); break;
+				case ValueType::kString: buf.appendf("\"%s\"", val.m_string); break;
+				default:                 PLR_ASSERT(false);
+				};
+				if ((k + 1) != m) {
+					buf.append(", ");
+				}
+			}
+			buf.append("\n");
+		}
+
+		buf.append("\n");
+	}
+	file_.setData((const char*)buf, buf.getLength());
+	return true;
+}
+
+bool IniFile::Write(const IniFile& _iniFile, const char* _path)
+{
+	File f;
+	if (Write(_iniFile, f)) {
+		return File::Write(f, _path);
+	}
+	return false;
+}
+
+IniFile::IniFile()
+{
+ // push default section
+	Section s = { "", 0, (uint16)m_keys.size() };
+	m_sections.push_back(s);
+}
+
 IniFile::~IniFile()
 {
 	for (uint i = 0; i < m_keys.size(); ++i) {
@@ -41,6 +98,59 @@ IniFile::~IniFile()
 		}
 	}
 }
+
+IniFile::Property IniFile::getProperty(const char* _name, const char* _section) const
+{
+	Property ret(ValueType::kBool, 0, 0);
+
+	const Section* section = _section ? findSection(_section) : 0;
+	const Key* key = findKey(_name, section);
+	if (key) {
+		ret.m_type = (uint8)key->m_type;
+		ret.m_count = key->m_valueCount;
+		ret.m_first = &const_cast<Value&>(m_values[key->m_valueOffset]);
+	}
+	return ret;
+}
+
+void IniFile::pushSection(const char* _name)
+{
+	PLR_ASSERT_MSG(findSection(_name) == 0, "IniFile::pushSection: '%s' already exists", _name);
+	Section s = { NameStr(_name), 0, (uint16)m_keys.size() };
+	m_sections.push_back(s);
+}
+
+#define DEFINE_pushValueArray(_type, _typeEnum, _valueMember) \
+	template <> void IniFile::pushValueArray<_type>(const char* _name, const _type _value[], uint16 _count) { \
+		PLR_ASSERT_MSG(findKey(_name, &m_sections.back()) == 0, "IniFile::pushValue: '%s' already exists in section '%s'", _name, m_sections.back().m_name.isEmpty() ? "default" : (const char*)m_sections.back().m_name); \
+		Key key = { NameStr(_name), ValueType:: ## _typeEnum, _count, (uint16)m_values.size() }; \
+		m_keys.push_back(key); \
+		for (uint16 i = 0; i < _count; ++i) { \
+			m_values.push_back(Value()); \
+			m_values.back(). ## _valueMember = _value[i]; \
+		} \
+		++m_sections.back().m_propertyCount; \
+	}
+DEFINE_pushValueArray(bool,        kBool,   m_bool)
+DEFINE_pushValueArray(int,         kInt,    m_int)
+DEFINE_pushValueArray(double,      kDouble, m_double)
+DEFINE_pushValueArray(float,       kDouble, m_double)
+#undef DEFINE_pushValueArray
+
+void IniFile::pushValueArray(const char* _name, const char* _value[], uint16 _count)
+{
+	PLR_ASSERT_MSG(findKey(_name, &m_sections.back()) == 0, "IniFile::pushValue: '%s' already exists in section '%s'", _name, m_sections.back().m_name.isEmpty() ? "default" : (const char*)m_sections.back().m_name);
+	Key key = { NameStr(_name), ValueType::kString, _count, (uint16)m_values.size() };
+	m_keys.push_back(key);
+	for (uint16 i = 0; i < _count; ++i) {
+		m_values.push_back(Value());
+		m_values.back().m_string = new char[strlen(_value[i]) + 1];
+		strcpy(m_values.back().m_string, _value[i]);
+	}
+	++m_sections.back().m_propertyCount;
+}
+
+// PRIVATE
 
 bool IniFile::parse(const char* _str)
 {
@@ -172,28 +282,28 @@ bool IniFile::parse(const char* _str)
 	return true;
 }
 
-IniFile::Property IniFile::getProperty(const char* _name, const char* _section) const
+const IniFile::Section* IniFile::findSection(const char* _name) const
 {
-	Property ret(ValueType::kBool, 0, 0);
-
+	for (uint i = 0; i < m_sections.size(); ++i) {
+		if (m_sections[i].m_name == _name) {
+			return &m_sections[i];
+		}
+	}
+	return 0;
+}
+const IniFile::Key* IniFile::findKey(const char* _name, const Section* _section) const
+{
 	uint koff = 0;
 	uint kcount = m_keys.size();
 	if (_section) {
-		for (uint i = 0u; i < m_sections.size(); ++i) {
-			if (m_sections[i].m_name == _section) {
-				koff = m_sections[i].m_keyOffset;
-				kcount = m_sections[i].m_propertyCount;
-				break;
-			}
-		}
+		koff = _section->m_keyOffset;
+		kcount = _section->m_propertyCount;
 	}
 	for (uint i = koff, n = koff + kcount; i < n; ++i) {
 		if (m_keys[i].m_name == _name) {
-			ret.m_type = (uint8)m_keys[i].m_type;
-			ret.m_count = m_keys[i].m_valueCount;
-			ret.m_first = &const_cast<Value&>(m_values[m_keys[i].m_valueOffset]);
-			break;
+			return &m_keys[i];
 		}
 	}
-	return ret;
+	return 0;
 }
+
