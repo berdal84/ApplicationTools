@@ -172,7 +172,7 @@ bool IniFile::parse(const char* _str)
 	return true;
 }
 
-IniFile::Property IniFile::getProperty(const char* _name, const char* _section)
+IniFile::Property IniFile::getProperty(const char* _name, const char* _section) const
 {
 	Property ret(ValueType::kBool, 0, 0);
 
@@ -191,7 +191,7 @@ IniFile::Property IniFile::getProperty(const char* _name, const char* _section)
 		if (m_keys[i].m_name == _name) {
 			ret.m_type = (uint8)m_keys[i].m_type;
 			ret.m_count = m_keys[i].m_valueCount;
-			ret.m_first = &m_values[m_keys[i].m_valueOffset];
+			ret.m_first = &const_cast<Value&>(m_values[m_keys[i].m_valueOffset]);
 			break;
 		}
 	}

@@ -63,11 +63,20 @@ public:
 		Value*  m_first;
 
 		Property(ValueType _type, uint16 _count, Value* _first)
-			: m_type((uint8)_type), m_count(_count), m_first(_first)
+			: m_type((uint8)_type)
+			, m_count(_count)
+			, m_first(_first)
 		{
 		}
 
 	public:
+		Property()
+			: m_type(0)
+			, m_count(0)
+			, m_first(0)
+		{
+		}
+		
 		bool isNull() const                        { return m_first == 0; }
 		ValueType getType() const                  { return (ValueType)m_type; }
 		uint16 getCount() const                    { return m_count; }
@@ -92,7 +101,7 @@ public:
 	/// previously returned Property instances.
 	/// \return Property instance. If no matching property was found, isNull() will
 	///   return true.
-	Property getProperty(const char* _name, const char* _section = 0);
+	Property getProperty(const char* _name, const char* _section = 0) const;
 
 private:
 	typedef String<32> NameStr;
