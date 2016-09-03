@@ -53,7 +53,7 @@ bool IniFile::Write(const IniFile& _iniFile, File& file_)
 				switch (key.m_type) {
 				case ValueType::kBool:   buf.append(val.m_bool ? "true" : "false"); break;
 				case ValueType::kInt:    buf.appendf("%d", val.m_int); break;
-				case ValueType::kDouble: buf.appendf("%f", val.m_double); break;
+				case ValueType::kDouble: buf.appendf("%1.10f", val.m_double); break; // \todo better float representation for printing; want to print the smallest number of significant digits
 				case ValueType::kString: buf.appendf("\"%s\"", val.m_string); break;
 				default:                 PLR_ASSERT(false);
 				};

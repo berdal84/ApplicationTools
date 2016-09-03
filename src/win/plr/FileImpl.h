@@ -22,6 +22,7 @@ protected:
 	~FileImpl();
 	
 	static bool Exists(const char* _path);
+	static bool CreateDir(const char* _path);
 	static bool Read(FileImpl& file_, const char* _path);
 	static bool Write(const FileImpl& _file, const char* _path);
 

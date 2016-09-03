@@ -10,6 +10,7 @@
 #include <plr/platform.h>
 #include <plr/win.h>
 #include <plr/String.h>
+#include <plr/TextParser.h>
 
 #include <cstdlib> // malloc, free
 #include <utility> // swap
@@ -32,6 +33,37 @@ FileImpl::~FileImpl()
 bool FileImpl::Exists(const char* _path)
 {
 	return GetFileAttributes(_path) != INVALID_FILE_ATTRIBUTES;
+}
+
+bool FileImpl::CreateDir(const char* _path)
+{
+	/*String<64> mkpath(_path);
+	
+	for (int i = 0; i < path.getDirectoryCount(); ++i) {
+		mkpath.appendf("%s/", path.getDirectory(i));
+		if (CreateDirectory(mkpath, NULL) == 0) {
+			DWORD err = GetLastError();
+			if (err != ERROR_ALREADY_EXISTS) {
+				PLR_LOG_ERR("CreateDirectory failed: %s", GetPlatformErrorString(err));
+				return false;
+			}
+		}
+	}
+	return true;*/
+	TextParser tp(_path);
+	while (tp.advanceToNext("\\/") != 0) {
+		String<64> mkdir;
+		mkdir.set(_path, tp.getCharCount());
+		if (CreateDirectory(mkdir, NULL) == 0) {
+			DWORD err = GetLastError();
+			if (err != ERROR_ALREADY_EXISTS) {
+				PLR_LOG_ERR("CreateDirectory failed: %s", GetPlatformErrorString(err));
+				return false;
+			}
+		}
+		tp.advance(); // skip the delimiter
+	}
+	return true;
 }
 
 bool FileImpl::Read(FileImpl& file_, const char* _path)
@@ -116,8 +148,17 @@ bool FileImpl::Write(const FileImpl& _file, const char* _path)
 		NULL
 		);
 	if (h == INVALID_HANDLE_VALUE) {
-		err = GetPlatformErrorString(GetLastError());
-		goto FileImpl_Write_end;
+		DWORD lastErr = GetLastError();
+		if (lastErr == ERROR_PATH_NOT_FOUND) {
+			if (CreateDir(_path)) {
+				return Write(_file, _path);
+			} else {
+				return false;
+			}
+		} else {
+			err = GetPlatformErrorString(lastErr);
+			goto FileImpl_Write_end;
+		}
 	}
 
 	DWORD bytesWritten;

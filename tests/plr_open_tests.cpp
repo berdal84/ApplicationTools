@@ -100,6 +100,13 @@ void TestIniFile()
 	CheckTestIniProperties(ini);
 	CheckTestIniProperties(ini, "section0");
 	CheckTestIniProperties(ini, "section1");
+
+	PLR_VERIFY(IniFile::Write(ini, "test_write.ini"));
+	IniFile iniw;
+	PLR_VERIFY(IniFile::Read(iniw, "test_write.ini"));
+	CheckTestIniProperties(iniw);
+	CheckTestIniProperties(iniw, "section0");
+	CheckTestIniProperties(iniw, "section1");
 }
 
 template <uint kCapacity>
@@ -166,7 +173,7 @@ int main(int _argc, char** _argv)
 	TestMalloc();
 
 	//TestArgList(_argc, _argv);
-	//TestIniFile();
+	TestIniFile();
 	//TestString<8>();
 
 	return 0;

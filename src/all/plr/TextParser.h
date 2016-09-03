@@ -65,7 +65,11 @@ public:
 	/// \return Occurences of '\n' up to and including _pos (or the current
 	///   position if _pos is 0).
 	uint getLineCount(const char* _pos = 0) const;
-	
+
+	/// \return Number of chars between the start of the string and the current
+	///   position.
+	uint getCharCount() const { return m_pos - m_start; }
+
 	operator const char*()  { return m_pos; }
 
 private:
