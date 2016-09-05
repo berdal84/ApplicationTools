@@ -22,6 +22,7 @@
     <ClCompile Include="..\..\src\all\plr\IniFile.cpp" />
     <ClCompile Include="..\..\src\all\plr\log.cpp" />
     <ClCompile Include="..\..\src\all\plr\memory.cpp" />
+    <ClCompile Include="..\..\src\all\plr\MemoryPool.cpp" />
     <ClCompile Include="..\..\src\all\plr\String.cpp" />
     <ClCompile Include="..\..\src\all\plr\StringHash.cpp" />
     <ClCompile Include="..\..\src\all\plr\TextParser.cpp" />
@@ -45,7 +46,9 @@
     <ClInclude Include="..\..\src\all\plr\log.h" />
     <ClInclude Include="..\..\src\all\plr\math.h" />
     <ClInclude Include="..\..\src\all\plr\memory.h" />
+    <ClInclude Include="..\..\src\all\plr\MemoryPool.h" />
     <ClInclude Include="..\..\src\all\plr\PersistentVector.h" />
+    <ClInclude Include="..\..\src\all\plr\Pool.h" />
     <ClInclude Include="..\..\src\all\plr\RingBuffer.h" />
     <ClInclude Include="..\..\src\all\plr\static_initializer.h" />
     <ClInclude Include="..\..\src\all\plr\String.h" />

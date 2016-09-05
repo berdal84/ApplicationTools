@@ -37,6 +37,7 @@
     <ClCompile Include="..\..\src\all\plr\extern\lodepng.cpp">
       <Filter>extern</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\all\plr\MemoryPool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\all\plr\ArgList.h" />
@@ -76,5 +77,7 @@
       <Filter>extern</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\all\plr\PersistentVector.h" />
+    <ClInclude Include="..\..\src\all\plr\MemoryPool.h" />
+    <ClInclude Include="..\..\src\all\plr\Pool.h" />
   </ItemGroup>
 </Project>
