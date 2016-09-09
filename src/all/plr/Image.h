@@ -204,8 +204,6 @@ private:
 	static FileFormat GuessFormat(const char* _path);
 
 	/// Additional information about data types.
-	static bool IsDataTypeFloat(DataType _type);
-	static bool IsDataTypeSigned(DataType _type);
 	static bool IsDataTypeBpc(DataType _type, int _bpc);
 
 
