@@ -108,7 +108,15 @@ bool FileImpl::Read(FileImpl& file_, const char* _path)
 	data[dataSize] = data[dataSize + 1] = 0;
 
 	ret = true;
-	file_.~FileImpl(); // close existing handle, release data
+	
+  // close existing handle/free existing data
+	if ((HANDLE)file_.m_handle != INVALID_HANDLE_VALUE) {
+		PLR_PLATFORM_VERIFY(CloseHandle((HANDLE)file_.m_handle));
+	}
+	if (file_.m_data) {
+		free(file_.m_data);
+	}
+	
 	file_.m_data = data;
 	file_.m_dataSize = (uint64)dataSize;
 	file_.setPath(_path);
