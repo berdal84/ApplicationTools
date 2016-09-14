@@ -275,10 +275,10 @@ void Image::setRawImage(uint _array, uint _mip, const void* _src, Layout _layout
 
 	#define CONVERT_FROM(type) \
 		switch (m_dataType) { \
-			case DataType::kUint8:   ConvertCopyImage<DataType::Traits<DataType:: ## type>, DataType::Traits<DataType::kUint8 > >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
-			case DataType::kUint16:  ConvertCopyImage<DataType::Traits<DataType:: ## type>, DataType::Traits<DataType::kUint16> >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
-			case DataType::kUint32:  ConvertCopyImage<DataType::Traits<DataType:: ## type>, DataType::Traits<DataType::kUint32> >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
-			case DataType::kFloat32: ConvertCopyImage<DataType::Traits<DataType:: ## type>, DataType::Traits<DataType::kFloat32> >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
+			case DataType::kUint8:   ConvertCopyImage<DataTypeT<DataType:: ## type>, DataTypeT<DataType::kUint8 > >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
+			case DataType::kUint16:  ConvertCopyImage<DataTypeT<DataType:: ## type>, DataTypeT<DataType::kUint16> >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
+			case DataType::kUint32:  ConvertCopyImage<DataTypeT<DataType:: ## type>, DataTypeT<DataType::kUint32> >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
+			case DataType::kFloat32: ConvertCopyImage<DataTypeT<DataType:: ## type>, DataTypeT<DataType::kFloat32> >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
 			default: PLR_ASSERT(false); \
 		}
 	switch (_dataType) {
@@ -343,8 +343,8 @@ bool Image::validateFileFormat(FileFormat _format) const
 	switch (_format) {
 		case FileFormat::kBmp:
 			if (m_compression != CompressionType::kNone) return false;
-			if (DataType::IsFloat(m_dataType))  return false;
-			if (DataType::IsSigned(m_dataType)) return false;
+			if (IsDataTypeFloat(m_dataType))  return false;
+			if (IsDataTypeSigned(m_dataType)) return false;
 			if (IsDataTypeBpc(m_dataType, 16) || IsDataTypeBpc(m_dataType, 32)) return false;
 			return true;
 		case FileFormat::kDds:
@@ -352,14 +352,14 @@ bool Image::validateFileFormat(FileFormat _format) const
 			return true;
 		case FileFormat::kPng:
 			if (m_compression != CompressionType::kNone) return false;
-			if (DataType::IsFloat(m_dataType))  return false;
-			if (DataType::IsSigned(m_dataType)) return false;
+			if (IsDataTypeFloat(m_dataType))  return false;
+			if (IsDataTypeSigned(m_dataType)) return false;
 			if (IsDataTypeBpc(m_dataType, 32)) return false;
 			return true;
 		case FileFormat::kTga:
 			if (m_compression != CompressionType::kNone) return false;
-			if (DataType::IsFloat(m_dataType))  return false;
-			if (DataType::IsSigned(m_dataType)) return false;
+			if (IsDataTypeFloat(m_dataType))  return false;
+			if (IsDataTypeSigned(m_dataType)) return false;
 			if (IsDataTypeBpc(m_dataType, 16) || IsDataTypeBpc(m_dataType, 32)) return false;
 			return true;
 		default:
@@ -455,6 +455,14 @@ Image::FileFormat Image::GuessFormat(const char* _path)
 	return kInvalidFileFormat;
 }
 
+bool Image::IsDataTypeFloat(DataType _type)
+{
+	return _type == DataType::kFloat32;
+}
+bool Image::IsDataTypeSigned(DataType _type)
+{
+	return _type >= DataType::kSint8 && _type <= DataType::kSint32;
+}
 bool Image::IsDataTypeBpc(DataType _type, int _bpc)
 {
 	switch (_type) {
@@ -543,7 +551,6 @@ bool Image::ReadPng(Image& img_, const char* _data, uint _dataSize)
     LodePNGState state;
     lodepng_state_init(&state);
     state.decoder = settings;
-	DataType dataType;	
 	bool ret = true;
 	unsigned x, y, cmp;
 	unsigned char* d;
@@ -565,6 +572,7 @@ bool Image::ReadPng(Image& img_, const char* _data, uint _dataSize)
 		default:                PLR_ASSERT_MSG(false, "Unsupported PNG format");
 		                        ret = false;
 	};
+	DataType dataType;	
 	switch (state.info_raw.bitdepth) {
 		case 8:                 dataType = DataType::kUint8;  break;
 		case 16:                dataType = DataType::kUint16;
@@ -581,7 +589,7 @@ bool Image::ReadPng(Image& img_, const char* _data, uint _dataSize)
 	img_.m_dataType    = dataType;
 	img_.m_compression = CompressionType::kNone;
 	img_.alloc();
-	memcpy(img_.m_data, d, x * y * cmp * DataType::GetSizeBytes(dataType)); // \todo, avoid this?
+	memcpy(img_.m_data, d, x * y * cmp * DataTypeSize(dataType)); // \todo, avoid this?
 
 Image_ReadPng_end:
 	free(d);
