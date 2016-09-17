@@ -499,7 +499,6 @@ bool Image::ReadDds(Image& img_, const char* _data, uint _dataSize)
 				img_.m_dataType = DataType::kFloat32;
 				break;
 			case DATA_TYPE_SINT:
-			case DATA_TYPE_SNORM:
 				switch (DXGI_INFO[dxt10h->dxgiFormat].bitsPerChannel) {
 					case 32:  img_.m_dataType = DataType::kSint32; break;
 					case 16:  img_.m_dataType = DataType::kSint16; break;
@@ -507,16 +506,31 @@ bool Image::ReadDds(Image& img_, const char* _data, uint _dataSize)
 					default:  img_.m_dataType = DataType::kSint8; break;
 				};
 				break;
+			case DATA_TYPE_SNORM:
+				switch (DXGI_INFO[dxt10h->dxgiFormat].bitsPerChannel) {
+					case 32:  img_.m_dataType = DataType::kSint32N; break;
+					case 16:  img_.m_dataType = DataType::kSint16N; break;
+					case 8:   
+					default:  img_.m_dataType = DataType::kSint8N; break;
+				};
+				break;
 			
 			case DATA_TYPE_UINT:
-			case DATA_TYPE_UNORM:
-			case DATA_TYPE_TYPELESS: // assume uint if typeless
-			default:
 				switch (DXGI_INFO[dxt10h->dxgiFormat].bitsPerChannel) {
 					case 32:  img_.m_dataType = DataType::kUint32; break;
 					case 16:  img_.m_dataType = DataType::kUint16; break;
 					case 8:   
 					default:  img_.m_dataType = DataType::kUint8; break;
+				};
+				break;
+			case DATA_TYPE_UNORM:
+			case DATA_TYPE_TYPELESS: // assume uint*N if typeless
+			default:
+				switch (DXGI_INFO[dxt10h->dxgiFormat].bitsPerChannel) {
+					case 32:  img_.m_dataType = DataType::kUint32N; break;
+					case 16:  img_.m_dataType = DataType::kUint16N; break;
+					case 8:   
+					default:  img_.m_dataType = DataType::kUint8N; break;
 				};
 				break;
 		}
@@ -635,7 +649,7 @@ bool Image::ReadDds(Image& img_, const char* _data, uint _dataSize)
 			default: PLR_LOG_ERR("DDS: Unsupported format (dxt10h->dxgiFormat = %d)", dxt10h->dxgiFormat); return false;
 		};
 		if (img_.m_compression != Image::CompressionType::kNone) {
-			img_.m_dataType = DataType::kInvalid;
+			img_.m_dataType = DataType::kInvalidType;
 		}
 	} else {
 		if (ddsh->ddspf.dwFlags & DDS_FOURCC) {
@@ -652,7 +666,7 @@ bool Image::ReadDds(Image& img_, const char* _data, uint _dataSize)
 				case MAKEFOURCC('B','C','5','U'): img_.m_layout = Image::Layout::kRG;   img_.m_compression = Image::CompressionType::kBC5; break;
 				default: PLR_LOG_ERR("DDS: Unsupported format (ddsh->ddspf.dwFourCC = %d)", ddsh->ddspf.dwFourCC); return false;
 			};
-			img_.m_dataType = DataType::kInvalid;
+			img_.m_dataType = DataType::kInvalidType;
 		} else {
 		 // uncompressed format
 			switch (ddsh->ddspf.dwRGBBitCount) {
@@ -662,7 +676,7 @@ bool Image::ReadDds(Image& img_, const char* _data, uint _dataSize)
 				case 32:  
 				default:  img_.m_layout = Image::Layout::kRGBA;
 			};
-			img_.m_dataType = DataType::kUint8;
+			img_.m_dataType = DataType::kUint8N;
 		}
 	}
 	if (img_.m_compression == Image::CompressionType::kNone) {
@@ -793,16 +807,43 @@ bool Image::WriteDds(File& file_, const Image& _img)
 					default:                  dxt10h->dxgiFormat = DXGI_FORMAT_R16G16B16A16_UINT; break;
 				};
 				break;
+			case DataType::kUint16N:
+				switch (_img.m_layout) {
+					case Image::Layout::kR:    dxt10h->dxgiFormat = DXGI_FORMAT_R16_UNORM; break;
+					case Image::Layout::kRG:   dxt10h->dxgiFormat = DXGI_FORMAT_R16G16_UNORM; break;
+					//case Image::Layout::kRGB:  dxt10h->dxgiFormat = DXGI_FORMAT_R16G16B16_UNORM; break;
+					case Image::Layout::kRGBA: 
+					default:                  dxt10h->dxgiFormat = DXGI_FORMAT_R16G16B16A16_UNORM; break;
+				};
+				break;
 			case DataType::kSint16:
 				switch (_img.m_layout) {
 					case Image::Layout::kR:    dxt10h->dxgiFormat = DXGI_FORMAT_R16_SINT; break;
 					case Image::Layout::kRG:   dxt10h->dxgiFormat = DXGI_FORMAT_R16G16_SINT; break;
-					//case Image::Layout::kRGB:  dxt10h->dxgiFormat = DXGI_FORMAT_R16G16B16_UINT; break;
+					//case Image::Layout::kRGB:  dxt10h->dxgiFormat = DXGI_FORMAT_R16G16B16_SINT; break;
 					case Image::Layout::kRGBA: 
 					default:                  dxt10h->dxgiFormat = DXGI_FORMAT_R16G16B16A16_SINT; break;
 				};
 				break;
+			case DataType::kSint16N:
+				switch (_img.m_layout) {
+					case Image::Layout::kR:    dxt10h->dxgiFormat = DXGI_FORMAT_R16_SNORM; break;
+					case Image::Layout::kRG:   dxt10h->dxgiFormat = DXGI_FORMAT_R16G16_SNORM; break;
+					//case Image::Layout::kRGB:  dxt10h->dxgiFormat = DXGI_FORMAT_R16G16B16_SNORM; break;
+					case Image::Layout::kRGBA: 
+					default:                  dxt10h->dxgiFormat = DXGI_FORMAT_R16G16B16A16_SNORM; break;
+				};
+				break;
 			case DataType::kUint8:
+				switch (_img.m_layout) {
+					case Image::Layout::kR:    dxt10h->dxgiFormat = DXGI_FORMAT_R8_UINT; break;
+					case Image::Layout::kRG:   dxt10h->dxgiFormat = DXGI_FORMAT_R8G8_UINT; break;
+					//case Image::Layout::kRGB:  dxt10h->dxgiFormat = DXGI_FORMAT_R8G8B8_UINT; break;
+					case Image::Layout::kRGBA: 
+					default:                   dxt10h->dxgiFormat = DXGI_FORMAT_R8G8B8A8_UINT; break;
+				};
+				break;
+			case DataType::kUint8N:
 				switch (_img.m_layout) {
 					case Image::Layout::kR:    dxt10h->dxgiFormat = DXGI_FORMAT_R8_UNORM; break;
 					case Image::Layout::kRG:   dxt10h->dxgiFormat = DXGI_FORMAT_R8G8_UNORM; break;
@@ -813,9 +854,18 @@ bool Image::WriteDds(File& file_, const Image& _img)
 				break;
 			case DataType::kSint8:
 				switch (_img.m_layout) {
+					case Image::Layout::kR:    dxt10h->dxgiFormat = DXGI_FORMAT_R8_SINT; break;
+					case Image::Layout::kRG:   dxt10h->dxgiFormat = DXGI_FORMAT_R8G8_SINT; break;
+					//case Image::Layout::kRGB: dxt10h->dxgiFormat = DXGI_FORMAT_R8G8B8_SINT; break;
+					case Image::Layout::kRGBA: 
+					default:                   dxt10h->dxgiFormat = DXGI_FORMAT_R8G8B8A8_SINT; break;
+				};
+				break;
+			case DataType::kSint8N:
+				switch (_img.m_layout) {
 					case Image::Layout::kR:    dxt10h->dxgiFormat = DXGI_FORMAT_R8_SNORM; break;
 					case Image::Layout::kRG:   dxt10h->dxgiFormat = DXGI_FORMAT_R8G8_SNORM; break;
-					//case Image::Layout::kRGB:  dxt10h->dxgiFormat = DXGI_FORMAT_R8G8B8_UINT; break;
+					//case Image::Layout::kRGB: dxt10h->dxgiFormat = DXGI_FORMAT_R8G8B8_SNORM; break;
 					case Image::Layout::kRGBA: 
 					default:                   dxt10h->dxgiFormat = DXGI_FORMAT_R8G8B8A8_SNORM; break;
 				};

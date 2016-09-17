@@ -23,20 +23,20 @@ static tDst Convert(tSrc _src) { return tDst(_src); }
 	template <> static uint32 Convert(uint8 _src) { return (uint32)_src * (UINT32_MAX / UINT8_MAX); }
 	template <> static float  Convert(uint8 _src) { return (float )_src / (float)UINT8_MAX; }
 	// from uint16
-	template <> static uint8  Convert(uint16 _src) { return (uint8 )(_src / UINT8_MAX); }
+	template <> static uint8  Convert(uint16 _src) { return (uint8)(_src / UINT8_MAX); }
 	template <> static uint16 Convert(uint16 _src) { return _src; }
 	template <> static uint32 Convert(uint16 _src) { return (uint32)_src * (UINT32_MAX / UINT16_MAX); }
-	template <> static float  Convert(uint16 _src) { return (float )_src / (float)UINT16_MAX; }
+	template <> static float  Convert(uint16 _src) { return (float ) _src / (float)UINT16_MAX; }
 	// from uint32
-	template <> static uint8  Convert(uint32 _src) { return (uint8 )(_src / UINT8_MAX); }
+	template <> static uint8  Convert(uint32 _src) { return (uint8) (_src / UINT8_MAX); }
 	template <> static uint16 Convert(uint32 _src) { return (uint16)(_src / UINT16_MAX); }
 	template <> static uint32 Convert(uint32 _src) { return _src; }
 	template <> static float  Convert(uint32 _src) { return (float )_src / (float)UINT32_MAX; }
 	// from float
-	template <> static uint8  Convert(float _src) { return (uint8 )(_src * (float)UINT8_MAX); }
-	template <> static uint16 Convert(float _src) { return (uint16)(_src * (float)UINT16_MAX); }
-	template <> static uint32 Convert(float _src) { return (uint32)(_src * (float)UINT32_MAX); }
-	template <> static float  Convert(float _src) { return _src; }
+	template <> static uint8  Convert(float _src)   { return (uint8) (_src * (float)UINT8_MAX); }
+	template <> static uint16 Convert(float _src)   { return (uint16)(_src * (float)UINT16_MAX); }
+	template <> static uint32 Convert(float _src)   { return (uint32)(_src * (float)UINT32_MAX); }
+	template <> static float  Convert(float _src)   { return _src; }
 
 /// Copy at most _srcCount objects from _src to _dst, performing conversion from 
 /// tSrc to tDst. If _srcCount < _dstCount, the remaining elements of _dst are
@@ -52,7 +52,7 @@ static void ConvertCopy(const tSrc* _src, tDst* _dst, uint _srcCount, uint _dstC
 		--_srcCount;
 	} while (_dstCount != 0 && _srcCount != 0);
 	while (_dstCount != 0) {
-		*_dst = tDst(0);
+		*_dst = (tDst)0;
 		++_dst;
 		--_dstCount;
 	}
@@ -60,11 +60,11 @@ static void ConvertCopy(const tSrc* _src, tDst* _dst, uint _srcCount, uint _dstC
 
 /// Copy image data (_size texels) from _src to _dst. _srcCount/_dstCount are the
 /// number of components per texel in _src/_dst respectively.
-template <typename tSrcT, typename tDstT>
+template <typename tSrc, typename tDst>
 static void ConvertCopyImage(const void* _src, void* _dst, uint _srcCount, uint _dstCount, uint _size)
 {
-	const tSrcT::Type* src = (const tSrcT::Type*)_src;
-	tDstT::Type* dst = (tDstT::Type*)_dst;
+	const tSrc* src = (const tSrc*)_src;
+	tDst* dst = (tDst*)_dst;
 	for (uint i = 0, n = _size / _srcCount; i < n; ++i) {
 		ConvertCopy(src, dst, _srcCount, _dstCount);
 		src += _srcCount;
@@ -275,16 +275,16 @@ void Image::setRawImage(uint _array, uint _mip, const void* _src, Layout _layout
 
 	#define CONVERT_FROM(type) \
 		switch (m_dataType) { \
-			case DataType::kUint8:   ConvertCopyImage<DataTypeT<DataType:: ## type>, DataTypeT<DataType::kUint8 > >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
-			case DataType::kUint16:  ConvertCopyImage<DataTypeT<DataType:: ## type>, DataTypeT<DataType::kUint16> >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
-			case DataType::kUint32:  ConvertCopyImage<DataTypeT<DataType:: ## type>, DataTypeT<DataType::kUint32> >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
-			case DataType::kFloat32: ConvertCopyImage<DataTypeT<DataType:: ## type>, DataTypeT<DataType::kFloat32> >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
+			case DataType::kUint8N:   ConvertCopyImage<DataType::ToType<DataType:: ## type>::Type, DataType::ToType<DataType::kUint8N >::Type >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
+			case DataType::kUint16N:  ConvertCopyImage<DataType::ToType<DataType:: ## type>::Type, DataType::ToType<DataType::kUint16N>::Type >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
+			case DataType::kUint32N:  ConvertCopyImage<DataType::ToType<DataType:: ## type>::Type, DataType::ToType<DataType::kUint32N>::Type >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
+			case DataType::kFloat32:  ConvertCopyImage<DataType::ToType<DataType:: ## type>::Type, DataType::ToType<DataType::kFloat32>::Type >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
 			default: PLR_ASSERT(false); \
 		}
 	switch (_dataType) {
-		case DataType::kUint8:   CONVERT_FROM(kUint8); break;
-		case DataType::kUint16:  CONVERT_FROM(kUint16); break;
-		case DataType::kUint32:  CONVERT_FROM(kUint32); break;
+		case DataType::kUint8N:  CONVERT_FROM(kUint8N); break;
+		case DataType::kUint16N: CONVERT_FROM(kUint16N); break;
+		case DataType::kUint32N: CONVERT_FROM(kUint32N); break;
 		case DataType::kFloat32: CONVERT_FROM(kFloat32); break;
 		default: PLR_ASSERT_MSG(false, "Unknown data type");
 	};
@@ -306,7 +306,7 @@ void Image::init()
 	m_type        = kInvalidType;
 	m_compression = CompressionType::kNone;
 	m_layout      = kInvalidLayout;
-	m_dataType    = DataType::kInvalid;
+	m_dataType    = DataType::kInvalidType;
 	
 	char* m_data = 0;
 	memset(m_mipOffsets, 0, sizeof(uint) * kMaxMipmapCount);
@@ -319,7 +319,7 @@ void Image::alloc()
 {
 	free(m_data);
 	
-	m_texelSize = GetDataTypeSize(m_dataType) * GetComponentCount(m_layout);
+	m_texelSize = DataType::GetSizeBytes(m_dataType) * GetComponentCount(m_layout);
 	uint w = m_width, h = m_height, d = m_depth;
 	m_arrayLayerSize = 0;
 	uint i = 0, lim = PLR_MIN(m_mipmapCount, GetMaxMipmapSize(w, h, d));
@@ -343,8 +343,9 @@ bool Image::validateFileFormat(FileFormat _format) const
 	switch (_format) {
 		case FileFormat::kBmp:
 			if (m_compression != CompressionType::kNone) return false;
-			if (IsDataTypeFloat(m_dataType))  return false;
-			if (IsDataTypeSigned(m_dataType)) return false;
+			if (DataType::IsFloat(m_dataType))  return false;
+			if (DataType::IsSigned(m_dataType)) return false;
+			if (!DataType::IsNormalized(m_dataType)) return false;
 			if (IsDataTypeBpc(m_dataType, 16) || IsDataTypeBpc(m_dataType, 32)) return false;
 			return true;
 		case FileFormat::kDds:
@@ -352,14 +353,16 @@ bool Image::validateFileFormat(FileFormat _format) const
 			return true;
 		case FileFormat::kPng:
 			if (m_compression != CompressionType::kNone) return false;
-			if (IsDataTypeFloat(m_dataType))  return false;
-			if (IsDataTypeSigned(m_dataType)) return false;
+			if (DataType::IsFloat(m_dataType))  return false;
+			if (DataType::IsSigned(m_dataType)) return false;
+			if (!DataType::IsNormalized(m_dataType)) return false;
 			if (IsDataTypeBpc(m_dataType, 32)) return false;
 			return true;
 		case FileFormat::kTga:
 			if (m_compression != CompressionType::kNone) return false;
-			if (IsDataTypeFloat(m_dataType))  return false;
-			if (IsDataTypeSigned(m_dataType)) return false;
+			if (DataType::IsFloat(m_dataType))  return false;
+			if (DataType::IsSigned(m_dataType)) return false;
+			if (!DataType::IsNormalized(m_dataType)) return false;
 			if (IsDataTypeBpc(m_dataType, 16) || IsDataTypeBpc(m_dataType, 32)) return false;
 			return true;
 		default:
@@ -367,24 +370,6 @@ bool Image::validateFileFormat(FileFormat _format) const
 	};
 
 	return false;
-}
-
-uint Image::GetDataTypeSize(DataType _type)
-{
-	switch (_type) {
-		case DataType::kUint8:
-		case DataType::kSint8:   return 1;
-		
-		case DataType::kUint16:
-		case DataType::kSint16:  return 2;
-		
-		case DataType::kUint32:
-		case DataType::kSint32:
-		case DataType::kFloat32: return 4;
-		
-		case DataType::kInvalid:
-		default:                 return 0;
-	};
 }
 
 uint Image::GetComponentCount(Layout _layout)
@@ -455,31 +440,9 @@ Image::FileFormat Image::GuessFormat(const char* _path)
 	return kInvalidFileFormat;
 }
 
-bool Image::IsDataTypeFloat(DataType _type)
-{
-	return _type == DataType::kFloat32;
-}
-bool Image::IsDataTypeSigned(DataType _type)
-{
-	return _type >= DataType::kSint8 && _type <= DataType::kSint32;
-}
 bool Image::IsDataTypeBpc(DataType _type, int _bpc)
 {
-	switch (_type) {
-		case DataType::kUint8:
-		case DataType::kSint8:
-			return _bpc == 8;
-		case DataType::kUint16:
-		case DataType::kSint16:
-			return _bpc == 16;
-		case DataType::kUint32:
-		case DataType::kSint32:
-		case DataType::kFloat32:
-			return _bpc == 32;
-		default:
-			break;
-	}
-	return false;
+	return _bpc == DataType::GetSizeBytes(_type) * 8;
 }
 
 #define STB_IMAGE_STATIC
@@ -536,7 +499,7 @@ bool Image::ReadDefault(Image& img_, const char* _data, uint _dataSize)
 	img_.m_depth       = img_.m_arrayCount = img_.m_mipmapCount = 1;
 	img_.m_type        = Type::k2d;
 	img_.m_layout      = GuessLayout((uint)cmp);
-	img_.m_dataType    = DataType::kUint8;
+	img_.m_dataType    = DataType::kUint8N;
 	img_.m_compression = CompressionType::kNone;
 	img_.alloc();
 	memcpy(img_.m_data, d, x * y * cmp); // \todo, avoid this
@@ -551,6 +514,7 @@ bool Image::ReadPng(Image& img_, const char* _data, uint _dataSize)
     LodePNGState state;
     lodepng_state_init(&state);
     state.decoder = settings;
+	DataType dataType;	
 	bool ret = true;
 	unsigned x, y, cmp;
 	unsigned char* d;
@@ -572,10 +536,9 @@ bool Image::ReadPng(Image& img_, const char* _data, uint _dataSize)
 		default:                PLR_ASSERT_MSG(false, "Unsupported PNG format");
 		                        ret = false;
 	};
-	DataType dataType;	
 	switch (state.info_raw.bitdepth) {
-		case 8:                 dataType = DataType::kUint8;  break;
-		case 16:                dataType = DataType::kUint16;
+		case 8:                 dataType = DataType::kUint8N;  break;
+		case 16:                dataType = DataType::kUint16N;
 		                        SwapByteOrder((char*)d, x * y * cmp * 2); break; // \todo swizzle bytes during copy to img_
 		default:                PLR_ASSERT_MSG(false, "Unsupported bit depth (%d)", state.info_raw.bitdepth);
 		                        ret = false;
@@ -589,7 +552,7 @@ bool Image::ReadPng(Image& img_, const char* _data, uint _dataSize)
 	img_.m_dataType    = dataType;
 	img_.m_compression = CompressionType::kNone;
 	img_.alloc();
-	memcpy(img_.m_data, d, x * y * cmp * DataTypeSize(dataType)); // \todo, avoid this?
+	memcpy(img_.m_data, d, x * y * cmp * DataType::GetSizeBytes(dataType)); // \todo, avoid this?
 
 Image_ReadPng_end:
 	free(d);
@@ -620,14 +583,14 @@ bool Image::WritePng(File& file_, const Image& _img)
 	};
 
 	switch (_img.m_dataType) {
-		case DataType::kUint8:  bitdepth = 8;   break;
-		case DataType::kUint16: bitdepth = 16;
-		                        // \hack \todo Can lodepng be modified to swizzle the bytes automatically on x86?
-	                            buf = (char*)malloc(_img.getRawImageSize());
-	                            memcpy(buf, _img.getRawImage(), _img.getRawImageSize());
-		                        SwapByteOrder(buf, (unsigned)_img.getRawImageSize()); break;
-		default:                PLR_ASSERT_MSG(false, "Unsupported data type");
-		                        ret = false;
+		case DataType::kUint8N:  bitdepth = 8;   break;
+		case DataType::kUint16N: bitdepth = 16;
+		                         // \hack \todo Can lodepng be modified to swizzle the bytes automatically on x86?
+	                             buf = (char*)malloc(_img.getRawImageSize());
+	                             memcpy(buf, _img.getRawImage(), _img.getRawImageSize());
+		                         SwapByteOrder(buf, (unsigned)_img.getRawImageSize()); break;
+		default:                 PLR_ASSERT_MSG(false, "Unsupported data type");
+		                         ret = false;
 	};
 
 	unsigned char* d;

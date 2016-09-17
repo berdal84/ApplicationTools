@@ -7,63 +7,187 @@
 #ifndef plr_types_h
 #define plr_types_h
 
-#include <cstddef> // size_t
+#include <cfloat>
 #include <cstdint>
+#include <cstddef> // size_t
+#include <cmath>
+
+#ifdef _MSC_VER
+	#pragma warning(push)
+	#pragma warning(disable: 4244) // possible loss of data
+#endif
 
 namespace plr {
 
 typedef std::int8_t     sint8;
-typedef std::int16_t    sint16;
-typedef std::int32_t    sint32;
-typedef std::int64_t    sint64;
-
 typedef std::uint8_t    uint8;
+typedef std::int16_t    sint16;
 typedef std::uint16_t   uint16;
+typedef std::int32_t    sint32;
 typedef std::uint32_t   uint32;
+typedef std::int64_t    sint64;
 typedef std::uint64_t   uint64;
-
+struct                  float16 { uint16 m_val; }; // \todo implement (use glm internally)
 typedef float           float32;
 typedef double          float64;
-
 typedef std::ptrdiff_t  sint;
 typedef std::size_t     uint;
 
-enum class DataType
+namespace internal {
+	template <typename tType>
+	class normalized_int
+	{
+		tType m_val;
+	public:
+		typedef tType BaseType;
+		normalized_int() {}
+		template <typename tSrc>
+		normalized_int(tSrc _src): m_val(_src) {}
+		operator tType&() { return m_val; }
+
+	}; // class normalized_int
+
+	template <typename tSrc, typename tDst>
+	tDst normalized_int_convert(tSrc _src);
+
+} // namespace internal
+
+typedef internal::normalized_int<sint8>  sint8N;
+typedef internal::normalized_int<uint8>  uint8N;
+typedef internal::normalized_int<sint16> sint16N;
+typedef internal::normalized_int<uint16> uint16N;
+typedef internal::normalized_int<sint32> sint32N;
+typedef internal::normalized_int<uint32> uint32N;
+typedef internal::normalized_int<sint64> sint64N;
+typedef internal::normalized_int<uint64> uint64N;
+
+struct DataType
 {
-	kSint8,
-	kSint32,
-	kSint16,
-	kSint64,
-	
-	kUint8,
-	kUint16,
-	kUint32,
-	kUint64,
+	enum Enum {
+		kInvalidType,
 
-	kFloat16,
-	kFloat32,
-	kFloat64,
+		kSint8,
+		kUint8,
+		kSint16,
+		kUint16,
+		kSint32,
+		kUint32,
+		kSint64,		
+		kUint64,
+		
+		kSint8N,
+		kUint8N,
+		kSint16N,
+		kUint16N,
+		kSint32N,
+		kUint32N,
+		kSint64N,
+		kUint64N,
 
-	kInvalid
-};
+		kFloat16,
+		kFloat32,
+		kFloat64,
 
-/// Data type tags (convert DataType to an actual type).
-template <DataType T> struct DataTypeT {};
-	template<> struct DataTypeT<DataType::kSint8>    { typedef sint8   Type; };
-	template<> struct DataTypeT<DataType::kSint16>   { typedef sint16  Type; };
-	template<> struct DataTypeT<DataType::kSint32>   { typedef sint32  Type; };
-	template<> struct DataTypeT<DataType::kSint64>   { typedef sint64  Type; };
-	template<> struct DataTypeT<DataType::kUint8>    { typedef uint8   Type; };
-	template<> struct DataTypeT<DataType::kUint16>   { typedef uint16  Type; };
-	template<> struct DataTypeT<DataType::kUint32>   { typedef uint32  Type; };
-	template<> struct DataTypeT<DataType::kUint64>   { typedef uint64  Type; };
-	//template<> struct DataTypeT<DataType::kFloat16>  { typedef float16 Type; }; // todo
-	template<> struct DataTypeT<DataType::kFloat32>  { typedef float32 Type; };
-	template<> struct DataTypeT<DataType::kFloat64>  { typedef float64 Type; };
+	};
 
-/// \return Size (bytes) of DataType _type.
-uint DataTypeSize(const DataType _type);
+	// helper macro; instantiate _macro for all enum-type pairs
+	#define plr_DataType_decl(_macro) \
+		_macro(kSint8,   sint8)   \
+		_macro(kUint8,   uint8)   \
+		_macro(kSint16,  sint16)  \
+		_macro(kUint16,  uint16)  \
+		_macro(kSint32,  sint32)  \
+		_macro(kUint32,  uint32)  \
+		_macro(kSint64,  sint64)  \
+		_macro(kUint64,  uint64)  \
+		_macro(kSint8N,  sint8N)  \
+		_macro(kUint8N,  uint8N)  \
+		_macro(kSint16N, sint16N) \
+		_macro(kUint16N, uint16N) \
+		_macro(kSint32N, sint32N) \
+		_macro(kUint32N, uint32N) \
+		_macro(kSint64N, sint64N) \
+		_macro(kUint64N, uint64N) \
+		_macro(kFloat16, float16) \
+		_macro(kFloat32, float32) \
+		_macro(kFloat64, float64)
+
+	/// Implicit conversions to/from Enum (pass and store DataType, not DataType::Enum).
+	DataType(Enum _enum = kInvalidType): m_val(_enum)  {}
+	operator Enum() const { return m_val; }
+
+	/// Init from a value of tType.
+	template <typename tType>
+	DataType(tType _val);
+		#define plr_DataType_ctor(_enum, _typename) \
+			template<> DataType(_typename): m_val(_enum) {}
+		plr_DataType_decl(plr_DataType_ctor)
+		#undef plr_DataType_ctor
+
+	/// \return Size in bytes of the type corresponding to _type.
+	static uint GetSizeBytes(DataType _type)
+	{
+		#define plr_DataType_case_enum(_enum, _typename) \
+			case _enum : return sizeof(_typename);
+		switch (_type) {
+			plr_DataType_decl(plr_DataType_case_enum)
+			default: return 0;
+		};
+		#undef plr_DataType_case_enum
+	}
+
+	/// Basic traits.
+	static bool IsNormalized(DataType _type) { return (_type >= kSint8N) && (_type <= kUint64N); }
+	static bool IsFloat(DataType _type)      { return (_type >= kFloat16) && (_type <= kFloat64); }
+	static bool IsInt(DataType _type)        { return (_type >= kSint8) && (_type <= kUint64N); }
+	static bool IsSigned(DataType _type)     { return IsFloat(_type) || (_type % 2 != 0); }
+
+	template <typename tType> struct ToEnum {};
+		#define plr_DataType_ToEnum(_enum, _typename) \
+			template<> struct ToEnum<_typename> { static const DataType::Enum Enum = _enum; };
+		plr_DataType_decl(plr_DataType_ToEnum)
+		#undef plr_DataType_ToEnum
+
+	template <Enum kEnum> struct ToType {};
+		#define plr_DataType_ToType(_enum, _typename) \
+			template<> struct ToType<_enum> { typedef _typename Type; };
+		plr_DataType_decl(plr_DataType_ToType)
+		#undef plr_DataType_ToType
+		template<> struct ToType<kInvalidType> { typedef sint8 Type; }; // required so that ToType<(DataType::Enum)(kSint8 - 1)> will compile
+
+	template <typename tType> struct Traits {};
+		template<> struct Traits<sint8>   { typedef sint8             Type; static const Type Min = INT8_MIN;   static const Type Max = INT8_MAX;   };
+		template<> struct Traits<uint8>   { typedef uint8             Type; static const Type Min = 0;          static const Type Max = UINT8_MAX;  };
+		template<> struct Traits<sint16>  { typedef sint16            Type; static const Type Min = INT16_MIN;  static const Type Max = INT16_MAX;  };
+		template<> struct Traits<uint16>  { typedef uint16            Type; static const Type Min = 0;          static const Type Max = UINT16_MAX; };
+		template<> struct Traits<sint32>  { typedef sint32            Type; static const Type Min = INT32_MIN;  static const Type Max = INT32_MAX;  };
+		template<> struct Traits<uint32>  { typedef uint32            Type; static const Type Min = 0;          static const Type Max = UINT32_MAX; };
+		template<> struct Traits<sint64>  { typedef sint64            Type; static const Type Min = INT64_MIN;  static const Type Max = INT64_MAX;  };
+		template<> struct Traits<uint64>  { typedef uint64            Type; static const Type Min = 0;          static const Type Max = UINT64_MAX; };
+		
+		template<> struct Traits<sint8N>  { typedef sint8N::BaseType  Type; static const Type Min = INT8_MIN;   static const Type Max = INT8_MAX;   };
+		template<> struct Traits<uint8N>  { typedef uint8N::BaseType  Type; static const Type Min = 0;          static const Type Max = UINT8_MAX;  };
+		template<> struct Traits<sint16N> { typedef sint16N::BaseType Type; static const Type Min = INT16_MIN;  static const Type Max = INT16_MAX;  };
+		template<> struct Traits<uint16N> { typedef uint16N::BaseType Type; static const Type Min = 0;          static const Type Max = UINT16_MAX; };
+		template<> struct Traits<sint32N> { typedef sint32N::BaseType Type; static const Type Min = INT32_MIN;  static const Type Max = INT32_MAX;  };
+		template<> struct Traits<uint32N> { typedef uint32N::BaseType Type; static const Type Min = 0;          static const Type Max = UINT32_MAX; };
+		template<> struct Traits<sint64N> { typedef sint64N::BaseType Type; static const Type Min = INT64_MIN;  static const Type Max = INT64_MAX;  };
+		template<> struct Traits<uint64N> { typedef uint64N::BaseType Type; static const Type Min = 0;          static const Type Max = UINT64_MAX; };
+		
+		template<> struct Traits<float16> { typedef float16           Type; static const Type Min;              static const Type Max; };
+		template<> struct Traits<float32> { typedef float32           Type; static const Type Min;              static const Type Max; };
+		template<> struct Traits<float64> { typedef float64           Type; static const Type Min;              static const Type Max; };
+
+private:
+	Enum m_val;
+
+	#undef plr_DataType_decl
+}; // struct DataType
 
 } // namespace plr
+
+#ifdef _MSC_VER
+	#pragma warning(pop)
+#endif
 
 #endif // plr_types_h

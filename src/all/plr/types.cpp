@@ -8,26 +8,7 @@
 
 using namespace plr;
 
-uint plr::DataTypeSize(const DataType _type)
-{
-	#define CASE_TYPE(_t) case _t: return sizeof(DataTypeT<_t>::Type)
-	switch (_type) {
-		CASE_TYPE(DataType::kSint8);
-		CASE_TYPE(DataType::kSint16);
-		CASE_TYPE(DataType::kSint32);
-		CASE_TYPE(DataType::kSint64);
-
-		CASE_TYPE(DataType::kUint8);
-		CASE_TYPE(DataType::kUint16);
-		CASE_TYPE(DataType::kUint32);
-		CASE_TYPE(DataType::kUint64);
-
-		//CASE_TYPE(DataType::kFloat16);
-		CASE_TYPE(DataType::kFloat32);
-		CASE_TYPE(DataType::kFloat64);
-
-		default: PLR_ASSERT(false);
-	};
-	#undef CASE_TYPE
-	return 0;
-};
+const DataType::Traits<float32>::Type DataType::Traits<float32>::Min = FLT_MIN;
+const DataType::Traits<float32>::Type DataType::Traits<float32>::Max = FLT_MAX;
+const DataType::Traits<float64>::Type DataType::Traits<float64>::Min = DBL_MIN;
+const DataType::Traits<float64>::Type DataType::Traits<float64>::Max = DBL_MAX;
