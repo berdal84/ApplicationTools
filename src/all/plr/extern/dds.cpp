@@ -680,7 +680,7 @@ bool Image::ReadDds(Image& img_, const char* _data, uint _dataSize)
 		}
 	}
 	if (img_.m_compression == Image::CompressionType::kNone) {
-		img_.m_texelSize = Image::GetDataTypeSize(img_.m_dataType) * Image::GetComponentCount(img_.m_layout);
+		img_.m_texelSize = DataType::GetSizeBytes(img_.m_dataType) * Image::GetComponentCount(img_.m_layout);
 	}
 
 // compute image sizes

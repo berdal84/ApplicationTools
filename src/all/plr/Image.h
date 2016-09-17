@@ -191,9 +191,6 @@ private:
 	///   and compression (non-savable file formats will always return false).
 	bool validateFileFormat(FileFormat _format) const;
 
-	/// \return Size (bytes) of the data type.
-	static uint GetDataTypeSize(DataType _type);
-
 	/// \return Number of components associated with a layout.
 	static uint GetComponentCount(Layout _layout);
 

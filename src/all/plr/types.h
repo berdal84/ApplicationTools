@@ -116,13 +116,8 @@ struct DataType
 	DataType(Enum _enum = kInvalidType): m_val(_enum)  {}
 	operator Enum() const { return m_val; }
 
-	/// Init from a value of tType.
 	template <typename tType>
-	DataType(tType _val);
-		#define plr_DataType_ctor(_enum, _typename) \
-			template<> DataType(_typename): m_val(_enum) {}
-		plr_DataType_decl(plr_DataType_ctor)
-		#undef plr_DataType_ctor
+	DataType(tType _val): m_val((Enum)_val) {}
 
 	/// \return Size in bytes of the type corresponding to _type.
 	static uint GetSizeBytes(DataType _type)
