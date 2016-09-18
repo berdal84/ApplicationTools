@@ -136,6 +136,8 @@ void TestMalloc()
 	}
 }
 
+extern void TestTypes();
+
 int main(int _argc, char** _argv)
 {
 	PLR_LOG("plr_open_tests\n--------------");
@@ -170,11 +172,11 @@ int main(int _argc, char** _argv)
 
 	#undef print_typeinfo
 
-	TestMalloc();
-
+	//TestMalloc();
 	//TestArgList(_argc, _argv);
-	TestIniFile();
+	//TestIniFile();
 	//TestString<8>();
+	TestTypes();
 
 	return 0;
 }

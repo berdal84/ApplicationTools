@@ -15,29 +15,6 @@
 
 using namespace plr;
 
-template <typename tSrc, typename tDst>
-static tDst Convert(tSrc _src) { return tDst(_src); }
-	// from uint8
-	template <> static uint8  Convert(uint8 _src) { return _src; }
-	template <> static uint16 Convert(uint8 _src) { return (uint16)_src * (UINT16_MAX / UINT8_MAX); }
-	template <> static uint32 Convert(uint8 _src) { return (uint32)_src * (UINT32_MAX / UINT8_MAX); }
-	template <> static float  Convert(uint8 _src) { return (float )_src / (float)UINT8_MAX; }
-	// from uint16
-	template <> static uint8  Convert(uint16 _src) { return (uint8)(_src / UINT8_MAX); }
-	template <> static uint16 Convert(uint16 _src) { return _src; }
-	template <> static uint32 Convert(uint16 _src) { return (uint32)_src * (UINT32_MAX / UINT16_MAX); }
-	template <> static float  Convert(uint16 _src) { return (float ) _src / (float)UINT16_MAX; }
-	// from uint32
-	template <> static uint8  Convert(uint32 _src) { return (uint8) (_src / UINT8_MAX); }
-	template <> static uint16 Convert(uint32 _src) { return (uint16)(_src / UINT16_MAX); }
-	template <> static uint32 Convert(uint32 _src) { return _src; }
-	template <> static float  Convert(uint32 _src) { return (float )_src / (float)UINT32_MAX; }
-	// from float
-	template <> static uint8  Convert(float _src)   { return (uint8) (_src * (float)UINT8_MAX); }
-	template <> static uint16 Convert(float _src)   { return (uint16)(_src * (float)UINT16_MAX); }
-	template <> static uint32 Convert(float _src)   { return (uint32)(_src * (float)UINT32_MAX); }
-	template <> static float  Convert(float _src)   { return _src; }
-
 /// Copy at most _srcCount objects from _src to _dst, performing conversion from 
 /// tSrc to tDst. If _srcCount < _dstCount, the remaining elements of _dst are
 /// initialized as tDst(0).
@@ -45,7 +22,7 @@ template <typename tSrc, typename tDst>
 static void ConvertCopy(const tSrc* _src, tDst* _dst, uint _srcCount, uint _dstCount)
 {
 	do {
-		*_dst = Convert<tSrc, tDst>(*_src);
+		*_dst = DataType::Convert<tSrc, tDst>(*_src);
 		++_src;
 		++_dst;
 		--_dstCount;

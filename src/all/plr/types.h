@@ -9,8 +9,9 @@
 
 #include <cfloat>
 #include <cstdint>
-#include <cstddef> // size_t
+#include <cstddef>
 #include <cmath>
+#include <limits>
 
 #ifdef _MSC_VER
 	#pragma warning(push)
@@ -40,7 +41,8 @@ namespace internal {
 		tType m_val;
 	public:
 		typedef tType BaseType;
-		normalized_int() {}
+
+		normalized_int() {}		
 		template <typename tSrc>
 		normalized_int(tSrc _src): m_val(_src) {}
 		operator tType&() { return m_val; }
@@ -150,34 +152,29 @@ struct DataType
 		#undef plr_DataType_ToType
 		template<> struct ToType<kInvalidType> { typedef sint8 Type; }; // required so that ToType<(DataType::Enum)(kSint8 - 1)> will compile
 
-	template <typename tType> struct Traits {};
-		template<> struct Traits<sint8>   { typedef sint8             Type; static const Type Min = INT8_MIN;   static const Type Max = INT8_MAX;   };
-		template<> struct Traits<uint8>   { typedef uint8             Type; static const Type Min = 0;          static const Type Max = UINT8_MAX;  };
-		template<> struct Traits<sint16>  { typedef sint16            Type; static const Type Min = INT16_MIN;  static const Type Max = INT16_MAX;  };
-		template<> struct Traits<uint16>  { typedef uint16            Type; static const Type Min = 0;          static const Type Max = UINT16_MAX; };
-		template<> struct Traits<sint32>  { typedef sint32            Type; static const Type Min = INT32_MIN;  static const Type Max = INT32_MAX;  };
-		template<> struct Traits<uint32>  { typedef uint32            Type; static const Type Min = 0;          static const Type Max = UINT32_MAX; };
-		template<> struct Traits<sint64>  { typedef sint64            Type; static const Type Min = INT64_MIN;  static const Type Max = INT64_MAX;  };
-		template<> struct Traits<uint64>  { typedef uint64            Type; static const Type Min = 0;          static const Type Max = UINT64_MAX; };
-		
-		template<> struct Traits<sint8N>  { typedef sint8N::BaseType  Type; static const Type Min = INT8_MIN;   static const Type Max = INT8_MAX;   };
-		template<> struct Traits<uint8N>  { typedef uint8N::BaseType  Type; static const Type Min = 0;          static const Type Max = UINT8_MAX;  };
-		template<> struct Traits<sint16N> { typedef sint16N::BaseType Type; static const Type Min = INT16_MIN;  static const Type Max = INT16_MAX;  };
-		template<> struct Traits<uint16N> { typedef uint16N::BaseType Type; static const Type Min = 0;          static const Type Max = UINT16_MAX; };
-		template<> struct Traits<sint32N> { typedef sint32N::BaseType Type; static const Type Min = INT32_MIN;  static const Type Max = INT32_MAX;  };
-		template<> struct Traits<uint32N> { typedef uint32N::BaseType Type; static const Type Min = 0;          static const Type Max = UINT32_MAX; };
-		template<> struct Traits<sint64N> { typedef sint64N::BaseType Type; static const Type Min = INT64_MIN;  static const Type Max = INT64_MAX;  };
-		template<> struct Traits<uint64N> { typedef uint64N::BaseType Type; static const Type Min = 0;          static const Type Max = UINT64_MAX; };
-		
-		template<> struct Traits<float16> { typedef float16           Type; static const Type Min;              static const Type Max; };
-		template<> struct Traits<float32> { typedef float32           Type; static const Type Min;              static const Type Max; };
-		template<> struct Traits<float64> { typedef float64           Type; static const Type Min;              static const Type Max; };
+	/// Copy data from _src to _dst converting from _srcType to _dstType.
+	static void Convert(DataType _srcType, DataType _dstType, const void* _src, void* dst_);
+
+	/// Conver _src to tDst.
+	template <typename tSrc, typename tDst>
+	static tDst Convert(tSrc _src);
 
 private:
 	Enum m_val;
 
 	#undef plr_DataType_decl
 }; // struct DataType
+
+template <typename tSrc>
+struct numeric_limits {};
+	template <> struct numeric_limits<sint8N>:  public std::numeric_limits<sint8N::BaseType>  {};
+	template <> struct numeric_limits<uint8N>:  public std::numeric_limits<uint8N::BaseType>  {};
+	template <> struct numeric_limits<sint16N>: public std::numeric_limits<sint16N::BaseType> {};
+	template <> struct numeric_limits<uint16N>: public std::numeric_limits<uint16N::BaseType> {};
+	template <> struct numeric_limits<sint32N>: public std::numeric_limits<sint32N::BaseType> {};
+	template <> struct numeric_limits<uint32N>: public std::numeric_limits<uint32N::BaseType> {};
+	template <> struct numeric_limits<sint64N>: public std::numeric_limits<sint64N::BaseType> {};
+	template <> struct numeric_limits<uint64N>: public std::numeric_limits<uint64N::BaseType> {};
 
 } // namespace plr
 
