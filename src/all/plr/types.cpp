@@ -259,7 +259,8 @@ void DataType::Convert(DataType _srcType, DataType _dstType, const void* _src, v
 					case kUint64N: *((uint64N*)dst_) = Convert<_srcTypename, uint64N>(*((const _srcTypename*)_src)); break; \
 					case kFloat32: *((float32*)dst_) = Convert<_srcTypename, float32>(*((const _srcTypename*)_src)); break; \
 					case kFloat64: *((float64*)dst_) = Convert<_srcTypename, float64>(*((const _srcTypename*)_src)); break; \
-				}
+				}; \
+				break				
 
 		switch (_srcType) {
 			case_decl(kSint8  , sint8  );
