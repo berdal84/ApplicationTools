@@ -152,8 +152,8 @@ struct DataType
 		#undef plr_DataType_ToType
 		template<> struct ToType<kInvalidType> { typedef sint8 Type; }; // required so that ToType<(DataType::Enum)(kSint8 - 1)> will compile
 
-	/// Copy data from _src to _dst converting from _srcType to _dstType.
-	static void Convert(DataType _srcType, DataType _dstType, const void* _src, void* dst_);
+	/// Copy _count objects from _src to _dst converting from _srcType to _dstType.
+	static void Convert(DataType _srcType, DataType _dstType, const void* _src, void* dst_, uint _count = 1);
 
 	/// Convert _src to tDst.
 	template <typename tSrc, typename tDst>
