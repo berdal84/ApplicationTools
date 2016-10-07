@@ -1,8 +1,3 @@
-////////////////////////////////////////////////////////////////////////////////
-// FNV-1a Hash functions adapted from http://www.isthe.com/chongo/tech/comp/fnv
-// This software is distributed freely under the terms of the MIT License.
-// See http://opensource.org/licenses/MIT
-////////////////////////////////////////////////////////////////////////////////
 #include <plr/Hash.h>
 
 #include <plr/def.h>
