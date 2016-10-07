@@ -152,13 +152,13 @@ struct DataType
 		#undef plr_DataType_ToType
 		template<> struct ToType<kInvalidType> { typedef sint8 Type; }; // required so that ToType<(DataType::Enum)(kSint8 - 1)> will compile
 
-	/// Copy data from _src to _dst converting from _srcType to _dstType.
-	static void Convert(DataType _srcType, DataType _dstType, const void* _src, void* dst_);
+	/// Copy _count objects from _src to _dst converting from _srcType to _dstType.
+	static void Convert(DataType _srcType, DataType _dstType, const void* _src, void* dst_, uint _count = 1);
 
-	/// Conver _src to tDst.
+	/// Convert _src to tDst.
 	template <typename tSrc, typename tDst>
 	static tDst Convert(tSrc _src);
-
+	
 private:
 	Enum m_val;
 
@@ -175,6 +175,29 @@ struct numeric_limits {};
 	template <> struct numeric_limits<uint32N>: public std::numeric_limits<uint32N::BaseType> {};
 	template <> struct numeric_limits<sint64N>: public std::numeric_limits<sint64N::BaseType> {};
 	template <> struct numeric_limits<uint64N>: public std::numeric_limits<uint64N::BaseType> {};
+
+
+namespace Bitfield {
+	template <typename tType>
+	inline tType BitMask(int _count) 
+	{ 
+		return (1 << _count) - 1; 
+	}
+	
+	template <typename tType>
+	inline tType Insert(tType _base, tType _insert, int _offset, int _count) 
+	{ 
+		tType mask = BitMask<tType>(_count);
+		return (_base & ~(mask << _offset)) | ((_insert & mask) << _offset);
+	}
+
+	template <typename tType>
+	inline tType Extract(tType _base, int _offset, int _count) 
+	{ 
+		tType mask = BitMask<tType>(_count) << _offset;
+		return (_base & mask) >> _offset;
+	}
+}
 
 } // namespace plr
 

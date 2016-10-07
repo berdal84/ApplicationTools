@@ -31,10 +31,10 @@ public:
 	/// Initialize from _len characters of _str.
 	StringHash(const char* _str, uint _len);
 
-	/// \return hash value, which may be kInvalidHash in the case of an 
-	///    uninitialized StringHash.
+	/// \return hash value, which may be kInvalidHash in the case of an uninitialized StringHash.
 	HashType getHash() const { return m_hash; }
 
+	operator HashType() const                      { return m_hash; }
 	bool operator==(const StringHash& _rhs) const  { return m_hash == _rhs.m_hash; }
 	bool operator!=(const StringHash& _rhs) const  { return m_hash != _rhs.m_hash; }
 	bool operator> (const StringHash& _rhs) const  { return m_hash >  _rhs.m_hash; }

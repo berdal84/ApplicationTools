@@ -71,7 +71,7 @@ public:
 	bool isEmpty() const            { return m_buf[0] == '\0'; }
 	bool isLocal() const            { return m_buf == getLocalBuf(); }
 	uint getCapacity() const        { return m_capacity; }
-
+	void setCapacity(uint _capacity);
 
 	bool operator==(const char* _rhs) const;
 	operator const char*() const    { return m_buf; }

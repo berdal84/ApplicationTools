@@ -232,10 +232,10 @@ tDst DataType::Convert(tSrc _src)
 	return convert<tSrc, tDst>(_src, convertT< (convert_traits<tSrc>::is_normalized || convert_traits<tDst>::is_normalized) >());
 }
 
-void DataType::Convert(DataType _srcType, DataType _dstType, const void* _src, void* dst_)
+void DataType::Convert(DataType _srcType, DataType _dstType, const void* _src, void* dst_, uint _count)
 {
 	if (_srcType == _dstType) {
-		memcpy(dst_, _src, DataType::GetSizeBytes(_srcType));
+		memcpy(dst_, _src, DataType::GetSizeBytes(_srcType) * _count);
 
 	}  else {
 		#define case_decl(_srcEnum, _srcTypename) \
@@ -259,30 +259,35 @@ void DataType::Convert(DataType _srcType, DataType _dstType, const void* _src, v
 					case kUint64N: *((uint64N*)dst_) = Convert<_srcTypename, uint64N>(*((const _srcTypename*)_src)); break; \
 					case kFloat32: *((float32*)dst_) = Convert<_srcTypename, float32>(*((const _srcTypename*)_src)); break; \
 					case kFloat64: *((float64*)dst_) = Convert<_srcTypename, float64>(*((const _srcTypename*)_src)); break; \
-				}
+				}; \
+				break				
 
-		switch (_srcType) {
-			case_decl(kSint8  , sint8  );
-			case_decl(kUint8  , uint8  );
-			case_decl(kSint16 , sint16 );
-			case_decl(kUint16 , uint16 );
-			case_decl(kSint32 , sint32 );
-			case_decl(kUint32 , uint32 );
-			case_decl(kSint64 , sint64 );
-			case_decl(kUint64 , uint64 );
-			case_decl(kSint8N , sint8N );
-			case_decl(kUint8N , uint8N );
-			case_decl(kSint16N, sint16N);
-			case_decl(kUint16N, uint16N);
-			case_decl(kSint32N, sint32N);
-			case_decl(kUint32N, uint32N);
-			case_decl(kSint64N, sint64N);
-			case_decl(kUint64N, uint64N);
-			//case_decl(kFloat16, float16);
-			case_decl(kFloat32, float32);
-			case_decl(kFloat64, float64);
-			default: PLR_ASSERT(false); break;
-		};
+		for (uint i = 0; i < _count; ++i) {
+			switch (_srcType) {
+				case_decl(kSint8  , sint8  );
+				case_decl(kUint8  , uint8  );
+				case_decl(kSint16 , sint16 );
+				case_decl(kUint16 , uint16 );
+				case_decl(kSint32 , sint32 );
+				case_decl(kUint32 , uint32 );
+				case_decl(kSint64 , sint64 );
+				case_decl(kUint64 , uint64 );
+				case_decl(kSint8N , sint8N );
+				case_decl(kUint8N , uint8N );
+				case_decl(kSint16N, sint16N);
+				case_decl(kUint16N, uint16N);
+				case_decl(kSint32N, sint32N);
+				case_decl(kUint32N, uint32N);
+				case_decl(kSint64N, sint64N);
+				case_decl(kUint64N, uint64N);
+				//case_decl(kFloat16, float16);
+				case_decl(kFloat32, float32);
+				case_decl(kFloat64, float64);
+				default: PLR_ASSERT(false); break;
+			};
+			_src = (const char*)_src + GetSizeBytes(_srcType);
+			dst_ = (char*)dst_ + GetSizeBytes(_dstType);
+		}
 	}
 }
 

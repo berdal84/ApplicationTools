@@ -168,6 +168,13 @@ bool StringBase::operator==(const char* _rhs) const
 	return strcmp(_rhs, m_buf) == 0;
 }
 
+void StringBase::setCapacity(uint _capacity)
+{
+	if (m_capacity < _capacity) {
+		realloc(_capacity);
+	}
+}
+
 
 void plr::swap(StringBase& _a, StringBase& _b)
 {
