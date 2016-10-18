@@ -1,9 +1,3 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 2016 John Chapman -- http://john-chapman.net
-// This software is distributed freely under the terms of the MIT License.
-// See http://opensource.org/licenses/MIT
-////////////////////////////////////////////////////////////////////////////////
-
 // \todo:
 // - Handle pitch correctly (programming guide recommends copying a scanline at a time).
 // - Need to test to ensure portability of the DDS stuff (size of BYTE, UINT, DWORD, etc).

@@ -1,8 +1,3 @@
-////////////////////////////////////////////////////////////////////////////////
-// Copyright (C) 2016 John Chapman -- http://john-chapman.net
-// This software is distributed freely under the terms of the MIT License.
-// See http://opensource.org/licenses/MIT
-////////////////////////////////////////////////////////////////////////////////
 #pragma once
 #ifndef plr_static_initializer_h
 #define plr_static_initializer_h
