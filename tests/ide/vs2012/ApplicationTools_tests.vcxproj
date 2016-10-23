@@ -12,7 +12,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{38F19BB0-6C33-4E0A-8C43-3B7FEF4A6D32}</ProjectGuid>
-    <RootNamespace>apt_tests</RootNamespace>
+    <RootNamespace>ApplicationTools_tests</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug|x64'" Label="Configuration">
@@ -33,13 +33,13 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\..\ide\vs2012\apt_debug.props" />
-    <Import Project="..\..\..\ide\vs2012\apt_test.props" />
+    <Import Project="..\..\..\ide\vs2012\ApplicationTools_debug.props" />
+    <Import Project="..\..\..\ide\vs2012\ApplicationTools_test.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\..\ide\vs2012\apt_release.props" />
-    <Import Project="..\..\..\ide\vs2012\apt_test.props" />
+    <Import Project="..\..\..\ide\vs2012\ApplicationTools_release.props" />
+    <Import Project="..\..\..\ide\vs2012\ApplicationTools_test.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
@@ -70,12 +70,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\ide\vs2012\apt.vcxproj">
+    <ProjectReference Include="..\..\..\ide\vs2012\ApplicationTools.vcxproj">
       <Project>{de0e7298-1dfc-4d0d-9fce-271aa81e71f7}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\apt_tests.cpp" />
+    <ClCompile Include="..\..\ApplicationTools_tests.cpp" />
     <ClCompile Include="..\..\types_test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

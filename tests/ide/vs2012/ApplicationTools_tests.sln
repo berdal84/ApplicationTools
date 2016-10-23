@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "apt_tests", "apt_tests.vcxproj", "{38F19BB0-6C33-4E0A-8C43-3B7FEF4A6D32}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ApplicationTools_tests", "ApplicationTools_tests.vcxproj", "{38F19BB0-6C33-4E0A-8C43-3B7FEF4A6D32}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "apt", "..\..\..\ide\vs2015\apt.vcxproj", "{DE0E7298-1DFC-4D0D-9FCE-271AA81E71F7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ApplicationTools", "..\..\..\ide\vs2012\ApplicationTools.vcxproj", "{DE0E7298-1DFC-4D0D-9FCE-271AA81E71F7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
