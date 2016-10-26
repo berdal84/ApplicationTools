@@ -158,12 +158,21 @@ private:
 }; // struct DataType
 
 namespace Bitfield {
+	/// Create a bitmask covering _count bits.
 	template <typename tType>
 	inline tType BitMask(int _count) 
 	{ 
 		return (1 << _count) - 1; 
 	}
+
+	/// Create a bitmask covering _count bits starting at _offset.
+	template <typename tType>
+	inline tType BitMask(int _offset, int _count) 
+	{ 
+		return ((1 << _count) - 1) << _offset; 
+	}
 	
+	/// Insert _count least significant bits from _insert into _base at _offset.
 	template <typename tType>
 	inline tType Insert(tType _base, tType _insert, int _offset, int _count) 
 	{ 
@@ -171,6 +180,7 @@ namespace Bitfield {
 		return (_base & ~(mask << _offset)) | ((_insert & mask) << _offset);
 	}
 
+	/// Extract _count bits from _base starting at _offset into the _count least significant bits of the result.
 	template <typename tType>
 	inline tType Extract(tType _base, int _offset, int _count) 
 	{ 
