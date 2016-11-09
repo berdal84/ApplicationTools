@@ -1,7 +1,12 @@
 #include <apt/types.h>
 #include <apt/def.h>
 
+#include <apt/extern/glm/glm/gtc/packing.hpp>
+
 #include <cstring>
+
+
+using std::numeric_limits;
 
 /* \todo This is a mess, could probably be cleaned up/simplified.
 
@@ -47,39 +52,32 @@ namespace apt {
 	inline static tDst _rule(tSrc _src)
 APT_DataType_convert(unsigned_to_float)
 {
-	using std::numeric_limits;
 	return (tDst)_src / (tDst)numeric_limits<tSrc>::max();
 }
 APT_DataType_convert(signed_to_float)
 {
-	using std::numeric_limits;
 	return _src < 0 ? -((tDst)_src / (tDst)numeric_limits<tSrc>::min()) 
 	                : (tDst)_src / (tDst)numeric_limits<tSrc>::max();
 }
 APT_DataType_convert(float_to_unsigned)
 {
-	using std::numeric_limits;
 	return (tDst)(_src * (tSrc)numeric_limits<tDst>::max());
 }
 APT_DataType_convert(float_to_signed)
 {
-	using std::numeric_limits;
 	return (tDst)(_src < 0 ? -(_src * (tSrc)numeric_limits<tDst>::min())
 	                       : _src * (tSrc)numeric_limits<tDst>::max());
 }
 APT_DataType_convert(unsigned_to_signed)
 {
-	using std::numeric_limits;
 	return (tDst)(numeric_limits<tDst>::min() + _src);
 }
 APT_DataType_convert(signed_to_unsigned)
 {
-	using std::numeric_limits;
 	return (tDst)(abs(numeric_limits<tSrc>::min()) + _src);
 }
 APT_DataType_convert(unsigned_change_precision)
 {
-	using std::numeric_limits;
 	if (sizeof(tSrc) >= sizeof(tDst)) {
 		return (tDst)(_src / (numeric_limits<tSrc>::max() / numeric_limits<tDst>::max()));
 	} else {
@@ -88,7 +86,6 @@ APT_DataType_convert(unsigned_change_precision)
 }
 APT_DataType_convert(signed_change_precision)
 {
-	using std::numeric_limits;
 	if (sizeof(tSrc) >= sizeof(tDst)) {
 		return (tDst)(_src < 0 ? _src / (numeric_limits<tSrc>::min() / numeric_limits<tDst>::min())
 		                       : _src / (numeric_limits<tSrc>::max() / numeric_limits<tDst>::max()));

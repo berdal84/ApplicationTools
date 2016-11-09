@@ -23,11 +23,14 @@ typedef std::int32_t    sint32;
 typedef std::uint32_t   uint32;
 typedef std::int64_t    sint64;
 typedef std::uint64_t   uint64;
-struct                  float16 { uint16 m_val; }; // \todo implement (use glm internally)
 typedef float           float32;
 typedef double          float64;
 typedef std::ptrdiff_t  sint;
 typedef std::size_t     uint;
+
+// float16 is used for storage only (half-precision floating point ops are not supported)
+// \todo implement if this is required
+typedef uint16 float16;
 
 namespace internal {
 	template <typename tType>
@@ -40,6 +43,8 @@ namespace internal {
 		normalized_int() {}		
 		template <typename tSrc>
 		normalized_int(tSrc _src): m_val(_src) {}
+
+
 		operator tType&() { return m_val; }
 
 	}; // class normalized_int
@@ -150,7 +155,8 @@ struct DataType
 	/// Convert _src to tDst.
 	template <typename tSrc, typename tDst>
 	static tDst Convert(tSrc _src);
-	
+
+
 private:
 	Enum m_val;
 
@@ -158,16 +164,16 @@ private:
 }; // struct DataType
 
 namespace Bitfield {
-	/// Create a bitmask covering _count bits.
+	/// Create a bit mask covering _count bits.
 	template <typename tType>
-	inline tType BitMask(int _count) 
+	inline tType Mask(int _count) 
 	{ 
 		return (1 << _count) - 1; 
 	}
 
-	/// Create a bitmask covering _count bits starting at _offset.
+	/// Create a bit mask covering _count bits starting at _offset.
 	template <typename tType>
-	inline tType BitMask(int _offset, int _count) 
+	inline tType Mask(int _offset, int _count) 
 	{ 
 		return ((1 << _count) - 1) << _offset; 
 	}
@@ -176,7 +182,7 @@ namespace Bitfield {
 	template <typename tType>
 	inline tType Insert(tType _base, tType _insert, int _offset, int _count) 
 	{ 
-		tType mask = BitMask<tType>(_count);
+		tType mask = Mask<tType>(_count);
 		return (_base & ~(mask << _offset)) | ((_insert & mask) << _offset);
 	}
 
@@ -184,7 +190,7 @@ namespace Bitfield {
 	template <typename tType>
 	inline tType Extract(tType _base, int _offset, int _count) 
 	{ 
-		tType mask = BitMask<tType>(_count) << _offset;
+		tType mask = Mask<tType>(_count) << _offset;
 		return (_base & mask) >> _offset;
 	}
 }
@@ -193,7 +199,7 @@ namespace Bitfield {
 
 namespace std {
 
-/// numeric_limits specializations for normalized int types	
+/// numeric_limits specializations for normalized int types.
 template <> class numeric_limits<apt::sint8N>:  public std::numeric_limits<apt::sint8N::BaseType>  {};
 template <> class numeric_limits<apt::uint8N>:  public std::numeric_limits<apt::uint8N::BaseType>  {};
 template <> class numeric_limits<apt::sint16N>: public std::numeric_limits<apt::sint16N::BaseType> {};
