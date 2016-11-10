@@ -17,6 +17,7 @@
     <ClCompile Include="..\..\src\all\apt\extern\lodepng.cpp" />
     <ClCompile Include="..\..\src\all\apt\FileBase.cpp" />
     <ClCompile Include="..\..\src\all\apt\FilePath.cpp" />
+    <ClCompile Include="..\..\src\all\apt\FileSystem.cpp" />
     <ClCompile Include="..\..\src\all\apt\hash.cpp" />
     <ClCompile Include="..\..\src\all\apt\Image.cpp" />
     <ClCompile Include="..\..\src\all\apt\IniFile.cpp" />
@@ -28,6 +29,7 @@
     <ClCompile Include="..\..\src\all\apt\TextParser.cpp" />
     <ClCompile Include="..\..\src\all\apt\types.cpp" />
     <ClCompile Include="..\..\src\win\apt\FileImpl.cpp" />
+    <ClCompile Include="..\..\src\win\apt\FileSystemImpl.cpp" />
     <ClCompile Include="..\..\src\win\apt\platform.cpp" />
     <ClCompile Include="..\..\src\win\apt\TimeImpl.cpp" />
   </ItemGroup>
@@ -40,6 +42,7 @@
     <ClInclude Include="..\..\src\all\apt\File.h" />
     <ClInclude Include="..\..\src\all\apt\FileBase.h" />
     <ClInclude Include="..\..\src\all\apt\FilePath.h" />
+    <ClInclude Include="..\..\src\all\apt\FileSystem.h" />
     <ClInclude Include="..\..\src\all\apt\hash.h" />
     <ClInclude Include="..\..\src\all\apt\Image.h" />
     <ClInclude Include="..\..\src\all\apt\IniFile.h" />

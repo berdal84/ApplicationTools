@@ -30,7 +30,7 @@ typedef std::size_t     uint;
 
 // float16 is used for storage only (half-precision floating point ops are not supported)
 // \todo implement if this is required
-typedef uint16 float16;
+struct float16 { uint16 m_val; };
 
 namespace internal {
 	template <typename tType>

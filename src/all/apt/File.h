@@ -19,7 +19,6 @@ namespace apt {
 ///   buffer directly, or setting the buffer ptr without copying all the data
 ///   (prefer the former, buffer ownership issues in the latter case).
 /// \todo Checksum/hash util function.
-/// \ingroup APT_core
 ////////////////////////////////////////////////////////////////////////////////
 class File
 	: public internal::FileImpl
@@ -35,8 +34,8 @@ public:
 
 	/// Create the directory specified by _path, plus all parent directories
 	/// if they do not exist.
-	/// \note If _path contains only directory names, the last one must be 
-	///   appended by a path delimiter (e.g. "dir0/dir1/").
+	/// \note If _path contains only directory names, it must be appended by
+	///   a path delimiter (e.g. "dir0/dir1/").
 	/// \return false if an error occurred.
 	static bool CreateDir(const char* _path)                    { return Impl::CreateDir(_path); }
 
