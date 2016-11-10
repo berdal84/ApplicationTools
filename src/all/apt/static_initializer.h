@@ -38,7 +38,6 @@ namespace apt {
 ///      new(g_foo) Foo();
 ///      // ..
 /// \endcode
-/// \ingroup APT_core
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType>
 class static_initializer: private tType

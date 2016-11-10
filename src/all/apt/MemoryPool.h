@@ -20,7 +20,6 @@ namespace apt {
 ///
 /// \note Any allocated objects should be released via free() before the
 ///    MemoryPool is destroyed.
-/// \ingroup APT_core
 ////////////////////////////////////////////////////////////////////////////////
 class MemoryPool
 {

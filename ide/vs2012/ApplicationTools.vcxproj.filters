@@ -42,6 +42,7 @@
       <Filter>win</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\all\apt\File.cpp" />
+    <ClCompile Include="..\..\src\all\apt\Json.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\all\apt\ArgList.h" />
@@ -63,9 +64,6 @@
     <ClInclude Include="..\..\src\all\apt\FilePath.h" />
     <ClInclude Include="..\..\src\all\apt\Image.h" />
     <ClInclude Include="..\..\src\all\apt\File.h" />
-    <ClInclude Include="..\..\src\win\apt\FileImpl.h">
-      <Filter>win</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\all\apt\String.h" />
     <ClInclude Include="..\..\src\all\apt\math.h" />
     <ClInclude Include="..\..\src\all\apt\extern\stb_image.h">
@@ -83,5 +81,6 @@
     <ClInclude Include="..\..\src\all\apt\MemoryPool.h" />
     <ClInclude Include="..\..\src\all\apt\Pool.h" />
     <ClInclude Include="..\..\src\all\apt\FileSystem.h" />
+    <ClInclude Include="..\..\src\all\apt\Json.h" />
   </ItemGroup>
 </Project>

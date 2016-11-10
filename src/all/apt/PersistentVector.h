@@ -24,7 +24,6 @@ namespace apt {
 ///    slower than using iterators in optimized builds.
 /// \todo Move some of the larger private functions to a .cpp (use a privately
 ///    inherited base class).
-/// \ingroup APT_core
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType>
 class PersistentVector

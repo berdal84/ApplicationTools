@@ -15,7 +15,6 @@ namespace apt {
 /// items at the front if size() == capacity().
 /// Access via operator[] returns items between front() and back() in order. Use
 /// data() to access the underying buffer.
-/// \ingroup APT_core
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType>
 class RingBuffer

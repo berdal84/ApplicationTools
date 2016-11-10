@@ -7,17 +7,14 @@
 namespace apt {
 
 /// Allocate _size bytes with _align aligment.
-/// \ingroup APT_core
 void* malloc_aligned(uint _size, uint _align);
 
 /// Reallocate memory previously allocated via malloc_aligned (or allocate a new
 /// block if _p is null). The alignment of a previously allocated block may not
 /// be changed.
-/// \ingroup APT_core
 void* realloc_aligned(void* _p, uint _size, uint _align);
 
 /// Free memory previous allocated via malloc_aligned().
-/// \ingroup APT_core
 void free_aligned(void* _p);
 
 
@@ -46,7 +43,6 @@ namespace internal {
 /// \tparam kAlignment Required alignment.
 /// \note Alignment can only be increased. If the deriving class has a higher
 ///    natural alignment than kAlignment, the higher alignment is used.
-/// \ingroup APT_core
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType, uint kAlignment>
 struct aligned: private internal::aligned_base<kAlignment>
@@ -69,15 +65,14 @@ struct aligned: private internal::aligned_base<kAlignment>
 /// Provides aligned storage for kCount objects of type tType. Suitable for 
 /// allocating static blocks of uninitialized memory for use with placement
 /// new.
-/// \ingroup APT_core
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType, uint kCount>
 class storage: private internal::aligned_base< APT_ALIGNOF(tType) >
 {
+	char m_buf[sizeof(tType) * kCount];
 public:
 	operator tType*() { return (tType*)m_buf; }
-private:
-	char m_buf[sizeof(tType) * kCount];
+
 }; // class storage
 
 } // namespace apt

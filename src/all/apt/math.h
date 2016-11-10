@@ -19,7 +19,6 @@
 #define uint32  glm_hack_uint32
 #define uint64  glm_hack_uint64
 #define uint    glm_hack_uint
-#define float16 glm_hack_float16
 #define float32 glm_hack_float32
 #define float64 glm_hack_float64
 

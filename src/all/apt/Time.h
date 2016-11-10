@@ -14,7 +14,6 @@ class DateTime;
 ////////////////////////////////////////////////////////////////////////////////
 /// \class Time
 /// Global time functions.
-/// \ingroup APT_core
 ////////////////////////////////////////////////////////////////////////////////
 class Time
 {
@@ -22,20 +21,16 @@ public:
 	/// \return High-resolution time stamp.
 	/// \note This is not synchronised to an external time reference. Use for
 	///   interval measurements.
-	/// \ingroup APT_core
 	static Timestamp GetTimestamp();
 	
 	/// \return High-resolution date time.
 	/// \note This is synchronized to UTC.
-	/// \ingroup APT_core
 	static DateTime GetDateTime();
 	
 	/// \return Frequency of the system timer in ticks/second.
-	/// \ingroup APT_core
 	static sint64 GetSystemFrequency();
 	
 	/// \return Interval since the application began.
-	/// \ingroup APT_core
 	static Timestamp GetApplicationElapsed();
 
 protected:
@@ -50,7 +45,6 @@ APT_DECLARE_STATIC_INIT(Time);
 /// High-resolution unsynchronized timestamp, with functions for converting 
 /// between ticks and seconds/milliseconds/microseconds. Use for interval
 /// measurments.
-/// \ingroup APT_core
 ////////////////////////////////////////////////////////////////////////////////
 class Timestamp
 {
@@ -91,7 +85,6 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /// \class DateTime
 /// High-resolution datetime, synchronized to UTC.
-/// \ingroup APT_core
 ////////////////////////////////////////////////////////////////////////////////
 class DateTime
 {
@@ -155,7 +148,6 @@ private:
 /// Scoped timer. Measures the time between ctor, dtor calls and logs the
 /// interval in the dtor. Use APT_TIME_DBG to declare an AutoTimer instance for 
 /// debug builds only.
-/// \ingroup APT_core
 ////////////////////////////////////////////////////////////////////////////////
 class AutoTimer
 {

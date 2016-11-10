@@ -17,7 +17,6 @@ namespace apt {
 /// \note This returns a ptr to an internal static char buffer. The buffer is
 ///	   thread-local but calling code **must** copy the returned string immediately
 ///	   and not store the returned ptr.
-/// \ingroup APT_core
 const char* GetPlatformErrorString(unsigned int _err);
 
 } // namespace apt

@@ -30,7 +30,6 @@ class File;
 /// \todo String escape characters
 /// \todo Line breaks within strings
 /// \todo Implement save() + api for constructing an IniFile.
-/// \ingroup APT_core
 ////////////////////////////////////////////////////////////////////////////////
 class IniFile
 {

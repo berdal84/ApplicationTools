@@ -87,16 +87,13 @@ enum class AssertBehavior
 
 /// Typedef for assert callbacks. See DefaultAssertCallback for a description
 /// of the function arguments.
-/// \ingroup APT_core
 typedef AssertBehavior (AssertCallback)(const char* _e, const char* _msg, const char* _file, int _line);
 
 /// \return Current assert callback. Default is DefaultAssertCallback().
 /// \note This may return 0, if 0 was previously passed to SetAssertCallback().
-/// \ingroup APT_core
 AssertCallback* GetAssertCallback();
 
 /// Set the function to be called when asserts fail, which may be 0.
-/// \ingroup APT_core
 void SetAssertCallback(AssertCallback* _callback);
 
 /// Default assert callback, print message via APT_LOG_ERR().
@@ -104,7 +101,6 @@ void SetAssertCallback(AssertCallback* _callback);
 /// \param msg Optional message (passed from APT_ASSERT_MSG,APT_VERIFY_MSG macros).
 /// \param file, line Location of the assert.
 /// \return Always AssertBehaviour::kBreak.
-/// \ingroup APT_core
 AssertBehavior DefaultAssertCallback(const char* _e, const char* _msg,  const char* _file,  int _line);
 
 } // namespace apt
@@ -174,7 +170,6 @@ class Datetime;
 /// Mixin class, forces a derived class to be non-copyable.
 /// \note The template parameter permits Empty Base Optimization (see
 ///   http://en.wikibooks.org/wiki/More_C++_Idioms/Non-copyable_Mixin).
-/// \ingroup APT_core
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType>
 class non_copyable
@@ -194,7 +189,6 @@ private:
 /// definitionn a non-instantiable class is also non-copyable.
 /// \note The template parameter permits Empty Base Optimization (see
 ///   http://en.wikibooks.org/wiki/More_C++_Idioms/Non-copyable_Mixin).
-/// \ingroup APT_core
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType>
 class non_instantiable: private non_copyable<tType>

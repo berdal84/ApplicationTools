@@ -19,7 +19,6 @@ namespace apt {
 /// Path manipulation.
 /// No memory allocation is performed, all interfaces are const char*.
 /// \todo Use the String class to reduce the footprint.
-/// \ingroup APT_core
 ////////////////////////////////////////////////////////////////////////////////
 class FilePath
 {

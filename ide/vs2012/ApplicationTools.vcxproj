@@ -21,6 +21,7 @@
     <ClCompile Include="..\..\src\all\apt\hash.cpp" />
     <ClCompile Include="..\..\src\all\apt\Image.cpp" />
     <ClCompile Include="..\..\src\all\apt\IniFile.cpp" />
+    <ClCompile Include="..\..\src\all\apt\Json.cpp" />
     <ClCompile Include="..\..\src\all\apt\log.cpp" />
     <ClCompile Include="..\..\src\all\apt\memory.cpp" />
     <ClCompile Include="..\..\src\all\apt\MemoryPool.cpp" />
@@ -45,6 +46,7 @@
     <ClInclude Include="..\..\src\all\apt\hash.h" />
     <ClInclude Include="..\..\src\all\apt\Image.h" />
     <ClInclude Include="..\..\src\all\apt\IniFile.h" />
+    <ClInclude Include="..\..\src\all\apt\Json.h" />
     <ClInclude Include="..\..\src\all\apt\log.h" />
     <ClInclude Include="..\..\src\all\apt\math.h" />
     <ClInclude Include="..\..\src\all\apt\memory.h" />
@@ -58,7 +60,6 @@
     <ClInclude Include="..\..\src\all\apt\TextParser.h" />
     <ClInclude Include="..\..\src\all\apt\Time.h" />
     <ClInclude Include="..\..\src\all\apt\types.h" />
-    <ClInclude Include="..\..\src\win\apt\FileImpl.h" />
     <ClInclude Include="..\..\src\win\apt\platform.h" />
     <ClInclude Include="..\..\src\win\apt\win.h" />
   </ItemGroup>

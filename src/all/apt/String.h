@@ -15,7 +15,6 @@ namespace apt {
 /// buffer overflows it is replaced with a heap-allocated buffer. Once the 
 /// buffer is heap-allocated it never returns to using the local buffer.
 /// All `const char*` interfaces expect null-terminated strings.
-/// \ingroup APT_core
 ////////////////////////////////////////////////////////////////////////////////
 class StringBase
 {

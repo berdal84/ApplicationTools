@@ -18,7 +18,7 @@ class FileSystem
 	: private non_instantiable<FileSystem>
 {
 public:
-	typedef String<64> PathStr;
+	typedef File::PathStr PathStr;
 
 	enum RootType
 	{
