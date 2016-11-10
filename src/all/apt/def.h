@@ -79,6 +79,24 @@
 
 namespace apt {
 
+// Forward declarations
+
+class File;
+class FileSystem;
+class Image;
+class Json;
+class JsonSerializer;
+class MemoryPool;
+template <typename tType> class PersistentVector;
+template <typename tType> class Pool;
+template <typename tType> class RingBuffer;
+template <uint kCapacity> class String;
+class StringHash;
+class TextParser;
+
+
+// Assert callback
+
 enum class AssertBehavior
 {
 	kBreak, 

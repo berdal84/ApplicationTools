@@ -10,7 +10,7 @@
 #include <commdlg.h>
 #include <cstring>
 
-#pragma comment(linker, "/include: Shlwapi.lib")
+#pragma comment(lib, "shlwapi")
 
 using namespace apt;
 
