@@ -67,10 +67,11 @@ struct aligned: private internal::aligned_base<kAlignment>
 /// new.
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType, uint kCount>
-class storage: private aligned< APT_ALIGNOF(tType) >
+class storage: private aligned< storage<tType, kCount>, APT_ALIGNOF(tType) >
 {
 	char m_buf[sizeof(tType) * kCount];
 public:
+	storage(): aligned< storage<tType, kCount>, APT_ALIGNOF(tType) >() {}
 	operator tType*() { return (tType*)m_buf; }
 
 }; // class storage

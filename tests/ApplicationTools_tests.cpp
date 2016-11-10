@@ -9,6 +9,7 @@
 #include <apt/Image.h>
 #include <apt/IniFile.h>
 #include <apt/String.h>
+#include <apt/Vector.h>
 #include <apt/Time.h>
 
 #include <new>
@@ -176,7 +177,12 @@ int main(int _argc, char** _argv)
 	//TestArgList(_argc, _argv);
 	//TestIniFile();
 	//TestString<8>();
-	TestTypes();
+	//TestTypes();
+
+	Vector<int, 4> v4;
+	for (int i = 0; i < 8; ++i) {
+		v4.push_back(i);
+	}
 
 	return 0;
 }

@@ -67,13 +67,13 @@ public:
 	tType&         back()                    { return (*this)[size() - 1]; }
 	const tType&   back() const              { return (*this)[size() - 1]; }
 
-	iterator       begin()                   { return m_buf; }
-	const_iterator begin() const             { return m_buf; }
-	iterator       end()                     { return m_buf + m_size * sizeof(tType); }
-	const_iterator end() const               { return m_buf + m_size * sizeof(tType); }
+	iterator       begin()                   { return m_data; }
+	const_iterator begin() const             { return m_data; }
+	iterator       end()                     { return m_data + m_size * sizeof(tType); }
+	const_iterator end() const               { return m_data + m_size * sizeof(tType); }
 
-	tType&         operator[](uint _i)       { APT_ASSERT(_i < m_size) return m_buf[_i]; }
-	const tType&   operator[](uint _i) const { APT_ASSERT(_i < m_size) return m_buf[_i]; }
+	tType&         operator[](uint _i)       { APT_ASSERT(_i < m_size) return m_data[_i]; }
+	const tType&   operator[](uint _i) const { APT_ASSERT(_i < m_size) return m_data[_i]; }
 
 protected:
 
@@ -100,7 +100,7 @@ class Vector: public VectorBase<tType>
 {
 	storage<tType, kInitialCapacity> m_data; // storage is aligned to tType
 public:
-	Vector(): VectorBase<tType>(&m_data, kInitialCapacity) {}
+	Vector(): VectorBase<tType>(m_data, kInitialCapacity) {}
 };
 
 
@@ -119,7 +119,7 @@ inline void VectorBase<tType>::push_back(const tType& _v)
 	uint n = m_size + 1;
 	if_unlikely (m_capacity < n) {
 	 // copy _v before realloc in case _v is inside the m_data
-		tType* tmp = (tType*)malloc_aligned(sizeof(tType) * n);
+		tType* tmp = (tType*)malloc_aligned(sizeof(tType) * n, APT_ALIGNOF(tType));
 		memcpy(tmp, m_data, sizeof(tType) * m_size);
 		new(&tmp[m_size]) tType(_v);
 		if (!isLocal()) {
@@ -129,7 +129,7 @@ inline void VectorBase<tType>::push_back(const tType& _v)
 		m_capacity = m_size = n;
 	} else {
 		new(&m_data[m_size]) tType(_v);
-		++m_size
+		++m_size;
 	}
 }
 
@@ -139,7 +139,7 @@ inline void VectorBase<tType>::push_back(tType&& _v_)
 	uint n = m_size + 1;
 	if_unlikely (m_capacity < n) {
 	 // move _v before realloc in case _v is inside the m_data
-		tType* tmp = (tType*)malloc_aligned(sizeof(tType) * n);
+		tType* tmp = (tType*)malloc_aligned(sizeof(tType) * n, APT_ALIGNOF(tType));
 		memcpy(tmp, m_data, sizeof(tType) * m_size);
 		new(&tmp[m_size]) tType(std::move(_v_));
 		if (!isLocal()) {
@@ -169,7 +169,7 @@ inline void VectorBase<tType>::reserve(uint _n)
 			m_data = malloc_aligned(sizeof(tType) * _n, APT_ALIGNOF(tType));
 			memcpy(m_data, m_localData, sizeof(tType) * m_size);
 		} else {
-			m_data = realloc_aligned(m_data, sizeof(tType) * _n, APT_ALIGNOF(tType);
+			m_data = realloc_aligned(m_data, sizeof(tType) * _n, APT_ALIGNOF(tType));
 		}
 		m_capacity = _n;
 	}
@@ -223,7 +223,7 @@ template <typename tType>
 inline VectorBase<tType>::VectorBase(tType* _localData, uint _localDataSize)
 	: m_data(_localData)
 	, m_localData(_localData)
-	, m_size(_localDataSize)
+	, m_size(0)
 	, m_capacity(_localDataSize)
 {
 }
