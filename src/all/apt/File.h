@@ -3,9 +3,7 @@
 #define apt_File_h
 
 #include <apt/def.h>
-#include <apt/FileImpl.h>
-
-#include <utility> // std::move
+#include <apt/String.h>
 
 namespace apt {
 
@@ -18,26 +16,26 @@ namespace apt {
 /// \todo API should include some interface for either writing to the internal 
 ///   buffer directly, or setting the buffer ptr without copying all the data
 ///   (prefer the former, buffer ownership issues in the latter case).
-/// \todo Checksum/hash util function.
+/// \todo Checksum/hash util.
 ////////////////////////////////////////////////////////////////////////////////
 class File
-	: public internal::FileImpl
-	, private non_copyable<File>
+	: private non_copyable<File>
 {
-	typedef internal::FileImpl Impl;
 public:
-	File()  {}
-	~File() {}
+	typedef String<64> PathStr;
+
+	File();
+	~File();
 
 	/// \return true if _path exists.
-	static bool Exists(const char* _path)                       { return Impl::Exists(_path); }
+	static bool Exists(const char* _path);
 
 	/// Create the directory specified by _path, plus all parent directories
 	/// if they do not exist.
 	/// \note If _path contains only directory names, it must be appended by
 	///   a path delimiter (e.g. "dir0/dir1/").
 	/// \return false if an error occurred.
-	static bool CreateDir(const char* _path)                    { return Impl::CreateDir(_path); }
+	static bool CreateDir(const char* _path);
 
 	/// Read file into memory from _path, or file_.getPath() if _path is 0.
 	/// Use getData() to access the resulting buffer. 
@@ -45,21 +43,38 @@ public:
 	///    can be interpreted directly as a C string.
 	/// \return false if an error occurred, in which case file_ remains unchanged.
 	///    On success, any resources already associated with file_ are released.
-	static bool Read(File& file_, const char* _path = 0)        { return Impl::Read(file_, _path); }
+	static bool Read(File& file_, const char* _path = 0);
 
 	/// Write file to _path, or _file.getPath() if _path is 0.
 	/// \return false if an error occurred, in which case any existing file at 
 	///    _path may or may not have been overwritten.
-	static bool Write(const File& _file, const char* _path = 0) { return Impl::Write(_file, _path); }
+	static bool Write(const File& _file, const char* _path = 0);
 
-	const char* getPath() const                                 { return Impl::getPath(); }
-	void        setPath(const char* _path)                      { Impl::setPath(_path); }
-	const char* getData() const                                 { return Impl::getData(); }
-	char*       getData()                                       { return Impl::getData(); }
-	void        setData(const char* _data, uint64 _size)        { Impl::setData(_data, _size); }
-	void        appendData(const char* _data, uint64 _size)     { Impl::appendData(_data, _size); }
-	uint64      getDataSize() const                             { return Impl::getDataSize(); }
-	void        setDataSize(uint64 _size)                       { Impl::setData(0, _size); }
+	/// Allocate _size bytes for the internal buffer and optionally copy from
+	/// _data. If _data is 0 the buffer is allocated.
+	void        setData(const char* _data, uint64 _size);
+
+	/// Append _size bytes from _data to the internal buffer. If _data is 0 the
+	/// internal buffer is reallocated.
+	void        appendData(const char* _data, uint64 _size);
+
+	const char* getPath() const                                 { return m_path; }
+	void        setPath(const char* _path)                      { m_path.set(_path); }
+	const char* getData() const                                 { return m_data; }
+	char*       getData()                                       { return m_data; }
+	uint64      getDataSize() const                             { return m_dataSize; }
+	void        setDataSize(uint64 _size)                       { setData(0, _size); }
+
+
+private:
+	PathStr m_path;
+	char*   m_data;
+	uint64  m_dataSize;
+	void*   m_impl;
+
+	/// Common code for ctor/dtor.
+	void ctorCommon();
+	void dtorCommon();
 
 }; // class File
 

@@ -146,12 +146,12 @@ bool TextParser::matches(const char *_beg, const char* _str)
 	return strncmp(_beg, _str, m_pos - _beg) == 0;
 }
 
-uint TextParser::getLineCount(const char* _pos) const
+int TextParser::getLineCount(const char* _pos) const
 {
 	const char* c = _pos ? _pos : m_pos;
-	uint ret = 0u;
+	int ret = 0;
 	do {
-		ret += *c == '\n' ? 1u : 0u;
+		ret += *c == '\n' ? 1 : 0;
 		--c;
 	} while (c != m_start);
 	return ret;

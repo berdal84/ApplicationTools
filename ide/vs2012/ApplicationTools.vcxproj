@@ -15,7 +15,7 @@
     <ClCompile Include="..\..\src\all\apt\def.cpp" />
     <ClCompile Include="..\..\src\all\apt\extern\dds.cpp" />
     <ClCompile Include="..\..\src\all\apt\extern\lodepng.cpp" />
-    <ClCompile Include="..\..\src\all\apt\FileBase.cpp" />
+    <ClCompile Include="..\..\src\all\apt\File.cpp" />
     <ClCompile Include="..\..\src\all\apt\FilePath.cpp" />
     <ClCompile Include="..\..\src\all\apt\FileSystem.cpp" />
     <ClCompile Include="..\..\src\all\apt\hash.cpp" />
@@ -40,7 +40,6 @@
     <ClInclude Include="..\..\src\all\apt\extern\stb_image.h" />
     <ClInclude Include="..\..\src\all\apt\extern\stb_image_write.h" />
     <ClInclude Include="..\..\src\all\apt\File.h" />
-    <ClInclude Include="..\..\src\all\apt\FileBase.h" />
     <ClInclude Include="..\..\src\all\apt\FilePath.h" />
     <ClInclude Include="..\..\src\all\apt\FileSystem.h" />
     <ClInclude Include="..\..\src\all\apt\hash.h" />

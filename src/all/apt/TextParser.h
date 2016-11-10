@@ -13,7 +13,6 @@ namespace apt {
 /// a count of line endings, etc. Basically wraps cctype and cstring.
 /// \note Only line feed '\n' are counted as line endings; carriage return '\r'
 ///   are treated as whitespace only.
-/// \ingroup APT_core
 ////////////////////////////////////////////////////////////////////////////////
 class TextParser
 {
@@ -33,7 +32,7 @@ public:
 	bool isLineEnd() const;
 
 	/// advance*() and skip*() functions return the character they stop on, which
-	/// is 0 if the function hit the end of the string.
+	/// is 0 if the function reached the end of the string.
 	char advance(sint _n = 1) { m_pos += _n; return *m_pos;  }
 	char advanceToNext(char _c); // advance to next occurence of _c
 	char advanceToNext(const char* _list); // advance to next occurence of any char in _list
@@ -59,13 +58,13 @@ public:
 
 	/// \return Occurences of '\n' up to and including _pos (or the current
 	///   position if _pos is 0).
-	uint getLineCount(const char* _pos = 0) const;
+	int getLineCount(const char* _pos = 0) const;
 
 	/// \return Number of chars between the start of the string and the current
 	///   position.
-	uint getCharCount() const { return m_pos - m_start; }
+	int getCharCount() const { return (int)(m_pos - m_start); }
 
-	operator const char*()  { return m_pos; }
+	operator const char*()   { return m_pos; }
 
 private:
 	const char* m_start;

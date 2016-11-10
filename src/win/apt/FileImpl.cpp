@@ -11,26 +11,27 @@
 #include <utility> // swap
 
 using namespace apt;
-using namespace internal;
 
-FileImpl::FileImpl()
-	: m_handle((void*)INVALID_HANDLE_VALUE)
+File::File()
 {
+	ctorCommon();
+	m_impl = (void*)INVALID_HANDLE_VALUE;
 }
 
-FileImpl::~FileImpl()
+File::~File()
 {
-	if ((HANDLE)m_handle != INVALID_HANDLE_VALUE) {
-		APT_PLATFORM_VERIFY(CloseHandle((HANDLE)m_handle));
+	dtorCommon();
+	if ((HANDLE)m_impl != INVALID_HANDLE_VALUE) {
+		APT_PLATFORM_VERIFY(CloseHandle((HANDLE)m_impl));
 	}
 }
 
-bool FileImpl::Exists(const char* _path)
+bool File::Exists(const char* _path)
 {
 	return GetFileAttributes(_path) != INVALID_FILE_ATTRIBUTES;
 }
 
-bool FileImpl::CreateDir(const char* _path)
+bool File::CreateDir(const char* _path)
 {
 	/*String<64> mkpath(_path);
 	
@@ -61,7 +62,7 @@ bool FileImpl::CreateDir(const char* _path)
 	return true;
 }
 
-bool FileImpl::Read(FileImpl& file_, const char* _path)
+bool File::Read(File& file_, const char* _path)
 {
 	if (!_path) {
 		_path = file_.getPath();
@@ -83,13 +84,13 @@ bool FileImpl::Read(FileImpl& file_, const char* _path)
 		);
 	if (h == INVALID_HANDLE_VALUE) {
 		err = GetPlatformErrorString(GetLastError());
-		goto FileImpl_Read_end;
+		goto File_Read_end;
 	}
 
 	LARGE_INTEGER li;
 	if (!GetFileSizeEx(h, &li)) {
 		err = GetPlatformErrorString(GetLastError());
-		goto FileImpl_Read_end;
+		goto File_Read_end;
 	}
 	DWORD dataSize = (DWORD)li.QuadPart; // ReadFile can only read DWORD bytes
 
@@ -98,15 +99,15 @@ bool FileImpl::Read(FileImpl& file_, const char* _path)
 	DWORD bytesRead;
 	if (!ReadFile(h, data, dataSize, &bytesRead, 0)) {
 		err = GetPlatformErrorString(GetLastError());
-		goto FileImpl_Read_end;
+		goto File_Read_end;
 	}
 	data[dataSize] = data[dataSize + 1] = 0;
 
 	ret = true;
 	
   // close existing handle/free existing data
-	if ((HANDLE)file_.m_handle != INVALID_HANDLE_VALUE) {
-		APT_PLATFORM_VERIFY(CloseHandle((HANDLE)file_.m_handle));
+	if ((HANDLE)file_.m_impl != INVALID_HANDLE_VALUE) {
+		APT_PLATFORM_VERIFY(CloseHandle((HANDLE)file_.m_impl));
 	}
 	if (file_.m_data) {
 		free(file_.m_data);
@@ -116,7 +117,7 @@ bool FileImpl::Read(FileImpl& file_, const char* _path)
 	file_.m_dataSize = (uint64)dataSize;
 	file_.setPath(_path);
 
-FileImpl_Read_end:
+File_Read_end:
 	if (!ret) {
 		if (data) {
 			free(data);
@@ -130,7 +131,7 @@ FileImpl_Read_end:
 	return ret;
 }
 
-bool FileImpl::Write(const FileImpl& _file, const char* _path)
+bool File::Write(const File& _file, const char* _path)
 {
 	if (!_path) {
 		_path = _file.getPath();
@@ -160,20 +161,20 @@ bool FileImpl::Write(const FileImpl& _file, const char* _path)
 			}
 		} else {
 			err = GetPlatformErrorString(lastErr);
-			goto FileImpl_Write_end;
+			goto File_Write_end;
 		}
 	}
 
 	DWORD bytesWritten;
 	if (!WriteFile(h, _file.getData(), (DWORD)_file.getDataSize(), &bytesWritten, NULL)) {
 		err = GetPlatformErrorString(GetLastError());
-		goto FileImpl_Write_end;
+		goto File_Write_end;
 	}
 	APT_ASSERT(bytesWritten == _file.getDataSize());
 
 	ret = true;
 
-FileImpl_Write_end:
+File_Write_end:
 	if (!ret) {
 		APT_LOG_ERR("Error writing '%s':\n\t%s", _path, err);
 		APT_ASSERT(false);

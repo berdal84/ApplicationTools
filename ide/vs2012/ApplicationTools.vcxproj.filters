@@ -28,7 +28,6 @@
     <ClCompile Include="..\..\src\win\apt\TimeImpl.cpp">
       <Filter>win</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\all\apt\FileBase.cpp" />
     <ClCompile Include="..\..\src\all\apt\String.cpp" />
     <ClCompile Include="..\..\src\all\apt\extern\dds.cpp">
       <Filter>extern</Filter>
@@ -42,6 +41,7 @@
     <ClCompile Include="..\..\src\win\apt\FileSystemImpl.cpp">
       <Filter>win</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\all\apt\File.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\all\apt\ArgList.h" />
@@ -66,7 +66,6 @@
     <ClInclude Include="..\..\src\win\apt\FileImpl.h">
       <Filter>win</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\all\apt\FileBase.h" />
     <ClInclude Include="..\..\src\all\apt\String.h" />
     <ClInclude Include="..\..\src\all\apt\math.h" />
     <ClInclude Include="..\..\src\all\apt\extern\stb_image.h">
