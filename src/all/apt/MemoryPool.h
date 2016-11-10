@@ -8,6 +8,7 @@ namespace apt {
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class MemoryPool
+/// See Pool.h for a more user-friendly, templated version of this.
 /// Provides (de)allocations of objects with O(1) complexity given a fixed 
 /// object size/alignment.
 /// Example usage:	

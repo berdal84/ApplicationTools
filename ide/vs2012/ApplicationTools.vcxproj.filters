@@ -82,5 +82,6 @@
     <ClInclude Include="..\..\src\all\apt\Pool.h" />
     <ClInclude Include="..\..\src\all\apt\FileSystem.h" />
     <ClInclude Include="..\..\src\all\apt\Json.h" />
+    <ClInclude Include="..\..\src\all\apt\Vector.h" />
   </ItemGroup>
 </Project>

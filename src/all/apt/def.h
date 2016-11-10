@@ -181,6 +181,7 @@ template <typename tType> class RingBuffer;
 template <uint kCapacity> class String;
 class TextParser;
 class Timestamp;
+template <typename tType, uint kInitialCapacity> class Vector;
 class Datetime;
 
 ////////////////////////////////////////////////////////////////////////////////

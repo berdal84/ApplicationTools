@@ -60,6 +60,7 @@
     <ClInclude Include="..\..\src\all\apt\TextParser.h" />
     <ClInclude Include="..\..\src\all\apt\Time.h" />
     <ClInclude Include="..\..\src\all\apt\types.h" />
+    <ClInclude Include="..\..\src\all\apt\Vector.h" />
     <ClInclude Include="..\..\src\win\apt\platform.h" />
     <ClInclude Include="..\..\src\win\apt\win.h" />
   </ItemGroup>

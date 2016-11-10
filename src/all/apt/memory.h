@@ -67,7 +67,7 @@ struct aligned: private internal::aligned_base<kAlignment>
 /// new.
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType, uint kCount>
-class storage: private internal::aligned_base< APT_ALIGNOF(tType) >
+class storage: private aligned< APT_ALIGNOF(tType) >
 {
 	char m_buf[sizeof(tType) * kCount];
 public:

@@ -1,6 +1,6 @@
 #pragma once
-#ifndef apt_string_h
-#define apt_string_h
+#ifndef apt_String_h
+#define apt_String_h
 
 #include <apt/def.h>
 
@@ -145,4 +145,4 @@ public:
 
 } // namespace apt
 
-#endif // apt_string_h
+#endif // apt_String_h
