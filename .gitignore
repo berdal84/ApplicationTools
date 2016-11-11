@@ -8,12 +8,9 @@ docs/*
 !docs/*.doxy
 
 # Visual Studio
-ide/vs*/*
-ide/vs*/*.user
-!ide/vs*/*.sln
-!ide/vs*/*.vcxproj
-!ide/vs*/*.filters
-!ide/vs*/*.props
-
-# Misc
-*.trace
+build/vs*/*
+build/vs*/*.user
+!build/vs*/*.sln
+!build/vs*/*.vcxproj
+!build/vs*/*.filters
+!build/vs*/*.props
