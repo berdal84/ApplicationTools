@@ -119,14 +119,15 @@ inline void VectorBase<tType>::push_back(const tType& _v)
 	uint n = m_size + 1;
 	if_unlikely (m_capacity < n) {
 	 // copy _v before realloc in case _v is inside the m_data
-		tType* tmp = (tType*)malloc_aligned(sizeof(tType) * n, APT_ALIGNOF(tType));
+		m_capacity = m_capacity + m_capacity / 2;
+		tType* tmp = (tType*)malloc_aligned(sizeof(tType) * m_capacity, APT_ALIGNOF(tType));
 		memcpy(tmp, m_data, sizeof(tType) * m_size);
 		new(&tmp[m_size]) tType(_v);
+		++m_size;
 		if (!isLocal()) {
 			free_aligned(m_data);
 		}
 		m_data = tmp;
-		m_capacity = m_size = n;
 	} else {
 		new(&m_data[m_size]) tType(_v);
 		++m_size;
@@ -139,14 +140,15 @@ inline void VectorBase<tType>::push_back(tType&& _v_)
 	uint n = m_size + 1;
 	if_unlikely (m_capacity < n) {
 	 // move _v before realloc in case _v is inside the m_data
-		tType* tmp = (tType*)malloc_aligned(sizeof(tType) * n, APT_ALIGNOF(tType));
+		m_capacity = m_capacity + m_capacity / 2;
+		tType* tmp = (tType*)malloc_aligned(sizeof(tType) * m_capacity, APT_ALIGNOF(tType));
 		memcpy(tmp, m_data, sizeof(tType) * m_size);
 		new(&tmp[m_size]) tType(std::move(_v_));
+		++m_size;
 		if (!isLocal()) {
 			free_aligned(m_data);
 		}
 		m_data = tmp;
-		m_capacity = m_size = n;
 	} else {
 		new(&m_data[m_size]) tType(std::move(_v_));
 		++m_size
