@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="all">
+      <UniqueIdentifier>{DE5D880B-4A67-887C-D3E2-9E7C3FEB937C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="all\apt">
+      <UniqueIdentifier>{328E3B32-9E6D-BACD-A785-45A413E4202F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="all\apt\extern">
+      <UniqueIdentifier>{176612C1-0334-06C7-ECC7-76EDD834E22B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="win">
+      <UniqueIdentifier>{13BB880B-7FC4-887C-0840-9F7C7448947C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="win\apt">
+      <UniqueIdentifier>{E77DE1C8-535D-6064-5C75-EB3AC8D3C6C5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\all\apt\ArgList.h">
+      <Filter>all\apt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\all\apt\File.h">
+      <Filter>all\apt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\all\apt\FilePath.h">
+      <Filter>all\apt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\all\apt\FileSystem.h">
+      <Filter>all\apt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\all\apt\Image.h">
+      <Filter>all\apt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\all\apt\IniFile.h">
+      <Filter>all\apt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\all\apt\Json.h">
+      <Filter>all\apt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\all\apt\MemoryPool.h">
+      <Filter>all\apt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\all\apt\PersistentVector.h">
+      <Filter>all\apt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\all\apt\Pool.h">
+      <Filter>all\apt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\all\apt\RingBuffer.h">
+      <Filter>all\apt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\all\apt\String.h">
+      <Filter>all\apt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\all\apt\StringHash.h">
+      <Filter>all\apt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\all\apt\TextParser.h">
+      <Filter>all\apt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\all\apt\Time.h">
+      <Filter>all\apt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\all\apt\Vector.h">
+      <Filter>all\apt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\all\apt\def.h">
+      <Filter>all\apt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\all\apt\hash.h">
+      <Filter>all\apt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\all\apt\log.h">
+      <Filter>all\apt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\all\apt\math.h">
+      <Filter>all\apt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\all\apt\memory.h">
+      <Filter>all\apt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\all\apt\static_initializer.h">
+      <Filter>all\apt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\all\apt\types.h">
+      <Filter>all\apt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\win\apt\platform.h">
+      <Filter>win\apt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\win\apt\win.h">
+      <Filter>win\apt</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\all\apt\ArgList.cpp">
+      <Filter>all\apt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\all\apt\File.cpp">
+      <Filter>all\apt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\all\apt\FilePath.cpp">
+      <Filter>all\apt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\all\apt\FileSystem.cpp">
+      <Filter>all\apt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\all\apt\Image.cpp">
+      <Filter>all\apt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\all\apt\IniFile.cpp">
+      <Filter>all\apt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\all\apt\Json.cpp">
+      <Filter>all\apt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\all\apt\MemoryPool.cpp">
+      <Filter>all\apt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\all\apt\String.cpp">
+      <Filter>all\apt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\all\apt\StringHash.cpp">
+      <Filter>all\apt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\all\apt\TextParser.cpp">
+      <Filter>all\apt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\all\apt\def.cpp">
+      <Filter>all\apt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\all\apt\extern\dds.cpp">
+      <Filter>all\apt\extern</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\all\apt\extern\lodepng.cpp">
+      <Filter>all\apt\extern</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\all\apt\hash.cpp">
+      <Filter>all\apt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\all\apt\log.cpp">
+      <Filter>all\apt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\all\apt\memory.cpp">
+      <Filter>all\apt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\all\apt\types.cpp">
+      <Filter>all\apt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\win\apt\FileImpl.cpp">
+      <Filter>win\apt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\win\apt\FileSystemImpl.cpp">
+      <Filter>win\apt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\win\apt\TimeImpl.cpp">
+      <Filter>win\apt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\win\apt\platform.cpp">
+      <Filter>win\apt</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
