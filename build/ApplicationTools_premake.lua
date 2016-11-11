@@ -13,7 +13,6 @@ filter { "configurations:debug" }
 	optimize "Off"
 	
 filter { "configurations:release" }
-	defines { "APT_DEBUG" }
 	symbols "Off"
 	optimize "Full"
 
