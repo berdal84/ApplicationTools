@@ -38,22 +38,25 @@ workspace "ApplicationTools"
 		kind "StaticLib"
 		language "C++"
 		targetdir "../lib"
+		uuid "6ADD11F4-56D6-3046-7F08-16CB6B601052"
 		
 		files({ ALL_SRC_DIR .. "**", ALL_EXTERN_DIR .. "**" })
-		removefiles({ ALL_EXTERN_DIR .. "**.h", ALL_EXTERN_DIR .. "glm/**", ALL_EXTERN_DIR .. "rapidjson/**" }) -- remove header-only libs
+		removefiles({ ALL_EXTERN_DIR .. "**.h", ALL_EXTERN_DIR .. "glm/**", ALL_EXTERN_DIR .. "rapidjson/**" })
 		filter { "platforms:Win*" }
 			files({ WIN_SRC_DIR .. "**" })
-			removefiles({ WIN_EXTERN_DIR .. "**.h" }) -- remove header-only libs
+			removefiles({ WIN_EXTERN_DIR .. "**.h" })
 		
 		
 	project "ApplicationTools_Tests"
 		kind "ConsoleApp"
 		language "C++"
 		targetdir "../bin"
+		uuid "DC3DA4C6-C837-CD18-B1A4-63299D3D3385"
 		
 		includedirs { TESTS_DIR, TESTS_EXTERN_DIR }
-		files({ TESTS_DIR .. "**" })
-		
+		files({ TESTS_DIR .. "**", TESTS_EXTERN_DIR .. "**" })
+			removefiles({ TESTS_EXTERN_DIR .. "**.h" })
+			
 		links { "ApplicationTools" }
 		filter { "platforms:Win*" }
 			links { "shlwapi" }
