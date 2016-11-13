@@ -33,6 +33,8 @@
 #include <glm/glm/gtc/matrix_access.hpp>
 #include <glm/glm/gtc/matrix_inverse.hpp>
 #include <glm/glm/gtc/matrix_transform.hpp>
+
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm/gtc/quaternion.hpp>
 
 #define GLM_GTX_norm
