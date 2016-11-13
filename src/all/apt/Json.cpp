@@ -9,9 +9,9 @@
 
 #define RAPIDJSON_ASSERT(x) APT_ASSERT(x)
 #define RAPIDJSON_PARSE_DEFAULT_FLAGS (kParseFullPrecisionFlag | kParseCommentsFlag | kParseTrailingCommasFlag)
-#include <apt/extern/rapidjson/error/en.h>
-#include <apt/extern/rapidjson/document.h>
-#include <apt/extern/rapidjson/prettywriter.h>
+#include <rapidjson/error/en.h>
+#include <rapidjson/document.h>
+#include <rapidjson/prettywriter.h>
 
 using namespace apt;
 

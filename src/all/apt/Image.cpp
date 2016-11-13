@@ -427,13 +427,13 @@ bool Image::IsDataTypeBpc(DataType _type, int _bpc)
 #define STBI_ONLY_TGA
 #define STBI_FAILURE_USERMSG
 #define STBI_ASSERT(x) APT_ASSERT(x)
-#include <apt/extern/stb_image.h>
+#include <stb_image.h>
 
 #define STB_IMAGE_WRITE_STATIC
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define STBI_WRITE_NO_STDIO
 #define STBIW_ASSERT(x) APT_ASSERT(x)
-#include <apt/extern/stb_image_write.h>
+#include <stb_image_write.h>
 static void StbiWriteFile(void* file_, void* _data, int _size)
 {
  // \todo need a better approach here, as many calls to appendData is slow (it just calls realloc() on
@@ -447,7 +447,7 @@ static void StbiWriteFile(void* file_, void* _data, int _size)
 	f->appendData((const char*)_data, _size);
 }
 
-#include <apt/extern/lodepng.h>
+#include <lodepng.h>
 static void SwapByteOrder(char* _d_, unsigned _dsize)
 {
     for (unsigned i = 0; i < _dsize; i += 2) {

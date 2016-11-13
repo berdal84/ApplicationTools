@@ -1,8 +1,8 @@
 local SRC_DIR            = "../src/"
 local ALL_SRC_DIR        = SRC_DIR .. "all/"
-local ALL_EXTERN_DIR     = ALL_SRC_DIR .. "apt/extern/"
+local ALL_EXTERN_DIR     = ALL_SRC_DIR .. "extern/"
 local WIN_SRC_DIR        = SRC_DIR .. "win/"
-local WIN_EXTERN_DIR     = WIN_SRC_DIR .. "apt/extern/"
+local WIN_EXTERN_DIR     = WIN_SRC_DIR .. "extern/"
 local TESTS_DIR          = "../tests/"
 local TESTS_EXTERN_DIR   = TESTS_DIR .. "extern/"
 
@@ -29,9 +29,15 @@ workspace "ApplicationTools"
 		system "windows"
 		architecture "x86_64"
 	
-	includedirs { ALL_SRC_DIR, ALL_EXTERN_DIR }
+	includedirs({ 
+		ALL_SRC_DIR, 
+		ALL_EXTERN_DIR,
+		})
 	filter { "platforms:Win*" }
-		includedirs { WIN_SRC_DIR, WIN_EXTERN_DIR }
+		includedirs({ 
+			WIN_SRC_DIR, 
+			WIN_EXTERN_DIR,
+			})
 		
 	project "ApplicationTools"
 		kind "StaticLib"
@@ -39,12 +45,33 @@ workspace "ApplicationTools"
 		targetdir "../lib"
 		uuid "6ADD11F4-56D6-3046-7F08-16CB6B601052"
 		
-		files({ ALL_SRC_DIR .. "**", ALL_EXTERN_DIR .. "**" })
-		removefiles({ ALL_EXTERN_DIR .. "**.h", ALL_EXTERN_DIR .. "glm/**", ALL_EXTERN_DIR .. "rapidjson/**" })
-		filter { "platforms:Win*" }
-			files({ WIN_SRC_DIR .. "**" })
-			removefiles({ WIN_EXTERN_DIR .. "**.h" })
+		vpaths({
+			["*"]      = ALL_SRC_DIR .. "apt/**",
+			["extern"] = ALL_EXTERN_DIR .. "**", 
+			["win"]    = WIN_SRC_DIR .. "apt/**",
+			})
 		
+		files({ 
+			ALL_SRC_DIR    .. "**.h",
+			ALL_SRC_DIR    .. "**.hpp",
+			ALL_SRC_DIR    .. "**.c",
+			ALL_SRC_DIR    .. "**.cpp",
+			ALL_EXTERN_DIR .. "**.c",
+			ALL_EXTERN_DIR .. "**.cpp",
+			})
+		removefiles({ 
+			ALL_EXTERN_DIR .. "glm/**", 
+			ALL_EXTERN_DIR .. "rapidjson/**" 
+			})
+		filter { "platforms:Win*" }
+			files({ 
+				WIN_SRC_DIR    .. "**.h", 
+				WIN_SRC_DIR    .. "**.hpp", 
+				WIN_SRC_DIR    .. "**.c", 
+				WIN_SRC_DIR    .. "**.cpp", 
+				WIN_EXTERN_DIR .. "**.c",
+				WIN_EXTERN_DIR .. "**.cpp",
+				})
 		
 	project "ApplicationTools_Tests"
 		kind "ConsoleApp"
@@ -54,7 +81,7 @@ workspace "ApplicationTools"
 		
 		includedirs { TESTS_DIR, TESTS_EXTERN_DIR }
 		files({ TESTS_DIR .. "**", TESTS_EXTERN_DIR .. "**" })
-			removefiles({ TESTS_EXTERN_DIR .. "**.h" })
+		removefiles({ TESTS_EXTERN_DIR .. "**.h" })
 			
 		links { "ApplicationTools" }
 		filter { "platforms:Win*" }

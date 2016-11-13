@@ -1,8 +1,6 @@
 #include <apt/types.h>
 #include <apt/def.h>
 
-#include <apt/extern/glm/glm/gtc/packing.hpp>
-
 #include <cstring>
 
 

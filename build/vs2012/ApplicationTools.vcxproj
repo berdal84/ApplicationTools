@@ -55,7 +55,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>APT_DEBUG;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\src\all;..\..\src\all\apt\extern;..\..\src\win;..\..\src\win\apt\extern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\src\all;..\..\src\all\extern;..\..\src\win;..\..\src\win\extern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -70,7 +70,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\src\all;..\..\src\all\apt\extern;..\..\src\win;..\..\src\win\apt\extern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\src\all;..\..\src\all\extern;..\..\src\win;..\..\src\win\extern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -110,6 +110,9 @@
     <ClInclude Include="..\..\src\all\apt\memory.h" />
     <ClInclude Include="..\..\src\all\apt\static_initializer.h" />
     <ClInclude Include="..\..\src\all\apt\types.h" />
+    <ClInclude Include="..\..\src\all\extern\lodepng.h" />
+    <ClInclude Include="..\..\src\all\extern\stb_image.h" />
+    <ClInclude Include="..\..\src\all\extern\stb_image_write.h" />
     <ClInclude Include="..\..\src\win\apt\platform.h" />
     <ClInclude Include="..\..\src\win\apt\win.h" />
   </ItemGroup>
@@ -126,12 +129,12 @@
     <ClCompile Include="..\..\src\all\apt\StringHash.cpp" />
     <ClCompile Include="..\..\src\all\apt\TextParser.cpp" />
     <ClCompile Include="..\..\src\all\apt\def.cpp" />
-    <ClCompile Include="..\..\src\all\apt\extern\dds.cpp" />
-    <ClCompile Include="..\..\src\all\apt\extern\lodepng.cpp" />
     <ClCompile Include="..\..\src\all\apt\hash.cpp" />
     <ClCompile Include="..\..\src\all\apt\log.cpp" />
     <ClCompile Include="..\..\src\all\apt\memory.cpp" />
     <ClCompile Include="..\..\src\all\apt\types.cpp" />
+    <ClCompile Include="..\..\src\all\extern\dds.cpp" />
+    <ClCompile Include="..\..\src\all\extern\lodepng.cpp" />
     <ClCompile Include="..\..\src\win\apt\FileImpl.cpp" />
     <ClCompile Include="..\..\src\win\apt\FileSystemImpl.cpp" />
     <ClCompile Include="..\..\src\win\apt\TimeImpl.cpp" />
