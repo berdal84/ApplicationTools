@@ -1,3 +1,3 @@
-[submodule "src/all/apt/extern/glm"]
-	path = src/all/apt/extern/glm
+[submodule "src/all/extern/glm"]
+	path = src/all/extern/glm
 	url = https://github.com/g-truc/glm.git
