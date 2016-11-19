@@ -133,7 +133,7 @@ struct DataType
 	/// Basic traits.
 	static bool IsNormalized(DataType _type) { return (_type >= kSint8N) && (_type <= kUint64N); }
 	static bool IsFloat(DataType _type)      { return (_type >= kFloat16) && (_type <= kFloat64); }
-	static bool IsInt(DataType _type)        { return (_type >= kSint8) && (_type <= kUint64N); }
+	static bool IsInt(DataType _type)        { return !IsFloat(_type); }
 	static bool IsSigned(DataType _type)     { return IsFloat(_type) || (_type % 2 != 0); }
 
 	template <typename tType> struct ToEnum {};

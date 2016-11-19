@@ -80,8 +80,16 @@ workspace "ApplicationTools"
 		uuid "DC3DA4C6-C837-CD18-B1A4-63299D3D3385"
 		
 		includedirs { TESTS_DIR, TESTS_EXTERN_DIR }
-		files({ TESTS_DIR .. "**", TESTS_EXTERN_DIR .. "**" })
-		removefiles({ TESTS_EXTERN_DIR .. "**.h" })
+		files({ 
+			TESTS_DIR    .. "**.h",
+			TESTS_DIR    .. "**.hpp",
+			TESTS_DIR    .. "**.c",
+			TESTS_DIR    .. "**.cpp",
+			})
+		removefiles({ 
+			TESTS_EXTERN_DIR .. "**.h", 
+			TESTS_EXTERN_DIR .. "**.hpp",
+			})
 			
 		links { "ApplicationTools" }
 		filter { "platforms:Win*" }

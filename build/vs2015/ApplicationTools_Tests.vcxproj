@@ -95,7 +95,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\tests\ApplicationTools_tests.cpp" />
-    <ClCompile Include="..\..\tests\types_test.cpp" />
+    <ClCompile Include="..\..\tests\types.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="ApplicationTools.vcxproj">

@@ -1,4 +1,7 @@
-#include <apt/def.h>
+#define CATCH_CONFIG_MAIN
+#include <catch.hpp>
+
+/*#include <apt/def.h>
 #include <apt/log.h>
 
 
@@ -141,7 +144,7 @@ extern void TestTypes();
 
 int main(int _argc, char** _argv)
 {
-	APT_LOG("APT_open_tests\n--------------");
+	APT_LOG("ApplicationTools Tests\n----------------------");
 	//APT_LOG("%s", GetDateTime().asString().c_str());
 	APT_LOG_DBG("DEBUG");
 	APT_AUTOTIMER("APT_open_tests");
@@ -186,3 +189,4 @@ int main(int _argc, char** _argv)
 
 	return 0;
 }
+*/
