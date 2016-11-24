@@ -89,6 +89,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\all\apt\ArgList.h" />
+    <ClInclude Include="..\..\src\all\apt\Factory.h" />
     <ClInclude Include="..\..\src\all\apt\File.h" />
     <ClInclude Include="..\..\src\all\apt\FilePath.h" />
     <ClInclude Include="..\..\src\all\apt\FileSystem.h" />

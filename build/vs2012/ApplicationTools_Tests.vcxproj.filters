@@ -6,12 +6,8 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\tests\extern\catch.hpp">
-      <Filter>extern</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\..\tests\ApplicationTools_tests.cpp" />
     <ClCompile Include="..\..\tests\types.cpp" />
+    <ClCompile Include="..\..\tests\Factory.cpp" />
   </ItemGroup>
 </Project>
