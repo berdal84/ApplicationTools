@@ -25,7 +25,7 @@ namespace apt {
 class MemoryPool
 {
 public:
-	/// \param _objectSize Size (bytes) of a single object. Must be at least
+	/// \param _objectSize Size (bytes) of a single object. Must be at least 
 	///    sizeof(void*).
 	/// \param _objectAlignment Alignment (bytes) of a single object.
 	/// \param _blockSize The number of new unused objects to allocate when
@@ -41,13 +41,14 @@ public:
 
 	/// \return Ptr to the next free memory object.
 	void* alloc();
-
-	/// \param _object Ptr to a memory object previously returned by a call to 
-	///    allocate().
+	/// \param _object Ptr to a memory object previously returned by a call to allocate().
 	void free(void* _object);
 
-	/// \return Whether the number of used objects is consistent with the number
-	///    of accessible free objects.
+
+	/// \return true if _ptr was allocated from the pool.
+	bool isFromPool(const void* _ptr) const;
+
+	/// \return true if # used objects is consistent with # accessible free objects.
 	bool validate() const;
 
 private:
