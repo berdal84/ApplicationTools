@@ -269,15 +269,11 @@ template <> mat2 Json::getValue<mat2>() const
 	mat2 ret;
 	Json* json = const_cast<Json*>(this);
 	if (json->enterArray()) {
-		APT_ASSERT_MSG(m_impl->top()->Size() == 2*2, "Json::getValue: invalid mat2, size = %d", m_impl->top()->Size());
+		APT_ASSERT_MSG(m_impl->top()->Size() == 2, "Json::getValue: invalid mat2, size = %d (should be 2* vec2)", m_impl->top()->Size());
 		int i = 0;
-		do {
-			int j = 0;
-			while (json->next() && j < 2) {
-				ret[i][j++] = getValue<float>();
-			}
-			++i;
-		} while (json->next());
+		while (json->next()) {
+			ret[i++] = getValue<vec2>();
+		}
 		json->leaveArray();
 	}
 	return ret;
@@ -287,15 +283,11 @@ template <> mat3 Json::getValue<mat3>() const
 	mat3 ret;
 	Json* json = const_cast<Json*>(this);
 	if (json->enterArray()) {
-		APT_ASSERT_MSG(m_impl->top()->Size() == 3*3, "Json::getValue: invalid mat3, size = %d", m_impl->top()->Size());
+		APT_ASSERT_MSG(m_impl->top()->Size() == 3, "Json::getValue: invalid mat3, size = %d (should be 3* vec3)", m_impl->top()->Size());
 		int i = 0;
-		do {
-			int j = 0;
-			while (json->next() && j < 3) {
-				ret[i][j++] = getValue<float>();
-			}
-			++i;
-		} while (json->next());
+		while (json->next()) {
+			ret[i++] = getValue<vec3>();
+		}
 		json->leaveArray();
 	}
 	return ret;
@@ -305,15 +297,11 @@ template <> mat4 Json::getValue<mat4>() const
 	mat4 ret;
 	Json* json = const_cast<Json*>(this);
 	if (json->enterArray()) {
-		APT_ASSERT_MSG(m_impl->top()->Size() == 4*4, "Json::getValue: invalid mat4, size = %d", m_impl->top()->Size());
+		APT_ASSERT_MSG(m_impl->top()->Size() == 4, "Json::getValue: invalid mat4, size = %d (should be 4* vec4)", m_impl->top()->Size());
 		int i = 0;
-		do {
-			int j = 0;
-			while (json->next() && j < 4) {
-				ret[i][j++] = getValue<float>();
-			}
-			++i;
-		} while (json->next());
+		while (json->next()) {
+			ret[i++] = getValue<vec4>();
+		}
 		json->leaveArray();
 	}
 	return ret;
@@ -632,37 +620,6 @@ template <> void Json::setValue<vec4>(const char* _name, vec4 _val)
 		pushValue(_val.w);
 	leaveArray();
 }
-template <> void Json::setValue<mat2>(const char* _name, mat2 _val)
-{
-	beginArray(_name);
-		for (int i = 0; i < 2; ++i) {
-			for (int j = 0; j < 2; ++j) {
-				pushValue(_val[i][j]);
-			}
-		}
-	leaveArray();
-}
-template <> void Json::setValue<mat3>(const char* _name, mat3 _val)
-{
-	beginArray(_name);
-		for (int i = 0; i < 3; ++i) {
-			for (int j = 0; j < 3; ++j) {
-				pushValue(_val[i][j]);
-			}
-		}
-	leaveArray();
-}
-template <> void Json::setValue<mat4>(const char* _name, mat4 _val)
-{
-	beginArray(_name);
-		for (int i = 0; i < 4; ++i) {
-			for (int j = 0; j < 4; ++j) {
-				pushValue(_val[i][j]);
-			}
-		}
-	leaveArray();
-}
-
 template <> void Json::pushValue<vec2>(vec2 _val)
 {
 	beginArray();
@@ -685,6 +642,31 @@ template <> void Json::pushValue<vec4>(vec4 _val)
 		pushValue(_val.y);		
 		pushValue(_val.z);				
 		pushValue(_val.w);
+	leaveArray();
+}
+
+template <> void Json::setValue<mat2>(const char* _name, mat2 _val)
+{
+	beginArray(_name);
+		for (int i = 0; i < 2; ++i) {
+			pushValue<vec2>(_val[i]);
+		}
+	leaveArray();
+}
+template <> void Json::setValue<mat3>(const char* _name, mat3 _val)
+{
+	beginArray(_name);
+		for (int i = 0; i < 3; ++i) {
+			pushValue<vec3>(_val[i]);
+		}
+	leaveArray();
+}
+template <> void Json::setValue<mat4>(const char* _name, mat4 _val)
+{
+	beginArray(_name);
+		for (int i = 0; i < 4; ++i) {
+			pushValue<vec4>(_val[i]);
+		}
 	leaveArray();
 }
 template <> void Json::pushValue<mat2>(mat2 _val)
@@ -711,9 +693,7 @@ template <> void Json::pushValue<mat4>(mat4 _val)
 {
 	beginArray();
 		for (int i = 0; i < 4; ++i) {
-			for (int j = 0; j < 4; ++j) {
-				pushValue(_val[i][j]);
-			}
+			pushValue<vec4>(_val[i]);
 		}
 	leaveArray();
 }
