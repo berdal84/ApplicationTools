@@ -58,6 +58,7 @@ public:
 	/// Make _path relative to _root. It is safe for _path to point to the string
 	/// buffer in ret_.
 	static void        MakeRelative(PathStr& ret_, const char* _path, RootType _root = kRoot);
+	static void        MakeRelative(PathStr& ret_, RootType _root = kRoot) { MakeRelative(ret_, ret_, _root); }
 
 	/// Select a file/files via the platform UI. _filters is a null-separated list of filter strings.
 	static bool        PlatformSelect(PathStr& result_, const char* _filters = "");
