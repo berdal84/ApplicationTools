@@ -29,7 +29,6 @@ class File;
 ///
 /// \todo String escape characters
 /// \todo Line breaks within strings
-/// \todo Implement save() + api for constructing an IniFile.
 ////////////////////////////////////////////////////////////////////////////////
 class IniFile
 {
