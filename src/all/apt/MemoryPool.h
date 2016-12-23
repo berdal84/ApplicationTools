@@ -22,7 +22,7 @@ namespace apt {
 /// \note Any allocated objects should be released via free() before the
 ///    MemoryPool is destroyed.
 ////////////////////////////////////////////////////////////////////////////////
-class MemoryPool
+class MemoryPool: private non_copyable<MemoryPool>
 {
 public:
 	/// \param _objectSize Size (bytes) of a single object. Must be at least 
@@ -38,7 +38,6 @@ public:
 	///    free() before the MemoryPool is destroyed.
 	~MemoryPool();
 
-
 	/// \return Ptr to the next free memory object.
 	void* alloc();
 	/// \param _object Ptr to a memory object previously returned by a call to allocate().
@@ -51,6 +50,9 @@ public:
 	/// \return true if # used objects is consistent with # accessible free objects.
 	bool validate() const;
 
+
+	friend void swap(MemoryPool& _a, MemoryPool& _b);
+	
 private:
 	uint   m_objectSize, m_objectAlignment, m_blockSize;
 	void*  m_nextFree;

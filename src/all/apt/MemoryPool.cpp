@@ -2,10 +2,23 @@
 
 #include <apt/memory.h>
 
-#include <algorithm> // std::copy
+#include <algorithm>
 #include <new>
+#include <utility>
 
 using namespace apt;
+
+void apt::swap(MemoryPool& _a, MemoryPool& _b)
+{
+	using std::swap;
+	swap(_a.m_objectSize,      _b.m_objectSize);
+	swap(_a.m_objectAlignment, _b.m_objectAlignment);
+	swap(_a.m_blockSize,       _b.m_blockSize);
+	swap(_a.m_nextFree,        _b.m_nextFree);
+	swap(_a.m_usedCount,       _b.m_usedCount);
+	swap(_a.m_blocks,          _b.m_blocks);
+	swap(_a.m_blockCount,      _b.m_blockCount);
+}
 
 // PUBLIC
 
