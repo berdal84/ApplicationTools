@@ -48,10 +48,10 @@ FileSystem::PathStr FileSystem::s_roots[kRootTypeCount];
 void FileSystem::MakePath(PathStr& ret_, const char* _path, RootType _root)
 {
 	APT_ASSERT(_root < kRootTypeCount);
-	if (s_roots[_root].isEmpty()) {
-		ret_.set(_path);
-	} else {
+	if (!s_roots[_root].isEmpty() && !strstr(_path, s_roots[_root])) {
 		ret_.setf("%s%c%s", (const char*)s_roots[_root], s_separator, _path);
+	} else {
+		ret_.set(_path);
 	}
 }
 
