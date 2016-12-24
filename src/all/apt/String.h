@@ -48,6 +48,9 @@ public:
 	const char* findFirst(const char* _list) const;
 	const char* findLast(const char* _list) const;
 
+	/// Find the first occurence of the substring _str, return null if not found.
+	const char* find(const char* _str) const;
+
 	/// Replace all instanced of _find with _replace.
 	void replace(char _find, char _replace);
 

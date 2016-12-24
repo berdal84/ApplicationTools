@@ -116,8 +116,7 @@ const char* StringBase::findFirst(const char* _list) const
 }
 const char* StringBase::findLast(const char* _list) const
 {
- // rather than call strlen (which has to search the whole string anyway) we just make
- // several calls to strpbrk
+ // rather than call strlen (which has to search the whole string anyway) we just make several calls to strpbrk
 	const char* ret = 0;
 	const char* tmp = m_buf;
 	do {
@@ -125,6 +124,11 @@ const char* StringBase::findLast(const char* _list) const
 		ret = tmp == 0 ? ret : tmp;
 	} while (tmp != 0);
 	return ret;
+}
+
+const char* StringBase::find(const char* _str) const
+{
+	return strstr(m_buf, _str);
 }
 
 void StringBase::replace(char _find, char _replace)
