@@ -3,6 +3,7 @@
 #include <apt/memory.h>
 #include <apt/platform.h>
 #include <apt/win.h>
+#include <apt/String.h>
 
 using namespace apt;
 
@@ -13,8 +14,8 @@ using namespace apt;
 *******************************************************************************/
 
 APT_DEFINE_STATIC_INIT(Time);
-static storage<sint64, 1>    g_sysFreq;
-static storage<Timestamp, 1> g_appInit;
+static storage<sint64, 1>    s_sysFreq;
+static storage<Timestamp, 1> s_appInit;
 
 Timestamp Time::GetTimestamp() 
 {
@@ -25,7 +26,7 @@ Timestamp Time::GetTimestamp()
 
 Timestamp Time::GetApplicationElapsed()
 {
-	return GetTimestamp() - *g_appInit;
+	return GetTimestamp() - *s_appInit;
 }
 
 DateTime Time::GetDateTime() 
@@ -41,15 +42,15 @@ DateTime Time::GetDateTime()
 
 sint64 Time::GetSystemFrequency() 
 {
-	return *g_sysFreq;
+	return *s_sysFreq;
 }
 
 void Time::Init()
 {
 	LARGE_INTEGER f;
 	APT_PLATFORM_VERIFY(QueryPerformanceFrequency(&f));
-	*g_sysFreq = f.QuadPart;
-	*g_appInit = GetTimestamp();
+	*s_sysFreq = f.QuadPart;
+	*s_appInit = GetTimestamp();
 }
 
 void Time::Shutdown()
@@ -103,42 +104,34 @@ sint32 DateTime::getMinute() const       { return (sint32)GetSystemTime(m_raw).w
 sint32 DateTime::getSecond() const       { return (sint32)GetSystemTime(m_raw).wSecond; }
 sint32 DateTime::getMillisecond() const  { return (sint32)GetSystemTime(m_raw).wMilliseconds; }
 
-/*std::string apt::DateTime::asString(const char* _format) const
+const char* apt::DateTime::asString(const char* _format) const
 {
+	static String<128> s_buf;
 	SYSTEMTIME st = GetSystemTime(m_raw);
-	std::stringstream ss;
-	if (!_format) {
-	 // default ISO 8601 format
-		ss	<< std::setw(4) << st.wYear << '-' 
-			<< std::setw(2) << std::setfill('0') << st.wMonth << '-' 
-			<< std::setw(2) << std::setfill('0') << st.wDay << 'T'
-			<< std::setw(2) << std::setfill('0') << st.wHour << ':' 
-			<< std::setw(2) << std::setfill('0') << st.wMinute << ':' 
-			<< std::setw(2) << std::setfill('0') << st.wSecond << 'Z';
+	if (!_format) { // default ISO 8601 format
+		s_buf.setf("%.4d-%.2d-%.2dT%.2d:%.2d:%.2dZ", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
 	} else {
+		s_buf.clear();
 		for (int i = 0; _format[i] != 0; ++i) {
 			if (_format[i] == '%') {
-			 // insert date time component into stream
 				switch (_format[++i]) {
-				case 'Y': ss << std::setw(4) << st.wYear; break;
-				case 'm': ss << std::setw(2) << std::setfill('0') << st.wMonth; break;
-				case 'd': ss << std::setw(2) << std::setfill('0') << st.wDay; break;
-				case 'H': ss << std::setw(2) << std::setfill('0') << st.wHour; break;
-				case 'M': ss << std::setw(2) << std::setfill('0') << st.wMinute; break;
-				case 'S': ss << std::setw(2) << std::setfill('0') << st.wSecond; break;
-				case 's': ss << std::setw(4) << std::setfill('0') << st.wMilliseconds; break;
+				case 'Y': s_buf.appendf("%.4d", st.wYear);         break;
+				case 'm': s_buf.appendf("%.2d", st.wMonth);        break;
+				case 'd': s_buf.appendf("%.2d", st.wDay);          break;
+				case 'H': s_buf.appendf("%.2d", st.wHour);         break;
+				case 'M': s_buf.appendf("%.2d", st.wMinute);       break;
+				case 'S': s_buf.appendf("%.2d", st.wSecond);       break;
+				case 's': s_buf.appendf("%.2d", st.wMilliseconds); break;
 				default:
-				 // write char if not null
-					if (_format[i] != 0)
-						ss << _format[i];
+					if (_format[i] != 0) {
+						s_buf.append(&_format[i], 1);
+					}
 				};
 			} else {
-			 // otherwise write char
-				ss << _format[i];
+				s_buf.append(&_format[i], 1);
 			}
 		}
 	}
-
-	return ss.str();
-}*/
+	return s_buf;
+}
 

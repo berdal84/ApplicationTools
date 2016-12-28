@@ -33,12 +33,11 @@ public:
 	/// \return Interval since the application began.
 	static Timestamp GetApplicationElapsed();
 
-protected:
 	static void Init();
 	static void Shutdown();
 
 }; // class Time
-APT_DECLARE_STATIC_INIT(Time);
+APT_DECLARE_STATIC_INIT(Time, Time::Init, Time::Shutdown);
 
 ////////////////////////////////////////////////////////////////////////////////
 /// \class Timestamp
@@ -124,8 +123,8 @@ public:
 	///    <tr><td>%%Y</td><td>Year</td></tr>
 	/// </table>
 	/// E.g. ISO 8601 format would be "%Y-%m-%dT%H:%M:%SZ".
-	/// \note Returns a ptr to a thread-local static buffer - for normal use
-	///   this should be fine, just print the string and don't keep the ptr.
+	/// \note Returns a ptr to a local static buffer - for normal use this should 
+	///    be fine, just print the string and don't keep the ptr.
 	const char*    asString(const char* _format = 0) const;
 
 	const DateTime operator- (const DateTime& rhs) const  { return m_raw -  rhs.m_raw; }
