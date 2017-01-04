@@ -48,11 +48,16 @@ FileSystem::PathStr FileSystem::s_roots[kRootTypeCount];
 void FileSystem::MakePath(PathStr& ret_, const char* _path, RootType _root)
 {
 	APT_ASSERT(_root < kRootTypeCount);
-	if (!s_roots[_root].isEmpty() && !strstr(_path, s_roots[_root])) {
-		ret_.setf("%s%c%s", (const char*)s_roots[_root], s_separator, _path);
-	} else {
-		ret_.set(_path);
+	bool useRoot = !s_roots[_root].isEmpty();
+	if (useRoot) {
+	 // check if the root already exists in path as a directory
+		const char* r = strstr(s_roots[_root], _path);
+		if (!r || *(r + strlen(s_roots[_root])) != s_separator) {
+			ret_.setf("%s%c%s", (const char*)s_roots[_root], s_separator, _path);
+			return;
+		}
 	}
+	ret_.set(_path);
 }
 
 bool FileSystem::FindExisting(PathStr& ret_, const char* _path, RootType _rootHint)
