@@ -8,8 +8,8 @@
 #endif
 
 // ASSERT/VERIFY with platform-specific error string (use to wrap OS calls)
-#define APT_PLATFORM_ASSERT(_err) APT_ASSERT_MSG(_err, apt::GetPlatformErrorString(GetLastError()))
-#define APT_PLATFORM_VERIFY(_err) APT_VERIFY_MSG(_err, apt::GetPlatformErrorString(GetLastError()))
+#define APT_PLATFORM_ASSERT(_err) APT_ASSERT_MSG(_err, apt::GetPlatformErrorString((void*)GetLastError()))
+#define APT_PLATFORM_VERIFY(_err) APT_VERIFY_MSG(_err, apt::GetPlatformErrorString((void*)GetLastError()))
 
 namespace apt {
 
@@ -17,7 +17,7 @@ namespace apt {
 /// \note This returns a ptr to an internal static char buffer. The buffer is
 ///	   thread-local but calling code **must** copy the returned string immediately
 ///	   and not store the returned ptr.
-const char* GetPlatformErrorString(unsigned int _err);
+const char* GetPlatformErrorString(void* _err);
 
 } // namespace apt
 
