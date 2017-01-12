@@ -1,23 +1,7 @@
-/*#include <apt/def.h>
-#include <apt/types.h>
-
-using namespace apt;
-
-void TestTypes()
-{
-	using std::numeric_limits;
-	APT_STATIC_ASSERT(numeric_limits<sint8>::is_integer);
-	APT_STATIC_ASSERT(numeric_limits<uint8>::is_integer);
-	APT_STATIC_ASSERT(numeric_limits<uint8N>::is_integer);
-	APT_STATIC_ASSERT(numeric_limits<sint8N>::is_integer);
-
-	uint8N u8n = DataType::Convert<float32, uint8N>(0.5f);
-}
-*/
-
 #include <catch.hpp>
 
 #include <apt/types.h>
+#include <apt/math.h>
 
 using namespace apt;
 
@@ -42,6 +26,14 @@ TEST_CASE("Validate type sizes", "[types]")
 	REQUIRE(sizeof(float16)  == 2);
 	REQUIRE(sizeof(float32)  == 4);
 	REQUIRE(sizeof(float64)  == 8);
+
+	REQUIRE(sizeof(vec2) == sizeof(float32) * 2);
+	REQUIRE(sizeof(vec3) == sizeof(float32) * 3);
+	REQUIRE(sizeof(vec4) == sizeof(float32) * 4);
+	REQUIRE(sizeof(quat) == sizeof(float32) * 4);
+	REQUIRE(sizeof(mat2) == sizeof(float32) * 4);
+	REQUIRE(sizeof(mat3) == sizeof(float32) * 9);
+	REQUIRE(sizeof(mat4) == sizeof(float32) * 16);
 }
 
 TEST_CASE("Validate DataType::GetSizeInBytes() matches sizeof()", "[types]")
