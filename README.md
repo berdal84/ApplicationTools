@@ -20,4 +20,4 @@ Committed dependencies:
 - [GLM](https://github.com/g-truc/glm)
 - [stb](https://github.com/nothings/stb)
 - [RapidJSON](http://rapidjson.org/)
-- [LodePNG]([http://lodev.org/lodepng/)
+- [LodePNG](http://lodev.org/lodepng/)
