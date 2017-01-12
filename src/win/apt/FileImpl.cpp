@@ -15,7 +15,7 @@ using namespace apt;
 File::File()
 {
 	ctorCommon();
-	m_impl = (void*)INVALID_HANDLE_VALUE;
+	m_impl = INVALID_HANDLE_VALUE;
 }
 
 File::~File()
@@ -114,7 +114,7 @@ bool File::Read(File& file_, const char* _path)
 	}
 	
 	file_.m_data = data;
-	file_.m_dataSize = (uint64)dataSize;
+	file_.m_dataSize = dataSize;
 	file_.setPath(_path);
 
 File_Read_end:
@@ -139,7 +139,7 @@ bool File::Write(const File& _file, const char* _path)
 	APT_ASSERT(_path);
 
 	bool ret = false;
-	const char* err = "";
+	const char* errstr = "";
 	char* data = 0;
 	
  	HANDLE h = CreateFile(
@@ -152,22 +152,22 @@ bool File::Write(const File& _file, const char* _path)
 		NULL
 		);
 	if (h == INVALID_HANDLE_VALUE) {
-		DWORD lastErr = GetLastError();
-		if (lastErr == ERROR_PATH_NOT_FOUND) {
+		DWORD err = GetLastError();
+		if (err == ERROR_PATH_NOT_FOUND) {
 			if (CreateDir(_path)) {
 				return Write(_file, _path);
 			} else {
 				return false;
 			}
 		} else {
-			err = GetPlatformErrorString(lastErr);
+			errstr = GetPlatformErrorString(err);
 			goto File_Write_end;
 		}
 	}
 
 	DWORD bytesWritten;
 	if (!WriteFile(h, _file.getData(), (DWORD)_file.getDataSize(), &bytesWritten, NULL)) {
-		err = GetPlatformErrorString(GetLastError());
+		errstr = GetPlatformErrorString(GetLastError());
 		goto File_Write_end;
 	}
 	APT_ASSERT(bytesWritten == _file.getDataSize());
@@ -176,7 +176,7 @@ bool File::Write(const File& _file, const char* _path)
 
 File_Write_end:
 	if (!ret) {
-		APT_LOG_ERR("Error writing '%s':\n\t%s", _path, err);
+		APT_LOG_ERR("Error writing '%s':\n\t%s", _path, errstr);
 		APT_ASSERT(false);
 	}
 	if (h != INVALID_HANDLE_VALUE) {

@@ -29,16 +29,16 @@
 #define GLM_FORCE_SIZE_FUNC
 #define GLM_FORCE_NO_CTOR_INIT
 #define GLM_FORCE_EXPLICIT_CTOR
-#include <glm/glm/glm.hpp>
-#include <glm/glm/gtc/matrix_access.hpp>
-#include <glm/glm/gtc/matrix_inverse.hpp>
-#include <glm/glm/gtc/matrix_transform.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_access.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/glm/gtc/quaternion.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #define GLM_GTX_norm
-#include <glm/glm/gtx/norm.hpp>
+#include <glm/gtx/norm.hpp>
 
 #undef aligned
 #undef int8
