@@ -2,6 +2,7 @@
 
 #include <apt/log.h>
 #include <apt/File.h>
+#include <apt/String.h>
 
 using namespace apt;
 
@@ -40,10 +41,43 @@ bool FileSystem::Exists(const char* _path, RootType _rootHint)
 	return FindExisting(buf, _path, _rootHint);
 }
 
+void FileSystem::StripRoot(PathStr& ret_, const char* _path)
+{
+	for (int r = 0; r < kRootTypeCount; ++r) {
+		if (s_rootLengths[r] == 0) {
+			continue;
+		}
+		const char* rootBeg = strstr(_path, s_roots[r]);
+		if (rootBeg != nullptr) {
+			ret_.set(rootBeg + s_rootLengths[r] + 1);
+			return;
+		}
+	}
+ // no root found, strip the whole path
+	StripPath(ret_, _path);
+}
+
+void FileSystem::StripPath(PathStr& ret_, const char* _path)
+{
+	int i = 0, last = 0;
+	while (_path[i] != '\0') {
+		if (_path[i] == s_separator)
+			last = i + 1;
+		++i;
+	}
+	ret_.set(_path + i);
+}
+
+const char* FileSystem::GetExtension(const char* _path)
+{
+	const char* ret = strrchr(_path, (int)'.');
+	return ret == nullptr ? nullptr : ret + 1;
+}
 
 // PRIVATE
 
 FileSystem::PathStr FileSystem::s_roots[kRootTypeCount];
+int FileSystem::s_rootLengths[kRootTypeCount];
 
 void FileSystem::MakePath(PathStr& ret_, const char* _path, RootType _root)
 {
@@ -52,7 +86,7 @@ void FileSystem::MakePath(PathStr& ret_, const char* _path, RootType _root)
 	if (useRoot) {
 	 // check if the root already exists in path as a directory
 		const char* r = strstr(s_roots[_root], _path);
-		if (!r || *(r + strlen(s_roots[_root])) != s_separator) {
+		if (!r || *(r + s_rootLengths[_root]) != s_separator) {
 			ret_.setf("%s%c%s", (const char*)s_roots[_root], s_separator, _path);
 			return;
 		}
