@@ -151,13 +151,13 @@ inline tType Max(tType a, tType b) { return a > b ? a : b; }
 	#define APT_ASSERT_MSG(e, msg, ...) \
 		do { \
 			if_unlikely (!(e)) { \
-				if (apt::internal::AssertAndCallback(#e, __FILE__, __LINE__, msg, __VA_ARGS__) == apt::AssertBehavior::kBreak) \
+				if (apt::internal::AssertAndCallback(#e, __FILE__, __LINE__, msg, ## __VA_ARGS__) == apt::AssertBehavior::kBreak) \
 				{ APT_BREAK(); } \
 			} \
 		} while(0)
 
 	#define APT_ASSERT(e)                 APT_ASSERT_MSG(e, 0, 0)
-	#define APT_VERIFY_MSG(e, msg, ...)   APT_ASSERT_MSG(e, msg, __VA_ARGS__)
+	#define APT_VERIFY_MSG(e, msg, ...)   APT_ASSERT_MSG(e, msg, ## __VA_ARGS__)
 	#define APT_VERIFY(e)                 APT_VERIFY_MSG(e, 0, 0)
 
 #else
