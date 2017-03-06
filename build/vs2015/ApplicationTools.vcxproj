@@ -91,7 +91,6 @@
     <ClInclude Include="..\..\src\all\apt\ArgList.h" />
     <ClInclude Include="..\..\src\all\apt\Factory.h" />
     <ClInclude Include="..\..\src\all\apt\File.h" />
-    <ClInclude Include="..\..\src\all\apt\FilePath.h" />
     <ClInclude Include="..\..\src\all\apt\FileSystem.h" />
     <ClInclude Include="..\..\src\all\apt\Image.h" />
     <ClInclude Include="..\..\src\all\apt\IniFile.h" />
@@ -121,7 +120,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\all\apt\ArgList.cpp" />
     <ClCompile Include="..\..\src\all\apt\File.cpp" />
-    <ClCompile Include="..\..\src\all\apt\FilePath.cpp" />
     <ClCompile Include="..\..\src\all\apt\FileSystem.cpp" />
     <ClCompile Include="..\..\src\all\apt\Image.cpp" />
     <ClCompile Include="..\..\src\all\apt\IniFile.cpp" />
