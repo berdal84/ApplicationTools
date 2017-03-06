@@ -10,11 +10,11 @@
 namespace apt {
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \class RingBuffer
-/// New items are added to the back of the buffer via push_back(), overwriting
-/// items at the front if size() == capacity().
-/// Access via operator[] returns items between front() and back() in order. Use
-/// data() to access the underying buffer.
+// RingBuffer
+// New items are added to the back of the buffer via push_back(), overwriting
+// items at the front if size() == capacity().
+// Access via operator[] returns items between front() and back() in order. Use
+// data() to access the underying buffer.
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType>
 class RingBuffer
@@ -81,20 +81,20 @@ public:
 	uint         size() const              { return m_size; }
 	uint         capacity() const          { return m_capacity; }
 
-	/// Access the storage buffer directly.
+	// Access the storage buffer directly.
 	tType*       data()                    { return m_buffer; }
 	const tType* data() const              { return m_buffer; }
 
-	/// Access elements between front() and back().
+	// Access elements between front() and back().
 	tType&       operator[](uint _i)       { return at(_i); }
 	const tType& operator[](uint _i) const { return at(_i); } 
 
 private:
-	tType* m_buffer;   //< Storage.
-	tType* m_front;    //< Oldest item in the buffer.
-	tType* m_back;     //< Newest item in the buffer.
-	uint   m_size;     //< Number of items in the buffer;
-	uint   m_capacity; //< Max number of items in the buffer.
+	tType* m_buffer;   // Storage.
+	tType* m_front;    // Oldest item in the buffer.
+	tType* m_back;     // Newest item in the buffer.
+	uint   m_size;     // Number of items in the buffer;
+	uint   m_capacity; // Max number of items in the buffer.
 
 	void incFront()
 	{

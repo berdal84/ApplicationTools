@@ -10,60 +10,60 @@
 namespace apt {
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \class Factory
-/// Templated factory base class. Provides static Create() and Destroy() 
-/// functions to a deriving class via which subclasses may be instantiated.
-/// Overhead per subclass is 1 ptr.
-///	Usage example:
-/// \code
-/// // in the .h
-///    class Entity: public apt::Factory<Entity>
-///    {
-///       virtual void update() = 0;
-///    };
-///
-///    class Player: public Entity
-///    {
-///       virtual void update();
-///    };
-///
-///    class Enemy: public Entity
-///    {
-///       static Entity* Create();          // user-defined create function
-///       static void    Destroy(Entity*&); // user-defined destroy function
-///
-///       virtual void update();
-///    };
-///
-/// // in the .cpp
-///    APT_FACTORY_DEFINE(Entity);
-///    APT_FACTORY_REGISTER_DEFAULT(Entity, Player);
-///    APT_FACTORY_REGISTER(Entity, Enemy, Enemy::Create, Enemy::Destroy);
-/// \endcode
-///
-/// Using APT_FACTORY_REGISTER_DEFAULT requires that the subclass have a default
-/// ctor which takes no arguments (Create/Destroy simply call new/delete). For
-/// user-defined Create/Destroy use the more generic APT_FACTORY_REGISTER.
-///
-/// Entity can now be used as a factory to manage instances of Player or Enemy:
-/// \code
-///    Entity* player  = Entity::Create("Player");
-///    Entity* enemy   = Entity::Create("Enemy");
-///    Entity::Destroy(player);
-///    Entity::Destroy(enemy);
-/// \endcode
-///
-/// It is also possible to iterate over the registered subclasses (useful for
-/// generating drop down boxes for a UI):
-/// \code
-///    for (int i = 0; i < Entity::GetClassRefCount(); ++i) {
-///       const Entity::ClassRef* cref = Entity::GetClassRef(i);
-///       cref->getName(); // returns a const char* matching the class name
-///       Entity* inst = Entity::Create(cref); // use the cref directly with Create().
-///    }
-/// \endcode
-///
-/// \todo Use a hash map instead of std::vector.
+// Factory
+// Templated factory base class. Provides static Create() and Destroy() 
+// functions to a deriving class via which subclasses may be instantiated.
+// Overhead per subclass is 1 ptr.
+//	Usage example:
+//
+// // in the .h
+//    class Entity: public apt::Factory<Entity>
+//    {
+//       virtual void update() = 0;
+//    };
+//
+//    class Player: public Entity
+//    {
+//       virtual void update();
+//    };
+//
+//    class Enemy: public Entity
+//    {
+//       static Entity* Create();          // user-defined create function
+//       static void    Destroy(Entity*&); // user-defined destroy function
+//
+//       virtual void update();
+//    };
+//
+// // in the .cpp
+//    APT_FACTORY_DEFINE(Entity);
+//    APT_FACTORY_REGISTER_DEFAULT(Entity, Player);
+//    APT_FACTORY_REGISTER(Entity, Enemy, Enemy::Create, Enemy::Destroy);
+//
+//
+// Using APT_FACTORY_REGISTER_DEFAULT requires that the subclass have a default
+// ctor which takes no arguments (Create/Destroy simply call new/delete). For
+// user-defined Create/Destroy use the more generic APT_FACTORY_REGISTER.
+//
+// Entity can now be used as a factory to manage instances of Player or Enemy:
+//
+//    Entity* player  = Entity::Create("Player");
+//    Entity* enemy   = Entity::Create("Enemy");
+//    Entity::Destroy(player);
+//    Entity::Destroy(enemy);
+//
+//
+// It is also possible to iterate over the registered subclasses (useful for
+// generating drop down boxes for a UI):
+//
+//    for (int i = 0; i < Entity::GetClassRefCount(); ++i) {
+//       const Entity::ClassRef* cref = Entity::GetClassRef(i);
+//       cref->getName(); // returns a const char* matching the class name
+//       Entity* inst = Entity::Create(cref); // use the cref directly with Create().
+//    }
+//
+//
+// \todo Use a hash map instead of std::vector.
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType>
 class Factory
@@ -112,7 +112,7 @@ public:
 
 
 
-	/// \return ClassRef corresponding to _nameHash, or 0 if not found.
+	// Find ClassRef corresponding to _nameHash, or 0 if not found.
 	static const ClassRef* FindClassRef(StringHash _nameHash)
 	{
 		for (auto it = s_registry->begin(); it != s_registry->end(); ++it) {
@@ -124,28 +124,26 @@ public:
 		return 0;
 	}
 
-	/// \return Number of classes registered with the factory.
+	// Get number of classes registered with the factory.
 	static int GetClassRefCount()
 	{
 		return (int)s_registry->size();
 	}
 
-	/// \return _ith ClassRef registered with the factory.
+	// Get _ith ClassRef registered with the factory.
 	static const ClassRef* GetClassRef(int _i)
 	{
 		APT_ASSERT(_i < GetClassRefCount());
 		return (*s_registry)[_i];
 	}
 
-	/// \return Ptr to a new instance of the class specified by _name, or
-	///   nullptr if an error occurred.
+	// Return ptr to a new instance of the class specified by _name, or nullptr if an error occurred.
 	static tType* Create(StringHash _name)
 	{
 		return Create(FindClassRef(_name));
 	}
 
-	/// \return Ptr to a new instance of the class specified by _cref, or
-	///   nullptr if an error occurred.
+	// Return ptr to a new instance of the class specified by _cref, or nullptr if an error occurred.
 	static tType* Create(const ClassRef* _cref)
 	{
 		APT_ASSERT(_cref);
@@ -157,7 +155,7 @@ public:
 		return nullptr;
 	}
 
-	/// Destroy a class instance previously created via Create().
+	// Destroy a class instance previously created via Create().
 	static void Destroy(tType*& _inst_)
 	{
 		APT_ASSERT(_inst_->m_cref);

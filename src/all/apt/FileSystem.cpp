@@ -43,7 +43,7 @@ bool FileSystem::Exists(const char* _path, RootType _rootHint)
 
 void FileSystem::StripRoot(PathStr& ret_, const char* _path)
 {
-	for (int r = 0; r < kRootTypeCount; ++r) {
+	for (int r = 0; r < RootType_Count; ++r) {
 		if (s_rootLengths[r] == 0) {
 			continue;
 		}
@@ -76,12 +76,12 @@ const char* FileSystem::GetExtension(const char* _path)
 
 // PRIVATE
 
-FileSystem::PathStr FileSystem::s_roots[kRootTypeCount];
-int FileSystem::s_rootLengths[kRootTypeCount];
+FileSystem::PathStr FileSystem::s_roots[RootType_Count];
+int FileSystem::s_rootLengths[RootType_Count];
 
 void FileSystem::MakePath(PathStr& ret_, const char* _path, RootType _root)
 {
-	APT_ASSERT(_root < kRootTypeCount);
+	APT_ASSERT(_root < RootType_Count);
 	bool useRoot = !s_roots[_root].isEmpty();
 	if (useRoot) {
 	 // check if the root already exists in path as a directory

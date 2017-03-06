@@ -5,39 +5,39 @@
 namespace apt {
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \class static_initializer
-/// Implementation of the Nifty/Schwarz counter idiom (see
-///   https://john-chapman.github.io/2016/09/01/static-initialization.html). 
-/// Usage example:
-/// \code
-/// // in the .h
-///    class Foo
-///    {
-///       void Init();
-///       void Shutdown();
-///    };
-///    APT_DECLARE_STATIC_INIT(Foo, Foo::Init, Foo::Shutdown);
-///
-/// // in the .cpp
-///    void Foo::Init()     { /* do init here */ }
-///    void Foo::Shutdown() { /* do shutdown here */ }
-///    APT_DEFINE_STATIC_INIT(Foo);
-/// \endcode
-/// \note Init() should not construct any non-trivial static objects as the
-///   order of initialization relative to static_initializer cannot be
-///   guaranteed. This means that static objects initialized during Init()
-///   may subsequently be default-initialized, overwriting the value set by
-///   Init(). To get around this, use heap allocation or the storage class 
-///   (memory.h):
-/// \code
-///   #inclide <apt/memory.h>
-///   static storage<Bar, 1> s_bar;
-///
-///   void Foo::Init()
-///   {
-///      new(s_bar) Bar();
-///      // ..
-/// \endcode
+// static_initializer
+// Implementation of the Nifty/Schwarz counter idiom (see
+//   https://john-chapman.github.io/2016/09/01/static-initialization.html). 
+// Usage:
+//
+// // in the .h
+//    class Foo
+//    {
+//       void Init();
+//       void Shutdown();
+//    };
+//    APT_DECLARE_STATIC_INIT(Foo, Foo::Init, Foo::Shutdown);
+//
+// // in the .cpp
+//    void Foo::Init()     { /* do init here */ }
+//    void Foo::Shutdown() { /* do shutdown here */ }
+//    APT_DEFINE_STATIC_INIT(Foo);
+//
+// \note Init() should not construct any non-trivial static objects as the
+//   order of initialization relative to static_initializer cannot be
+//   guaranteed. This means that static objects initialized during Init()
+//   may subsequently be default-initialized, overwriting the value set by
+//   Init(). To get around this, use heap allocation or the storage class 
+//   (memory.h):
+//
+//   #inclide <apt/memory.h>
+//   static storage<Bar, 1> s_bar;
+//
+//   void Foo::Init()
+//   {
+//      new(s_bar) Bar();
+//      // ..
+//
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType>
 class static_initializer
@@ -66,7 +66,6 @@ private:
 };
 #define APT_DECLARE_STATIC_INIT(_type, _onInit, _onShutdown) static apt::static_initializer<_type> _type ## _static_initializer(_onInit, _onShutdown)
 #define APT_DEFINE_STATIC_INIT(_type)  int apt::static_initializer<_type>::s_initCounter; apt::static_initializer<_type>::Callback* apt::static_initializer<_type>::s_onShutdown
-
 
 } // namespace apt
 

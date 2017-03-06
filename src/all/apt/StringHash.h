@@ -7,8 +7,8 @@
 namespace apt {
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \class StringHash
-/// Fast, non-cryptographic hash generated from a character string.
+// StringHash
+// Fast, non-cryptographic hash generated from a character string.
 ////////////////////////////////////////////////////////////////////////////////
 class StringHash
 {
@@ -16,16 +16,16 @@ public:
 	typedef uint64 HashType;
 	static const StringHash kInvalidHash;
 
-	/// Default ctor, hash is invalid.
+	// Default ctor, hash is invalid.
 	StringHash(): m_hash(0)  {}
 
-	/// Initialize from a null-terminated string.
+	// Initialize from a null-terminated string.
 	StringHash(const char* _str);
 
-	/// Initialize from _len characters of _str.
+	// Initialize from _len characters of _str.
 	StringHash(const char* _str, uint _len);
 
-	/// \return hash value, which may be kInvalidHash in the case of an uninitialized StringHash.
+	// May be kInvalidHash in the case of an uninitialized StringHash.
 	HashType getHash() const { return m_hash; }
 
 	operator HashType() const                      { return m_hash; }

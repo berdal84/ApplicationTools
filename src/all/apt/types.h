@@ -28,9 +28,10 @@ typedef double          float64;
 typedef std::ptrdiff_t  sint;
 typedef std::size_t     uint;
 
-// float16 is used for storage only (half-precision floating point ops are not supported)
-// \todo implement if this is required
-struct float16 { uint16 m_val; };
+struct float16 
+{ 
+	uint16 m_val;
+};
 
 namespace internal {
 	template <typename tType>
@@ -63,62 +64,60 @@ typedef internal::normalized_int<uint64> uint64N;
 struct DataType
 {
 	enum Enum {
-		kInvalidType,
+		InvalidType,
 
-		kSint8,
-		kUint8,
-		kSint16,
-		kUint16,
-		kSint32,
-		kUint32,
-		kSint64,		
-		kUint64,
+		Sint8,
+		Uint8,
+		Sint16,
+		Uint16,
+		Sint32,
+		Uint32,
+		Sint64,		
+		Uint64,
 		
-		kSint8N,
-		kUint8N,
-		kSint16N,
-		kUint16N,
-		kSint32N,
-		kUint32N,
-		kSint64N,
-		kUint64N,
+		Sint8N,
+		Uint8N,
+		Sint16N,
+		Uint16N,
+		Sint32N,
+		Uint32N,
+		Sint64N,
+		Uint64N,
 
-		kFloat16,
-		kFloat32,
-		kFloat64,
-
+		Float16,
+		Float32,
+		Float64
 	};
 
 	// helper macro; instantiate _macro for all enum-type pairs
 	#define APT_DataType_decl(_macro) \
-		_macro(kSint8,   sint8)   \
-		_macro(kUint8,   uint8)   \
-		_macro(kSint16,  sint16)  \
-		_macro(kUint16,  uint16)  \
-		_macro(kSint32,  sint32)  \
-		_macro(kUint32,  uint32)  \
-		_macro(kSint64,  sint64)  \
-		_macro(kUint64,  uint64)  \
-		_macro(kSint8N,  sint8N)  \
-		_macro(kUint8N,  uint8N)  \
-		_macro(kSint16N, sint16N) \
-		_macro(kUint16N, uint16N) \
-		_macro(kSint32N, sint32N) \
-		_macro(kUint32N, uint32N) \
-		_macro(kSint64N, sint64N) \
-		_macro(kUint64N, uint64N) \
-		_macro(kFloat16, float16) \
-		_macro(kFloat32, float32) \
-		_macro(kFloat64, float64)
+		_macro(Sint8,   sint8)   \
+		_macro(Uint8,   uint8)   \
+		_macro(Sint16,  sint16)  \
+		_macro(Uint16,  uint16)  \
+		_macro(Sint32,  sint32)  \
+		_macro(Uint32,  uint32)  \
+		_macro(Sint64,  sint64)  \
+		_macro(Uint64,  uint64)  \
+		_macro(Sint8N,  sint8N)  \
+		_macro(Uint8N,  uint8N)  \
+		_macro(Sint16N, sint16N) \
+		_macro(Uint16N, uint16N) \
+		_macro(Sint32N, sint32N) \
+		_macro(Uint32N, uint32N) \
+		_macro(Sint64N, sint64N) \
+		_macro(Uint64N, uint64N) \
+		_macro(Float16, float16) \
+		_macro(Float32, float32) \
+		_macro(Float64, float64)
 
-	/// Implicit conversions to/from Enum (pass and store DataType, not DataType::Enum).
-	DataType(Enum _enum = kInvalidType): m_val(_enum)  {}
+	// Implicit conversions to/from Enum (pass and store DataType, not DataType::Enum).
+	DataType(Enum _enum = InvalidType): m_val(_enum)  {}
 	operator Enum() const { return m_val; }
 
 	template <typename tType>
 	DataType(tType _val): m_val((Enum)_val) {}
 
-	/// \return Size in bytes of the type corresponding to _type.
 	static uint GetSizeBytes(DataType _type)
 	{
 		#define APT_DataType_case_enum(_enum, _typename) \
@@ -130,9 +129,8 @@ struct DataType
 		#undef APT_DataType_case_enum
 	}
 
-	/// Basic traits.
-	static bool IsNormalized(DataType _type) { return (_type >= kSint8N) && (_type <= kUint64N); }
-	static bool IsFloat(DataType _type)      { return (_type >= kFloat16) && (_type <= kFloat64); }
+	static bool IsNormalized(DataType _type) { return (_type >= Sint8N) && (_type <= Uint64N);  }
+	static bool IsFloat(DataType _type)      { return (_type >= Float16) && (_type <= Float64); }
 	static bool IsInt(DataType _type)        { return !IsFloat(_type); }
 	static bool IsSigned(DataType _type)     { return IsFloat(_type) || (_type % 2 != 0); }
 
@@ -147,7 +145,7 @@ struct DataType
 			template<> struct ToType<_enum> { typedef _typename Type; };
 		APT_DataType_decl(APT_DataType_ToType)
 		#undef APT_DataType_ToType
-		template<> struct ToType<kInvalidType> { typedef sint8 Type; }; // required so that ToType<(DataType::Enum)(kSint8 - 1)> will compile
+		template<> struct ToType<InvalidType> { typedef sint8 Type; }; // required so that ToType<(DataType::Enum)(kSint8 - 1)> will compile
 
 	/// Copy _count objects from _src to _dst converting from _srcType to _dstType.
 	static void Convert(DataType _srcType, DataType _dstType, const void* _src, void* dst_, uint _count = 1);
@@ -161,24 +159,25 @@ private:
 	Enum m_val;
 
 	#undef APT_DataType_decl
+
 }; // struct DataType
 
 namespace Bitfield {
-	/// Create a bit mask covering _count bits.
+	// Create a bit mask covering _count bits.
 	template <typename tType>
 	inline tType Mask(int _count) 
 	{ 
 		return (1 << _count) - 1; 
 	}
 
-	/// Create a bit mask covering _count bits starting at _offset.
+	// Create a bit mask covering _count bits starting at _offset.
 	template <typename tType>
 	inline tType Mask(int _offset, int _count) 
 	{ 
 		return ((1 << _count) - 1) << _offset; 
 	}
 	
-	/// Insert _count least significant bits from _insert into _base at _offset.
+	// Insert _count least significant bits from _insert into _base at _offset.
 	template <typename tType>
 	inline tType Insert(tType _base, tType _insert, int _offset, int _count) 
 	{ 
@@ -186,7 +185,7 @@ namespace Bitfield {
 		return (_base & ~(mask << _offset)) | ((_insert & mask) << _offset);
 	}
 
-	/// Extract _count bits from _base starting at _offset into the _count least significant bits of the result.
+	// Extract _count bits from _base starting at _offset into the _count least significant bits of the result.
 	template <typename tType>
 	inline tType Extract(tType _base, int _offset, int _count) 
 	{ 

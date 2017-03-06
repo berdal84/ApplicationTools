@@ -18,17 +18,17 @@ using namespace apt;
 static Json::ValueType GetValueType(rapidjson::Type _type)
 {
 	switch (_type) {
-		case rapidjson::kNullType:   return Json::kNull;
-		case rapidjson::kObjectType: return Json::kObject;
-		case rapidjson::kArrayType:  return Json::kArray;
+		case rapidjson::kNullType:   return Json::ValueType_Null;
+		case rapidjson::kObjectType: return Json::ValueType_Object;
+		case rapidjson::kArrayType:  return Json::ValueType_Array;
 		case rapidjson::kFalseType:
-		case rapidjson::kTrueType:   return Json::kBool;
-		case rapidjson::kNumberType: return Json::kNumber;
-		case rapidjson::kStringType: return Json::kString;
+		case rapidjson::kTrueType:   return Json::ValueType_Bool;
+		case rapidjson::kNumberType: return Json::ValueType_Number;
+		case rapidjson::kStringType: return Json::ValueType_String;
 		default: APT_ASSERT(false); break;
 	};
 
-	return Json::kValueTypeCount;
+	return Json::ValueType_Count;
 }
 
 /*******************************************************************************
@@ -151,13 +151,13 @@ bool Json::find(const char* _name)
 
 bool Json::next()
 {
-	if (GetValueType(m_impl->top()->GetType()) == kArray) {
+	if (GetValueType(m_impl->top()->GetType()) == ValueType_Array) {
 		auto it = m_impl->top()->Begin() + (m_impl->topIter()++);
 		m_impl->m_value = it;
 		return it != m_impl->top()->End();
 	}
 
-	if (GetValueType(m_impl->top()->GetType()) == kObject) {
+	if (GetValueType(m_impl->top()->GetType()) == ValueType_Object) {
 		auto it = m_impl->top()->MemberBegin() + (m_impl->topIter()++);
 		m_impl->m_value = &it->value;
 		return it != m_impl->top()->MemberEnd();
@@ -174,52 +174,52 @@ Json::ValueType Json::getType() const
 
 template <> bool Json::getValue<bool>() const
 {
-	APT_ASSERT_MSG(getType() == kBool, "Json::getValue: value was not a boolean");
+	APT_ASSERT_MSG(getType() == ValueType_Bool, "Json::getValue: value was not a boolean");
 	return m_impl->m_value->GetBool();
 }
 template <> sint64 Json::getValue<sint64>() const
 {
-	APT_ASSERT_MSG(getType() == kNumber, "Json::getValue: value was not a number");
+	APT_ASSERT_MSG(getType() == ValueType_Number, "Json::getValue: value was not a number");
 	return m_impl->m_value->GetInt64();
 }
 template <> sint32 Json::getValue<sint32>() const
 {
-	APT_ASSERT_MSG(getType() == kNumber, "Json::getValue: value was not a number");
+	APT_ASSERT_MSG(getType() == ValueType_Number, "Json::getValue: value was not a number");
 	return m_impl->m_value->GetInt();
 }
 template <> sint8 Json::getValue<sint8>() const
 {
-	APT_ASSERT_MSG(getType() == kNumber, "Json::getValue: value was not a number");
+	APT_ASSERT_MSG(getType() == ValueType_Number, "Json::getValue: value was not a number");
 	return (sint8)m_impl->m_value->GetInt();
 }
 template <> uint64 Json::getValue<uint64>() const
 {
-	APT_ASSERT_MSG(getType() == kNumber, "Json::getValue: value was not a number");
+	APT_ASSERT_MSG(getType() == ValueType_Number, "Json::getValue: value was not a number");
 	return m_impl->m_value->GetUint64();
 }
 template <> uint32 Json::getValue<uint32>() const
 {
-	APT_ASSERT_MSG(getType() == kNumber, "Json::getValue: value was not a number");
+	APT_ASSERT_MSG(getType() == ValueType_Number, "Json::getValue: value was not a number");
 	return m_impl->m_value->GetUint();
 }
 template <> uint8 Json::getValue<uint8>() const
 {
-	APT_ASSERT_MSG(getType() == kNumber, "Json::getValue: value was not a number");
+	APT_ASSERT_MSG(getType() == ValueType_Number, "Json::getValue: value was not a number");
 	return (uint8)m_impl->m_value->GetUint();
 }
 template <> float32 Json::getValue<float32>() const
 {
-	APT_ASSERT_MSG(getType() == kNumber, "Json::getValue: value was not a number");
+	APT_ASSERT_MSG(getType() == ValueType_Number, "Json::getValue: value was not a number");
 	return m_impl->m_value->GetFloat();
 }
 template <> float64 Json::getValue<float64>() const
 {
-	APT_ASSERT_MSG(getType() == kNumber, "Json::getValue: value was not a number");
+	APT_ASSERT_MSG(getType() == ValueType_Number, "Json::getValue: value was not a number");
 	return m_impl->m_value->GetDouble();
 }
 template <> const char* Json::getValue<const char*>() const
 {
-	APT_ASSERT_MSG(getType() == kString, "Json::getValue: value was not a string");
+	APT_ASSERT_MSG(getType() == ValueType_String, "Json::getValue: value was not a string");
 	return m_impl->m_value->GetString();
 }
 template <> vec2 Json::getValue<vec2>() const
@@ -309,7 +309,7 @@ template <> mat4 Json::getValue<mat4>() const
 
 bool Json::enterObject()
 {
-	if (getType() == kObject) {
+	if (getType() == ValueType_Object) {
 		m_impl->push();
 		return true;
 	}
@@ -319,14 +319,14 @@ bool Json::enterObject()
 
 void Json::leaveObject()
 {
-	APT_ASSERT(GetValueType(m_impl->top()->GetType()) == kObject);
+	APT_ASSERT(GetValueType(m_impl->top()->GetType()) == ValueType_Object);
 	m_impl->m_value = m_impl->top();
 	m_impl->pop();
 }
 
 bool Json::enterArray()
 {
-	if (getType() == kArray) {
+	if (getType() == ValueType_Array) {
 		m_impl->push();
 		return true;
 	}
@@ -336,14 +336,14 @@ bool Json::enterArray()
 
 void Json::leaveArray()
 {
-	APT_ASSERT(GetValueType(m_impl->top()->GetType()) == kArray);
+	APT_ASSERT(GetValueType(m_impl->top()->GetType()) == ValueType_Array);
 	m_impl->m_value = m_impl->top();
 	m_impl->pop();
 }
 
 int Json::getArrayLength() const
 {
-	if (GetValueType(m_impl->top()->GetType()) == kArray) {
+	if (GetValueType(m_impl->top()->GetType()) == ValueType_Array) {
 		return (int)m_impl->top()->GetArray().Size();
 	}
 	return -1;
@@ -353,10 +353,10 @@ void Json::beginObject(const char* _name)
 {
 	if (_name && find(_name)) {
 	  // object already existed, check the type
-		APT_ASSERT(GetValueType(m_impl->m_value->GetType()) == kObject);
+		APT_ASSERT(GetValueType(m_impl->m_value->GetType()) == ValueType_Object);
 		return;
 	} else {
-		if (GetValueType(m_impl->top()->GetType()) == kArray) {
+		if (GetValueType(m_impl->top()->GetType()) == ValueType_Array) {
 			if (_name) {
 				APT_LOG("Json warning: calling beginObject() in an array, name '%s' will be ignored", _name);
 			}
@@ -382,10 +382,10 @@ void Json::beginArray(const char* _name)
 {
 	if (_name && find(_name)) {
 	  // object already existed, check the type
-		APT_ASSERT(GetValueType(m_impl->m_value->GetType()) == kArray);
+		APT_ASSERT(GetValueType(m_impl->m_value->GetType()) == ValueType_Array);
 		return;
 	} else {
-		if (GetValueType(m_impl->top()->GetType()) == kArray) {
+		if (GetValueType(m_impl->top()->GetType()) == ValueType_Array) {
 			if (_name) {
 				APT_LOG("Json warning: calling beginArray() in an array, name '%s' will be ignored", _name);
 			}
@@ -713,7 +713,7 @@ JsonSerializer::JsonSerializer(Json* _json_, Mode _mode)
 
 bool JsonSerializer::beginObject(const char* _name)
 {
-	if (m_mode == kRead) {
+	if (m_mode == Mode_Read) {
 		if (insideArray()) {
 			if (!m_json->next()) {
 				return false;
@@ -724,7 +724,7 @@ bool JsonSerializer::beginObject(const char* _name)
 				return false;
 			}
 		}
-		if (m_json->getType() == Json::kObject) { // \todo assert if it's not an object?
+		if (m_json->getType() == Json::ValueType_Object) { // \todo assert if it's not an object?
 			m_json->enterObject();
 			return true;
 		}
@@ -736,7 +736,7 @@ bool JsonSerializer::beginObject(const char* _name)
 }
 void JsonSerializer::endObject()
 {
-	if (m_mode == kRead) {
+	if (m_mode == Mode_Read) {
 		m_json->leaveObject();
 	} else {
 		m_json->endObject();
@@ -745,7 +745,7 @@ void JsonSerializer::endObject()
 
 bool JsonSerializer::beginArray(const char* _name)
 {
-	if (m_mode == kRead) {
+	if (m_mode == Mode_Read) {
 		if (insideArray()) {
 			if (!m_json->next()) {
 				return false;
@@ -755,7 +755,7 @@ bool JsonSerializer::beginArray(const char* _name)
 			if (!m_json->find(_name)) {
 				return false;
 			}
-			if (m_json->getType() == Json::kArray) { // \todo assert if it's not an array?
+			if (m_json->getType() == Json::ValueType_Array) { // \todo assert if it's not an array?
 				m_json->enterArray();
 				return true;
 			}
@@ -768,7 +768,7 @@ bool JsonSerializer::beginArray(const char* _name)
 }
 void JsonSerializer::endArray()
 {
-	if (m_mode == kRead) {
+	if (m_mode == Mode_Read) {
 		m_json->leaveArray();
 	} else {
 		m_json->endArray();
@@ -778,7 +778,7 @@ void JsonSerializer::endArray()
 #define DEFINE_value(_type) \
 	template <> bool JsonSerializer::value<_type>(const char* _name, _type& _value_) { \
 		APT_ASSERT_MSG(!insideArray(), "JsonSerializer::value: _name variant called inside an array"); \
-		if (m_mode == kRead) { \
+		if (m_mode == Mode_Read) { \
 			if (m_json->find(_name)) { \
 				_value_ = m_json->getValue<_type>(); \
 				return true; \
@@ -791,7 +791,7 @@ void JsonSerializer::endArray()
 	} \
 	template <> bool JsonSerializer::value<_type>(_type& _value_) { \
 		APT_ASSERT_MSG(insideArray(), "JsonSerializer::value: array variant called outside an array"); \
-		if (m_mode == kRead) { \
+		if (m_mode == Mode_Read) { \
 			if (!m_json->next()) { \
 				return false; \
 			} \
@@ -823,7 +823,7 @@ DEFINE_value(mat4)
 template <> bool JsonSerializer::value<StringBase>(const char* _name, StringBase& _value_)
 {
 	APT_ASSERT(!insideArray());
-	if (m_mode == kRead) {
+	if (m_mode == Mode_Read) {
 		int ln = string(_name, 0);
 		_value_.setCapacity(ln + 1);
 	}
@@ -833,7 +833,7 @@ template <> bool JsonSerializer::value<StringBase>(const char* _name, StringBase
 template <> bool JsonSerializer::value<StringBase>(StringBase& _value_)
 {
 	APT_ASSERT(insideArray());
-	if (m_mode == kRead) {
+	if (m_mode == Mode_Read) {
 		int ln = string(0);
 		if (ln == 0) {
 			return false;
@@ -846,7 +846,7 @@ template <> bool JsonSerializer::value<StringBase>(StringBase& _value_)
 int JsonSerializer::string(const char* _name, char* _string_)
 {
 	APT_ASSERT(!insideArray()); 
-	if (m_mode == kRead) {
+	if (m_mode == Mode_Read) {
 		if (m_json->find(_name)) {
 			if (_string_) { 
 			 // valid ptr, copy string to buffer
@@ -868,7 +868,7 @@ int JsonSerializer::string(const char* _name, char* _string_)
 int JsonSerializer::string(char* _value_)
 {
 	APT_ASSERT(insideArray()); 
-	if (m_mode == kRead) {
+	if (m_mode == Mode_Read) {
 		if (_value_) {
 		 // valid ptr, copy string to buffer
 			const char* str = m_json->getValue<const char*>();
@@ -894,7 +894,7 @@ bool JsonSerializer::insideArray()
 {
 	rapidjson::Value* top = m_json->m_impl->top();
 	if (top) {
-		return GetValueType(top->GetType()) == Json::kArray;
+		return GetValueType(top->GetType()) == Json::ValueType_Array;
 	} else {
 		return false;
 	}

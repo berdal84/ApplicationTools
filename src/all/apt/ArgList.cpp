@@ -53,5 +53,5 @@ const Arg* ArgList::find(const char* _name) const
 			return (Arg*)&(*arg);
 		}
 	}
-	return 0;
+	return nullptr;
 }

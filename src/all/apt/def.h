@@ -166,7 +166,7 @@ inline tType Max(tType a, tType b) { return a > b ? a : b; }
 	#define APT_VERIFY_MSG(e, msg, ...)   do { (void)(e); APT_UNUSED(msg); } while(0)
 	#define APT_VERIFY(e)                 (void)(e)
 
-#endif // APT_core
+#endif // APT_DEBUG
 
 #define APT_STATIC_ASSERT(e) { (void)sizeof(char[(e) ? 1 : -1]); }
 
@@ -174,21 +174,23 @@ namespace apt {
 
 class ArgList;
 class File;
-class FilePath;
+class FileSystem;
 class Image;
 class IniFile;
+class MemoryPool;
+template <typename tType> class Pool;
 template <typename tType> class RingBuffer;
 template <uint kCapacity> class String;
+class StringHash;
 class TextParser;
 class Timestamp;
-template <typename tType, uint kInitialCapacity> class Vector;
 class Datetime;
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \class non_copyable
-/// Mixin class, forces a derived class to be non-copyable.
-/// \note The template parameter permits Empty Base Optimization (see
-///   http://en.wikibooks.org/wiki/More_C++_Idioms/Non-copyable_Mixin).
+// non_copyable
+// Mixin class, forces a derived class to be non-copyable.
+// \note The template parameter permits Empty Base Optimization (see
+//   http://en.wikibooks.org/wiki/More_C++_Idioms/Non-copyable_Mixin).
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType>
 class non_copyable
@@ -203,11 +205,11 @@ private:
 
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \class non_instantiable
-/// Mixin class, forces a derived class to be non-instantiable. Note that by
-/// definitionn a non-instantiable class is also non-copyable.
-/// \note The template parameter permits Empty Base Optimization (see
-///   http://en.wikibooks.org/wiki/More_C++_Idioms/Non-copyable_Mixin).
+// non_instantiable
+// Mixin class, forces a derived class to be non-instantiable. Note that by
+// definitionn a non-instantiable class is also non-copyable.
+// \note The template parameter permits Empty Base Optimization (see
+//   http://en.wikibooks.org/wiki/More_C++_Idioms/Non-copyable_Mixin).
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType>
 class non_instantiable: private non_copyable<tType>

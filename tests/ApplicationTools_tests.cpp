@@ -43,53 +43,53 @@ void TestArgList(int _argc, char** _argv)
 void CheckTestIniProperties(IniFile& _ini, const char* _section = 0)
 {
 	if (_section) {
-		APT_ASSERT(_ini.getProperty("section", _section).getType() == IniFile::ValueType::kString);
+		APT_ASSERT(_ini.getProperty("section", _section).getType() == IniFile::ValueType_String);
 		APT_ASSERT(strcmp(_ini.getProperty("section", _section).asString(), _section) == 0);
 	}
 
-	APT_ASSERT(_ini.getProperty("ival0", _section).getType() == IniFile::ValueType::kInt);
+	APT_ASSERT(_ini.getProperty("ival0", _section).getType() == IniFile::ValueType_Int);
 	APT_ASSERT(_ini.getProperty("ival0", _section).asInt() == 7);
-	APT_ASSERT(_ini.getProperty("ival1", _section).getType() == IniFile::ValueType::kInt);
+	APT_ASSERT(_ini.getProperty("ival1", _section).getType() == IniFile::ValueType_Int);
 	APT_ASSERT(_ini.getProperty("ival1", _section).asInt() == -7);
-	APT_ASSERT(_ini.getProperty("ival2", _section).getType() == IniFile::ValueType::kInt);
+	APT_ASSERT(_ini.getProperty("ival2", _section).getType() == IniFile::ValueType_Int);
 	APT_ASSERT(_ini.getProperty("ival2", _section).asInt() == 0x7);
 
-	APT_ASSERT(_ini.getProperty("iarr0", _section).getType() == IniFile::ValueType::kInt);
+	APT_ASSERT(_ini.getProperty("iarr0", _section).getType() == IniFile::ValueType_Int);
 	APT_ASSERT(_ini.getProperty("iarr0", _section).getCount() == 3);
 	APT_ASSERT(_ini.getProperty("iarr0", _section).asInt(0) == 7);
 	APT_ASSERT(_ini.getProperty("iarr0", _section).asInt(1) == 8);
 	APT_ASSERT(_ini.getProperty("iarr0", _section).asInt(2) == 9);
 
 
-	APT_ASSERT(_ini.getProperty("fval0", _section).getType() == IniFile::ValueType::kDouble);
+	APT_ASSERT(_ini.getProperty("fval0", _section).getType() == IniFile::ValueType_Double);
 	APT_ASSERT(_ini.getProperty("fval0", _section).asDouble() == 7.0);
-	APT_ASSERT(_ini.getProperty("fval1", _section).getType() == IniFile::ValueType::kDouble);
+	APT_ASSERT(_ini.getProperty("fval1", _section).getType() == IniFile::ValueType_Double);
 	APT_ASSERT(_ini.getProperty("fval1", _section).asDouble() == -7.0);
-	APT_ASSERT(_ini.getProperty("fval2", _section).getType() == IniFile::ValueType::kDouble);
+	APT_ASSERT(_ini.getProperty("fval2", _section).getType() == IniFile::ValueType_Double);
 	APT_ASSERT(_ini.getProperty("fval2", _section).asDouble() == 1e-7);
 	
-	APT_ASSERT(_ini.getProperty("farr0", _section).getType() == IniFile::ValueType::kDouble);
+	APT_ASSERT(_ini.getProperty("farr0", _section).getType() == IniFile::ValueType_Double);
 	APT_ASSERT(_ini.getProperty("farr0", _section).getCount() == 3);
 	APT_ASSERT(_ini.getProperty("farr0", _section).asDouble(0) == 7.0);
 	APT_ASSERT(_ini.getProperty("farr0", _section).asDouble(1) == 8.1);
 	APT_ASSERT(_ini.getProperty("farr0", _section).asDouble(2) == 9.2);
 
 
-	APT_ASSERT(_ini.getProperty("bval0", _section).getType() == IniFile::ValueType::kBool);
+	APT_ASSERT(_ini.getProperty("bval0", _section).getType() == IniFile::ValueType_Bool);
 	APT_ASSERT(_ini.getProperty("bval0", _section).asBool() == true);
-	APT_ASSERT(_ini.getProperty("barr0", _section).getType() == IniFile::ValueType::kBool);
+	APT_ASSERT(_ini.getProperty("barr0", _section).getType() == IniFile::ValueType_Bool);
 	
 	APT_ASSERT(_ini.getProperty("barr0", _section).getCount() == 2);
 	APT_ASSERT(_ini.getProperty("barr0", _section).asBool(0) == true);
 	APT_ASSERT(_ini.getProperty("barr0", _section).asBool(1) ==	false);
 
 
-	APT_ASSERT(_ini.getProperty("sval0", _section).getType() == IniFile::ValueType::kString);
+	APT_ASSERT(_ini.getProperty("sval0", _section).getType() == IniFile::ValueType_String);
 	APT_ASSERT(strcmp(_ini.getProperty("sval0", _section).asString(), "seven") == 0);
 	APT_ASSERT(strcmp(_ini.getProperty("sval1", _section).asString(), "eight") == 0);
 	APT_ASSERT(strcmp(_ini.getProperty("sval2", _section).asString(), "nine") == 0);
 
-	APT_ASSERT(_ini.getProperty("sarr0", _section).getType() == IniFile::ValueType::kString);
+	APT_ASSERT(_ini.getProperty("sarr0", _section).getType() == IniFile::ValueType_String);
 	APT_ASSERT(_ini.getProperty("sarr0", _section).getCount() == 3);
 	APT_ASSERT(strcmp(_ini.getProperty("sarr0", _section).asString(0), "seven") == 0);
 	APT_ASSERT(strcmp(_ini.getProperty("sarr0", _section).asString(1), "eight") == 0);

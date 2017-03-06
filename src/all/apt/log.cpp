@@ -8,12 +8,12 @@
 using namespace apt;
 
 static const int kLogMsgMax = 1024; // max size for message buffer in DispatchLogCallback()
-static LogCallback* g_logCallback= 0;
+static LogCallback* g_logCallback= nullptr;
 
 static void DispatchLogCallback(const char* _fmt, va_list _args, LogType _type)
 {
 	if (g_logCallback) {
-		String<1024> buf;
+		String<kLogMsgMax> buf;
 		buf.setfv(_fmt, _args);
 		g_logCallback(buf, _type);
 	}
@@ -35,7 +35,7 @@ void apt::internal::Log(const char* _fmt, ...)
 	va_start(args, _fmt);
 	APT_VERIFY((vfprintf(stdout, _fmt, args)) > 0);
 	APT_VERIFY((fprintf(stdout, "\n")) > 0);
-	DispatchLogCallback(_fmt, args, LogType::kLog);
+	DispatchLogCallback(_fmt, args, LogType_Log);
 	va_end(args);
 }
 
@@ -45,7 +45,7 @@ void apt::internal::LogError(const char* _fmt, ...)
 	va_start(args, _fmt);
 	APT_VERIFY((vfprintf(stderr, _fmt, args)) > 0);
 	APT_VERIFY((fprintf(stderr, "\n")) > 0);
-	DispatchLogCallback(_fmt, args, LogType::kError);
+	DispatchLogCallback(_fmt, args, LogType_Error);
 	va_end(args);
 }
 
@@ -55,6 +55,6 @@ void apt::internal::LogDebug(const char* _fmt, ...)
 	va_start(args, _fmt);
 	APT_VERIFY((vfprintf(stdout, _fmt, args)) > 0);
 	APT_VERIFY((fprintf(stdout, "\n")) > 0);
-	DispatchLogCallback(_fmt, args, LogType::kDebug);
+	DispatchLogCallback(_fmt, args, LogType_Debug);
 	va_end(args);
 }

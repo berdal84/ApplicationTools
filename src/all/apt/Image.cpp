@@ -10,9 +10,9 @@
 
 using namespace apt;
 
-/// Copy at most _srcCount objects from _src to _dst, performing conversion from 
-/// tSrc to tDst. If _srcCount < _dstCount, the remaining elements of _dst are
-/// initialized as tDst(0).
+// Copy at most _srcCount objects from _src to _dst, performing conversion from 
+// tSrc to tDst. If _srcCount < _dstCount, the remaining elements of _dst are
+// initialized as tDst(0).
 template <typename tSrc, typename tDst>
 static void ConvertCopy(const tSrc* _src, tDst* _dst, uint _srcCount, uint _dstCount)
 {
@@ -30,8 +30,8 @@ static void ConvertCopy(const tSrc* _src, tDst* _dst, uint _srcCount, uint _dstC
 	}
 }
 
-/// Copy image data (_size texels) from _src to _dst. _srcCount/_dstCount are the
-/// number of components per texel in _src/_dst respectively.
+// Copy image data (_size texels) from _src to _dst. _srcCount/_dstCount are the
+// number of components per texel in _src/_dst respectively.
 template <typename tSrc, typename tDst>
 static void ConvertCopyImage(const void* _src, void* _dst, uint _srcCount, uint _dstCount, uint _size)
 {
@@ -57,7 +57,7 @@ Image* Image::Create1d(uint _width, Layout _layout, DataType _dataType, uint _mi
 	Image* ret = new Image;
 	APT_ASSERT(ret);
 	ret->init();
-	ret->m_type        = Type::k1d;
+	ret->m_type        = Type_1d;
 	ret->m_width       = _width;
 	ret->m_layout      = _layout;
 	ret->m_dataType    = _dataType;
@@ -73,7 +73,7 @@ Image* Image::Create2d(uint _width, uint _height, Layout _layout, DataType _data
 	Image* ret = new Image;
 	APT_ASSERT(ret);
 	ret->init();
-	ret->m_type        = Type::k2d;
+	ret->m_type        = Type_2d;
 	ret->m_width       = _width;
 	ret->m_height      = _height;
 	ret->m_layout      = _layout;
@@ -91,7 +91,7 @@ Image* Image::Create3d(uint _width, uint _height, uint _depth, Layout _layout, D
 	Image* ret = new Image;
 	APT_ASSERT(ret);
 	ret->init();
-	ret->m_type        = Type::k3d;
+	ret->m_type        = Type_3d;
 	ret->m_width       = _width;
 	ret->m_height      = _height;
 	ret->m_depth       = _depth;
@@ -115,9 +115,9 @@ void Image::Destroy(Image*& _img_)
 
 bool Image::Read(Image& img_, const File& _file, FileFormat _format)
 {
-	if (_format == kInvalidFileFormat) {
+	if (_format == FileFormat_Invalid) {
 		_format = GuessFormat(_file.getPath());
-		if (_format == kInvalidFileFormat) {
+		if (_format == FileFormat_Invalid) {
 			APT_LOG_ERR("Image: Unsupported file format '%s'", _file.getPath());
 			return false;
 		}
@@ -125,13 +125,13 @@ bool Image::Read(Image& img_, const File& _file, FileFormat _format)
 
 	img_.init(); // \todo don't affect the image before loading succeeded
 	switch (_format) {
-		case FileFormat::kDds: return ReadDds(img_, _file.getData(), _file.getDataSize());
-		case FileFormat::kPng: return ReadPng(img_, _file.getData(), _file.getDataSize());
-		case FileFormat::kBmp:
-		case FileFormat::kGif:
-		case FileFormat::kJpg:
-		case FileFormat::kPsd:
-		case FileFormat::kTga: return ReadDefault(img_, _file.getData(), _file.getDataSize());
+		case FileFormat_Dds: return ReadDds(img_, _file.getData(), _file.getDataSize());
+		case FileFormat_Png: return ReadPng(img_, _file.getData(), _file.getDataSize());
+		case FileFormat_Bmp:
+		case FileFormat_Gif:
+		case FileFormat_Jpg:
+		case FileFormat_Psd:
+		case FileFormat_Tga: return ReadDefault(img_, _file.getData(), _file.getDataSize());
 
 		default: APT_ASSERT(false); return false; // should never happen as we check the ext above
 	};
@@ -154,9 +154,9 @@ bool Image::Write(const Image& _img, File& file_, FileFormat _format)
 {
 	bool ret = false;
 
-	if (_format == kInvalidFileFormat) {
+	if (_format == FileFormat_Invalid) {
 		_format = GuessFormat(file_.getPath());
-		if (_format == kInvalidFileFormat) {
+		if (_format == FileFormat_Invalid) {
 			APT_LOG_ERR("Image: Unsupported file format '%s'", file_.getPath());
 			goto Image_Write_end;
 		}
@@ -168,10 +168,10 @@ bool Image::Write(const Image& _img, File& file_, FileFormat _format)
 	}
 
 	switch (_format) {
-		case FileFormat::kBmp: ret = WriteBmp(file_, _img); break;
-		case FileFormat::kDds: ret = WriteDds(file_, _img); break;
-		case FileFormat::kPng: ret = WritePng(file_, _img); break;
-		case FileFormat::kTga: ret = WriteTga(file_, _img); break;
+		case FileFormat_Bmp: ret = WriteBmp(file_, _img); break;
+		case FileFormat_Dds: ret = WriteDds(file_, _img); break;
+		case FileFormat_Png: ret = WritePng(file_, _img); break;
+		case FileFormat_Tga: ret = WriteTga(file_, _img); break;
 		default: APT_LOG_ERR("Image: File format does not supported writing '%s'", file_.getPath()); goto Image_Write_end;
 	};
 
@@ -247,17 +247,17 @@ void Image::setRawImage(uint _array, uint _mip, const void* _src, Layout _layout
 
 	#define CONVERT_FROM(type) \
 		switch (m_dataType) { \
-			case DataType::kUint8N:   ConvertCopyImage<DataType::ToType<DataType:: ## type>::Type, DataType::ToType<DataType::kUint8N >::Type >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
-			case DataType::kUint16N:  ConvertCopyImage<DataType::ToType<DataType:: ## type>::Type, DataType::ToType<DataType::kUint16N>::Type >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
-			case DataType::kUint32N:  ConvertCopyImage<DataType::ToType<DataType:: ## type>::Type, DataType::ToType<DataType::kUint32N>::Type >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
-			case DataType::kFloat32:  ConvertCopyImage<DataType::ToType<DataType:: ## type>::Type, DataType::ToType<DataType::kFloat32>::Type >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
+			case DataType::Uint8N:   ConvertCopyImage<DataType::ToType<DataType:: ## type>::Type, DataType::ToType<DataType::Uint8N >::Type >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
+			case DataType::Uint16N:  ConvertCopyImage<DataType::ToType<DataType:: ## type>::Type, DataType::ToType<DataType::Uint16N>::Type >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
+			case DataType::Uint32N:  ConvertCopyImage<DataType::ToType<DataType:: ## type>::Type, DataType::ToType<DataType::Uint32N>::Type >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
+			case DataType::Float32:  ConvertCopyImage<DataType::ToType<DataType:: ## type>::Type, DataType::ToType<DataType::Float32>::Type >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
 			default: APT_ASSERT(false); \
 		}
 	switch (_dataType) {
-		case DataType::kUint8N:  CONVERT_FROM(kUint8N); break;
-		case DataType::kUint16N: CONVERT_FROM(kUint16N); break;
-		case DataType::kUint32N: CONVERT_FROM(kUint32N); break;
-		case DataType::kFloat32: CONVERT_FROM(kFloat32); break;
+		case DataType::Uint8N:  CONVERT_FROM(Uint8N); break;
+		case DataType::Uint16N: CONVERT_FROM(Uint16N); break;
+		case DataType::Uint32N: CONVERT_FROM(Uint32N); break;
+		case DataType::Float32: CONVERT_FROM(Float32); break;
 		default: APT_ASSERT_MSG(false, "Unknown data type");
 	};
 	#undef CONVERT_FROM
@@ -275,10 +275,10 @@ void Image::init()
 	m_width       = m_height = m_depth = 1;
 	m_arrayCount  = 1;
 	m_mipmapCount = 1;
-	m_type        = kInvalidType;
-	m_compression = CompressionType::kNone;
-	m_layout      = kInvalidLayout;
-	m_dataType    = DataType::kInvalidType;
+	m_type        = Type_Invalid;
+	m_compression = Compression_None;
+	m_layout      = Layout_Invalid;
+	m_dataType    = DataType::InvalidType;
 	
 	char* m_data = 0;
 	memset(m_mipOffsets, 0, sizeof(uint) * kMaxMipmapCount);
@@ -313,25 +313,25 @@ void Image::alloc()
 bool Image::validateFileFormat(FileFormat _format) const
 {
 	switch (_format) {
-		case FileFormat::kBmp:
-			if (m_compression != CompressionType::kNone) return false;
+		case FileFormat_Bmp:
+			if (m_compression != Compression_None) return false;
 			if (DataType::IsFloat(m_dataType))  return false;
 			if (DataType::IsSigned(m_dataType)) return false;
 			if (!DataType::IsNormalized(m_dataType)) return false;
 			if (IsDataTypeBpc(m_dataType, 16) || IsDataTypeBpc(m_dataType, 32)) return false;
 			return true;
-		case FileFormat::kDds:
-			if (m_type == Type::k3dArray) return false;
+		case FileFormat_Dds:
+			if (m_type == Type_3dArray) return false;
 			return true;
-		case FileFormat::kPng:
-			if (m_compression != CompressionType::kNone) return false;
+		case FileFormat_Png:
+			if (m_compression != Compression_None) return false;
 			if (DataType::IsFloat(m_dataType))  return false;
 			if (DataType::IsSigned(m_dataType)) return false;
 			if (!DataType::IsNormalized(m_dataType)) return false;
 			if (IsDataTypeBpc(m_dataType, 32)) return false;
 			return true;
-		case FileFormat::kTga:
-			if (m_compression != CompressionType::kNone) return false;
+		case FileFormat_Tga:
+			if (m_compression != Compression_None) return false;
 			if (DataType::IsFloat(m_dataType))  return false;
 			if (DataType::IsSigned(m_dataType)) return false;
 			if (!DataType::IsNormalized(m_dataType)) return false;
@@ -347,11 +347,11 @@ bool Image::validateFileFormat(FileFormat _format) const
 uint Image::GetComponentCount(Layout _layout)
 {
 	switch (_layout) {
-		case Layout::kR:         return 1;
-		case Layout::kRG:        return 2;
-		case Layout::kRGB:       return 3;
-		case Layout::kRGBA:      return 4;
-		case kInvalidLayout:
+		case Layout_R:         return 1;
+		case Layout_RG:        return 2;
+		case Layout_RGB:       return 3;
+		case Layout_RGBA:      return 4;
+		case Layout_Invalid:
 		default:                 return 0;
 	};
 }
@@ -359,11 +359,11 @@ uint Image::GetComponentCount(Layout _layout)
 Image::Layout Image::GuessLayout(uint _cmpCount)
 {
 	switch (_cmpCount) {
-		case 1:  return Layout::kR;
-		case 2:  return Layout::kRG;
-		case 3:  return Layout::kRGB;
-		case 4:  return Layout::kRGBA;
-		default: return kInvalidLayout;
+		case 1:  return Layout_R;
+		case 2:  return Layout_RG;
+		case 3:  return Layout_RGB;
+		case 4:  return Layout_RGBA;
+		default: return Layout_Invalid;
 	};
 }
 
@@ -393,23 +393,23 @@ Image::FileFormat Image::GuessFormat(const char* _path)
 	const char* ext = strrchr(_path, (int)'.');
 	if (ext) {
 		if        (strcmp_ignore_case(ext, ".bmp") == 0) {
-			return FileFormat::kBmp;
+			return FileFormat_Bmp;
 		} else if (strcmp_ignore_case(ext, ".dds") == 0) {
-			return FileFormat::kDds;
+			return FileFormat_Dds;
 		} else if (strcmp_ignore_case(ext, ".png") == 0) {
-			return FileFormat::kPng;
+			return FileFormat_Png;
 		} else if (strcmp_ignore_case(ext, ".tga") == 0) {
-			return FileFormat::kTga;
+			return FileFormat_Tga;
 		} else if (strcmp_ignore_case(ext, ".jpg") == 0 || strcmp_ignore_case(ext, ".jpeg") == 0) {
-			return FileFormat::kJpg;
+			return FileFormat_Jpg;
 		} else if (strcmp_ignore_case(ext, ".gif") == 0) {
-			return FileFormat::kGif;
+			return FileFormat_Gif;
 		} else if (strcmp_ignore_case(ext, ".psd") == 0) {
-			return FileFormat::kPsd;
+			return FileFormat_Psd;
 		}
 	}
 
-	return kInvalidFileFormat;
+	return FileFormat_Invalid;
 }
 
 bool Image::IsDataTypeBpc(DataType _type, int _bpc)
@@ -469,10 +469,10 @@ bool Image::ReadDefault(Image& img_, const char* _data, uint _dataSize)
 	img_.m_width       = x;
 	img_.m_height      = y;
 	img_.m_depth       = img_.m_arrayCount = img_.m_mipmapCount = 1;
-	img_.m_type        = Type::k2d;
+	img_.m_type        = Type_2d;
 	img_.m_layout      = GuessLayout((uint)cmp);
-	img_.m_dataType    = DataType::kUint8N;
-	img_.m_compression = CompressionType::kNone;
+	img_.m_dataType    = DataType::Uint8N;
+	img_.m_compression = Compression_None;
 	img_.alloc();
 	memcpy(img_.m_data, d, x * y * cmp); // \todo, avoid this
 	stbi_image_free(d);
@@ -509,8 +509,8 @@ bool Image::ReadPng(Image& img_, const char* _data, uint _dataSize)
 		                        ret = false;
 	};
 	switch (state.info_raw.bitdepth) {
-		case 8:                 dataType = DataType::kUint8N;  break;
-		case 16:                dataType = DataType::kUint16N;
+		case 8:                 dataType = DataType::Uint8N;  break;
+		case 16:                dataType = DataType::Uint16N;
 		                        SwapByteOrder((char*)d, x * y * cmp * 2); break; // \todo swizzle bytes during copy to img_
 		default:                APT_ASSERT_MSG(false, "Unsupported bit depth (%d)", state.info_raw.bitdepth);
 		                        ret = false;
@@ -519,10 +519,10 @@ bool Image::ReadPng(Image& img_, const char* _data, uint _dataSize)
 	img_.m_width       = x;
 	img_.m_height      = y;
 	img_.m_depth       = img_.m_arrayCount = img_.m_mipmapCount = 1;
-	img_.m_type        = Type::k2d;
+	img_.m_type        = Type_2d;
 	img_.m_layout      = GuessLayout((uint)cmp);
 	img_.m_dataType    = dataType;
-	img_.m_compression = CompressionType::kNone;
+	img_.m_compression = Compression_None;
 	img_.alloc();
 	memcpy(img_.m_data, d, x * y * cmp * DataType::GetSizeBytes(dataType)); // \todo, avoid this?
 
@@ -546,17 +546,17 @@ bool Image::WritePng(File& file_, const Image& _img)
 	char* buf = 0;
 
 	switch (_img.m_layout) {
-		case Layout::kR:     colorType = LCT_GREY;       break;
-		case Layout::kRG:    colorType = LCT_GREY_ALPHA; break;
-		case Layout::kRGB:   colorType = LCT_RGB;        break;
-		case Layout::kRGBA:  colorType = LCT_RGBA;       break;
+		case Layout_R:     colorType = LCT_GREY;       break;
+		case Layout_RG:    colorType = LCT_GREY_ALPHA; break;
+		case Layout_RGB:   colorType = LCT_RGB;        break;
+		case Layout_RGBA:  colorType = LCT_RGBA;       break;
 		default:             APT_ASSERT_MSG(false, "Invalid image layout");
 		                     ret = false;
 	};
 
 	switch (_img.m_dataType) {
-		case DataType::kUint8N:  bitdepth = 8;   break;
-		case DataType::kUint16N: bitdepth = 16;
+		case DataType::Uint8N:  bitdepth = 8;   break;
+		case DataType::Uint16N: bitdepth = 16;
 		                         // \hack \todo Can lodepng be modified to swizzle the bytes automatically on x86?
 	                             buf = (char*)malloc(_img.getRawImageSize());
 	                             memcpy(buf, _img.getRawImage(), _img.getRawImageSize());

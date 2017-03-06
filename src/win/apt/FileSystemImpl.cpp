@@ -68,7 +68,7 @@ bool FileSystem::PlatformSelect(PathStr& result_, const char* _filters)
 	ofn.lStructSize     = sizeof(ofn);
 	ofn.lpstrFilter     = (LPSTR)filters;
 	ofn.nFilterIndex    = s_filterIndex;
-	ofn.lpstrInitialDir = (LPSTR)s_roots[kApplication];
+	ofn.lpstrInitialDir = (LPSTR)s_roots[RootType_Application];
 	ofn.lpstrFile       = s_output;
 	ofn.nMaxFile        = kMaxOutputLength;
 	ofn.lpstrTitle      = "File";
@@ -102,7 +102,7 @@ int FileSystem::PlatformSelectMulti(PathStr* results_, int _maxResults, const ch
 	ofn.lStructSize     = sizeof(ofn);
 	ofn.lpstrFilter     = (LPSTR)filters;
 	ofn.nFilterIndex    = s_filterIndex;
-	ofn.lpstrInitialDir = (LPSTR)s_roots[kApplication];
+	ofn.lpstrInitialDir = (LPSTR)s_roots[RootType_Application];
 	ofn.lpstrFile       = s_output;
 	ofn.nMaxFile        = kMaxOutputLength;	
 	ofn.lpstrTitle      = "File";

@@ -41,15 +41,15 @@ void File::appendData(const char* _data, uint64 _size)
 
 void File::ctorCommon()
 {
-	m_data = 0;
+	m_data = nullptr;
 	m_dataSize = 0;
-	m_impl = 0;
+	m_impl = nullptr;
 }
 
 void File::dtorCommon()
 {
 	if (m_data) {
 		free(m_data);
-		m_data = 0;
+		m_data = nullptr;
 	}
 }

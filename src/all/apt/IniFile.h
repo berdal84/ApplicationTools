@@ -12,23 +12,23 @@ namespace apt {
 class File;
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \class IniFile
-/// Read/write INI files; e.g.
-/// \code
-///  ; comment
-///    [section] ; sections are optional
-///    int    = 12
-///    double = 12.0
-///    string = "twelve"  ; strings are enclosed in double quotes
-///    array  = 12, 13, 14
-///    array2 =  ; all whitespace is ignored, including line breaks
-///       "twelve",
-///       "thirteen",
-///       "fourteen"
-/// \endcode
-///
-/// \todo String escape characters
-/// \todo Line breaks within strings
+// IniFile
+// Read/write INI files; e.g.
+// \code
+//  ; comment
+//    [section] ; sections are optional
+//    int    = 12
+//    double = 12.0
+//    string = "twelve"  ; strings are enclosed in double quotes
+//    array  = 12, 13, 14
+//    array2 =  ; all whitespace is ignored, including line breaks
+//       "twelve",
+//       "thirteen",
+//       "fourteen"
+// \endcode
+//
+// \todo String escape characters
+// \todo Line breaks within strings
 ////////////////////////////////////////////////////////////////////////////////
 class IniFile
 {
@@ -36,7 +36,10 @@ public:
 
 	enum ValueType
 	{
-		kBool, kInt, kDouble, kString
+		ValueType_Bool, 
+		ValueType_Int,
+		ValueType_Double,
+		ValueType_String
 	};
 
 	union Value
@@ -70,34 +73,32 @@ public:
 		{
 		}
 		
-		bool isNull() const                        { return m_first == 0; }
-		ValueType getType() const                  { return (ValueType)m_type; }
-		uint16 getCount() const                    { return m_count; }
-		bool asBool(uint16 _i = 0u) const          { APT_ASSERT((ValueType)m_type == kBool);   APT_ASSERT(_i < m_count); return m_first[_i].m_bool; }
-		sint64 asInt(uint16 _i = 0u) const         { APT_ASSERT((ValueType)m_type == kInt);    APT_ASSERT(_i < m_count); return m_first[_i].m_int; }
-		double asDouble(uint16 _i = 0u) const      { APT_ASSERT((ValueType)m_type == kDouble); APT_ASSERT(_i < m_count); return m_first[_i].m_double; }
-		const char* asString(uint16 _i = 0u) const { APT_ASSERT((ValueType)m_type == kString); APT_ASSERT(_i < m_count); return m_first[_i].m_string; }	
+		bool        isNull() const                { return m_first == 0; }
+		ValueType   getType() const               { return (ValueType)m_type; }
+		uint16      getCount() const              { return m_count; }
+		bool        asBool(int _i = 0) const      { APT_ASSERT((ValueType)m_type == ValueType_Bool);   APT_ASSERT(_i < m_count); return m_first[_i].m_bool;   }
+		sint64      asInt(int _i = 0) const       { APT_ASSERT((ValueType)m_type == ValueType_Int);    APT_ASSERT(_i < m_count); return m_first[_i].m_int;    }
+		double      asDouble(int _i = 0) const    { APT_ASSERT((ValueType)m_type == ValueType_Double); APT_ASSERT(_i < m_count); return m_first[_i].m_double; }
+		const char* asString(int _i = 0) const    { APT_ASSERT((ValueType)m_type == ValueType_String); APT_ASSERT(_i < m_count); return m_first[_i].m_string; }	
 	};
 	
-	/// Read from a file and parse. Invalidates any existing Property instances
-	/// returned by getProperty();
-	/// \return false if an error occurred.
+	// Read from a file and parse. Invalidates any existing Property instances returned by getProperty();
+	// Return false if an error occurred.
 	static bool Read(IniFile& iniFile_, const File& _file);
 	static bool Read(IniFile& iniFile_, const char* _path);
 
-	/// Write to a file.
+	// Write to a file.
 	static bool Write(const IniFile& _iniFile, File& file_);
 	static bool Write(const IniFile& _iniFile, const char* _path);
 
 	IniFile();
 	~IniFile();
 	
-	/// Retrieve a named property, optionally specifying the section to search.
-	/// Note that the returned Property instance is only valid during the lifetime
-	/// of the IniFile to which it belongs. Calling load() will invalidate all
-	/// previously returned Property instances.
-	/// \return Property instance. If no matching property was found, isNull() will
-	///   return true.
+	// Retrieve a named property, optionally specifying the section to search.
+	// Note that the returned Property instance is only valid during the lifetime
+	// of the IniFile to which it belongs. Calling load() will invalidate all
+	// previously returned Property instances.
+	// Return property instance. If no matching property was found, isNull() will return true.
 	Property getProperty(const char* _name, const char* _section = 0) const;
 
 	void pushSection(const char* _name);

@@ -10,7 +10,7 @@
 namespace apt {
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \class StringBase
+/// StringBase
 /// Base for string class with an optional local buffer. If/when the local 
 /// buffer overflows it is replaced with a heap-allocated buffer. Once the 
 /// buffer is heap-allocated it never returns to using the local buffer.
@@ -19,48 +19,48 @@ namespace apt {
 class StringBase
 {
 public:
-	/// Copy _count characters from _src. If _count == 0, all of _src is copied
-	/// If the end of _src is found  before _count characters have been copied,
-	/// the result is padded with zeros until _count characters have been written
-	/// (like strncpy). Unlike strncpy, an implicit null char is appended to the
-	/// end of the result.
-	/// \return New length of the string, excluding the null terminator.
+	// Copy _count characters from _src. If _count == 0, all of _src is copied
+	// If the end of _src is found  before _count characters have been copied,
+	// the result is padded with zeros until _count characters have been written
+	// (like strncpy). Unlike strncpy, an implicit null char is appended to the
+	// end of the result. Return the new length of the string, excluding the null 
+	// terminator.
 	uint set(const char* _src, uint _count = 0u);
-	/// Set formatted content.
-	/// \return New length of the string, excluding the null terminator.
+	// Set formatted content. Return the new length of the string, excluding the 
+	// null terminator.
 	uint setf(const char* _fmt, ...);
 	uint setfv(const char* _fmt, va_list _args);
 
-	/// Append _count characters from _src. If _count == 0, all of _src is
-	/// appended. If the end of _src is found  before _count characters have been 
-	/// appended, the result is padded with zeros until _count characters have been 
-	/// written (like strncpy). Unlike strncpy, an implicit null char is appended 
-	/// to the end of the result.
-	/// \return New length of the string, excluding the null terminator.
+	// Append _count characters from _src. If _count == 0, all of _src is
+	// appended. If the end of _src is found  before _count characters have been 
+	// appended, the result is padded with zeros until _count characters have been 
+	// written (like strncpy). Unlike strncpy, an implicit null char is appended 
+	// to the end of the result. Return the new length of the string, excluding 
+	// the null terminator.
 	uint append(const char* _src, uint _count = 0u);
-	/// Append formatted content.
-	/// \return New length of the string, excluding the null terminator.
+	// Append formatted content. Return the new length of the string, excluding the 
+	// null terminator.
 	uint appendf(const char* _fmt, ...);
 	uint appendfv(const char* _fmt, va_list _args);
 
-	/// Find the first (or last) occurence of any character in _list (which is 
-	/// null-terminated). If no match is found return null.
+	// Find the first (or last) occurence of any character in _list (which is 
+	// null-terminated). If no match is found return null.
 	const char* findFirst(const char* _list) const;
 	const char* findLast(const char* _list) const;
 
-	/// Find the first occurence of the substring _str, return null if not found.
+	// Find the first occurence of the substring _str, return null if not found.
 	const char* find(const char* _str) const;
 
-	/// Replace all instanced of _find with _replace.
+	// Replace all instanced of _find with _replace.
 	void replace(char _find, char _replace);
 
-	/// Convert to upper/lower case.
+	// Convert to upper/lower case.
 	void toUpperCase();
 	void toLowerCase();
 
-	/// String length, excluding the terminating null.
-	/// \note String length is not stored internally, hence getLength() is **not**
-	///    a constant time operation.
+	// String length, excluding the terminating null.
+	// \note String length is not stored internally, hence getLength() is **not**
+	//    a constant time operation.
 	uint getLength() const;
 
 	void clear()                    { m_buf[0] = '\0'; }
@@ -78,12 +78,12 @@ public:
 
 protected:
 	
-	/// String always heap-allocated.
+	// String always heap-allocated.
 	StringBase();
-	/// String has a local buffer of _localBufferSize chars.
+	// String has a local buffer of _localBufferSize chars.
 	StringBase(uint _localBufferSize);
 	/// Move ctor. If _rhs is local it *must* have the same capacity as this 
-	/// (because we don't store the local buffer size). 
+	// (because we don't store the local buffer size). 
 	StringBase(StringBase&& _rhs);
 
 	~StringBase();
@@ -92,13 +92,13 @@ protected:
 	const char* getLocalBuf() const { return (char*)this + sizeof(StringBase); }
 
 private:
-	char* m_buf;       //< Ptr to local buffer, or heap allocated.
-	uint  m_capacity;  //< Local buffer/allocated size.
+	char* m_buf;       // Ptr to local buffer, or heap allocated.
+	uint  m_capacity;  // Local buffer/allocated size.
 
-	/// Resize m_buf to _capacity, discard contents.
+	// Resize m_buf to _capacity, discard contents.
 	void alloc(uint _capacity);
 
-	/// Resize m_buf to _capaicty, maintain contents.
+	// Resize m_buf to _capaicty, maintain contents.
 	void realloc(uint _capacity);
 
 }; // class String

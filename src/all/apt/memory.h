@@ -6,15 +6,15 @@
 
 namespace apt {
 
-/// Allocate _size bytes with _align aligment.
+// Allocate _size bytes with _align aligment.
 void* malloc_aligned(uint _size, uint _align);
 
-/// Reallocate memory previously allocated via malloc_aligned (or allocate a new
-/// block if _p is null). The alignment of a previously allocated block may not
-/// be changed.
+// Reallocate memory previously allocated via malloc_aligned (or allocate a new
+// block if _p is null). The alignment of a previously allocated block may not
+// be changed.
 void* realloc_aligned(void* _p, uint _size, uint _align);
 
-/// Free memory previous allocated via malloc_aligned().
+// Free memory previous allocated via malloc_aligned().
 void free_aligned(void* _p);
 
 
@@ -31,18 +31,16 @@ namespace internal {
 } // namespace internal
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \class aligned
-/// Mixin class, provides template-based memory alignment for deriving classes.
-/// Use cautiously, especially with multiple inheritance.
-/// Usage:
-/// \code
-///    class Foo: public aligned<Foo, 16>
-///    { // ...
-/// \endcode
-/// \tparam tType Deriving type.
-/// \tparam kAlignment Required alignment.
-/// \note Alignment can only be increased. If the deriving class has a higher
-///    natural alignment than kAlignment, the higher alignment is used.
+// aligned
+// Mixin class, provides template-based memory alignment for deriving classes.
+// Use cautiously, especially with multiple inheritance.
+// Usage:
+//
+//    class Foo: public aligned<Foo, 16>
+//    { // ...
+//
+// \note Alignment can only be increased. If the deriving class has a higher
+//    natural alignment than kAlignment, the higher alignment is used.
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType, uint kAlignment>
 struct aligned: private internal::aligned_base<kAlignment>
@@ -61,10 +59,10 @@ struct aligned: private internal::aligned_base<kAlignment>
 }; // class aligned
 
 ////////////////////////////////////////////////////////////////////////////////
-/// \class storage
-/// Provides aligned storage for kCount objects of type tType. Suitable for 
-/// allocating static blocks of uninitialized memory for use with placement
-/// new.
+// storage
+// Provides aligned storage for kCount objects of type tType. Suitable for 
+// allocating static blocks of uninitialized memory for use with placement
+// new.
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType, uint kCount>
 class storage: private aligned< storage<tType, kCount>, APT_ALIGNOF(tType) >

@@ -46,10 +46,10 @@ bool IniFile::Write(const IniFile& _iniFile, File& file_)
 			for (uint16 k = key.m_valueOffset, m = k + key.m_valueCount; k < m; ++k) {
 				const Value& val = _iniFile.m_values[k];
 				switch (key.m_type) {
-				case ValueType::kBool:   buf.append(val.m_bool ? "true" : "false"); break;
-				case ValueType::kInt:    buf.appendf("%d", val.m_int); break;
-				case ValueType::kDouble: buf.appendf("%1.10f", val.m_double); break; // \todo better float representation for printing; want to print the smallest number of significant digits
-				case ValueType::kString: buf.appendf("\"%s\"", val.m_string); break;
+				case ValueType_Bool:   buf.append(val.m_bool ? "true" : "false"); break;
+				case ValueType_Int:    buf.appendf("%d", val.m_int); break;
+				case ValueType_Double: buf.appendf("%1.10f", val.m_double); break; // \todo better float representation for printing; want to print the smallest number of significant digits
+				case ValueType_String: buf.appendf("\"%s\"", val.m_string); break;
 				default:                 APT_ASSERT(false);
 				};
 				if ((k + 1) != m) {
@@ -85,7 +85,7 @@ IniFile::~IniFile()
 {
 	for (uint i = 0; i < m_keys.size(); ++i) {
 		Key& k = m_keys[i];
-		if (k.m_type != ValueType::kString) {
+		if (k.m_type != ValueType_String) {
 			continue;
 		}
 		for (uint j = k.m_valueOffset; j < k.m_valueOffset + k.m_valueCount; ++j) {
@@ -96,7 +96,7 @@ IniFile::~IniFile()
 
 IniFile::Property IniFile::getProperty(const char* _name, const char* _section) const
 {
-	Property ret(ValueType::kBool, 0, 0);
+	Property ret(ValueType_Bool, 0, 0);
 
 	const Section* section = _section ? findSection(_section) : 0;
 	const Key* key = findKey(_name, section);
@@ -126,16 +126,16 @@ void IniFile::pushSection(const char* _name)
 		} \
 		++m_sections.back().m_propertyCount; \
 	}
-DEFINE_pushValueArray(bool,        kBool,   m_bool)
-DEFINE_pushValueArray(int,         kInt,    m_int)
-DEFINE_pushValueArray(double,      kDouble, m_double)
-DEFINE_pushValueArray(float,       kDouble, m_double)
+DEFINE_pushValueArray(bool,   ValueType_Bool,   m_bool)
+DEFINE_pushValueArray(int,    ValueType_Int,    m_int)
+DEFINE_pushValueArray(double, ValueType_Double, m_double)
+DEFINE_pushValueArray(float,  ValueType_Double, m_double)
 #undef DEFINE_pushValueArray
 
 void IniFile::pushValueArray(const char* _name, const char* _value[], uint16 _count)
 {
 	APT_ASSERT_MSG(findKey(_name, &m_sections.back()) == 0, "IniFile::pushValue: '%s' already exists in section '%s'", _name, m_sections.back().m_name.isEmpty() ? "default" : (const char*)m_sections.back().m_name);
-	Key key = { NameStr(_name), ValueType::kString, _count, (uint16)m_values.size() };
+	Key key = { NameStr(_name), ValueType_String, _count, (uint16)m_values.size() };
 	m_keys.push_back(key);
 	for (uint16 i = 0; i < _count; ++i) {
 		m_values.push_back(Value());
@@ -191,7 +191,7 @@ bool IniFile::parse(const char* _str)
 			const char* vbeg = tp; // for getLineCount if value was invalid
 			if (*tp == '"') {
 			 // value is a string
-				k.m_type = ValueType::kString;
+				k.m_type = ValueType_String;
 				tp.advance(); // skip '"'
 				const char* beg = tp;
 				if (!tp.advanceToNext('"')) {
@@ -209,7 +209,7 @@ bool IniFile::parse(const char* _str)
 
 			} else if (*tp == 't' || *tp == 'f') {
 			 // value is a bool
-				k.m_type = ValueType::kBool;
+				k.m_type = ValueType_Bool;
 				Value v;
 				v.m_bool = *tp == 't' ? true : false;
 				m_values.push_back(v);
@@ -224,19 +224,19 @@ bool IniFile::parse(const char* _str)
 				Value v;
 				if (d == 0.0 && l != 0) {
 				 // value was an int
-					k.m_type = ValueType::kInt;
+					k.m_type = ValueType_Int;
 					v.m_int = (sint64)l;
 				} else if (l == 0 && d != 0.0) {
 				 // value was a double
-					k.m_type = ValueType::kDouble;
+					k.m_type = ValueType_Double;
 					v.m_double = d;
 				} else {
 				 // both were nonzero, guess if an int or a double was intended
 					if (tp.containsAny(beg, ".eEnN")) { // n/N to catch INF/NAN
-						k.m_type = ValueType::kDouble;
+						k.m_type = ValueType_Double;
 						v.m_double = d;
 					} else {
-						k.m_type = ValueType::kInt;
+						k.m_type = ValueType_Int;
 						v.m_int = (sint64)l;
 					}
 				}

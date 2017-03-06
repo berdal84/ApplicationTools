@@ -231,48 +231,48 @@ void DataType::Convert(DataType _srcType, DataType _dstType, const void* _src, v
 		#define case_decl(_srcEnum, _srcTypename) \
 			case _srcEnum: \
 				switch (_dstType) { \
-					case kSint8:   *((sint8*  )dst_) = Convert<_srcTypename, sint8  >(*((const _srcTypename*)_src)); break; \
-					case kUint8:   *((uint8*  )dst_) = Convert<_srcTypename, uint8  >(*((const _srcTypename*)_src)); break; \
-					case kSint16:  *((sint16* )dst_) = Convert<_srcTypename, sint16 >(*((const _srcTypename*)_src)); break; \
-					case kUint16:  *((uint16* )dst_) = Convert<_srcTypename, uint16 >(*((const _srcTypename*)_src)); break; \
-					case kSint32:  *((sint32* )dst_) = Convert<_srcTypename, sint32 >(*((const _srcTypename*)_src)); break; \
-					case kUint32:  *((uint32* )dst_) = Convert<_srcTypename, uint32 >(*((const _srcTypename*)_src)); break; \
-					case kSint64:  *((sint64* )dst_) = Convert<_srcTypename, sint64 >(*((const _srcTypename*)_src)); break; \
-					case kUint64:  *((uint64* )dst_) = Convert<_srcTypename, uint64 >(*((const _srcTypename*)_src)); break; \
-					case kSint8N:  *((sint8N* )dst_) = Convert<_srcTypename, sint8N >(*((const _srcTypename*)_src)); break; \
-					case kUint8N:  *((uint8N* )dst_) = Convert<_srcTypename, uint8N >(*((const _srcTypename*)_src)); break; \
-					case kSint16N: *((sint16N*)dst_) = Convert<_srcTypename, sint16N>(*((const _srcTypename*)_src)); break; \
-					case kUint16N: *((uint16N*)dst_) = Convert<_srcTypename, uint16N>(*((const _srcTypename*)_src)); break; \
-					case kSint32N: *((sint32N*)dst_) = Convert<_srcTypename, sint32N>(*((const _srcTypename*)_src)); break; \
-					case kUint32N: *((uint32N*)dst_) = Convert<_srcTypename, uint32N>(*((const _srcTypename*)_src)); break; \
-					case kSint64N: *((sint64N*)dst_) = Convert<_srcTypename, sint64N>(*((const _srcTypename*)_src)); break; \
-					case kUint64N: *((uint64N*)dst_) = Convert<_srcTypename, uint64N>(*((const _srcTypename*)_src)); break; \
-					case kFloat32: *((float32*)dst_) = Convert<_srcTypename, float32>(*((const _srcTypename*)_src)); break; \
-					case kFloat64: *((float64*)dst_) = Convert<_srcTypename, float64>(*((const _srcTypename*)_src)); break; \
+					case Sint8:   *((sint8*  )dst_) = Convert<_srcTypename, sint8  >(*((const _srcTypename*)_src)); break; \
+					case Uint8:   *((uint8*  )dst_) = Convert<_srcTypename, uint8  >(*((const _srcTypename*)_src)); break; \
+					case Sint16:  *((sint16* )dst_) = Convert<_srcTypename, sint16 >(*((const _srcTypename*)_src)); break; \
+					case Uint16:  *((uint16* )dst_) = Convert<_srcTypename, uint16 >(*((const _srcTypename*)_src)); break; \
+					case Sint32:  *((sint32* )dst_) = Convert<_srcTypename, sint32 >(*((const _srcTypename*)_src)); break; \
+					case Uint32:  *((uint32* )dst_) = Convert<_srcTypename, uint32 >(*((const _srcTypename*)_src)); break; \
+					case Sint64:  *((sint64* )dst_) = Convert<_srcTypename, sint64 >(*((const _srcTypename*)_src)); break; \
+					case Uint64:  *((uint64* )dst_) = Convert<_srcTypename, uint64 >(*((const _srcTypename*)_src)); break; \
+					case Sint8N:  *((sint8N* )dst_) = Convert<_srcTypename, sint8N >(*((const _srcTypename*)_src)); break; \
+					case Uint8N:  *((uint8N* )dst_) = Convert<_srcTypename, uint8N >(*((const _srcTypename*)_src)); break; \
+					case Sint16N: *((sint16N*)dst_) = Convert<_srcTypename, sint16N>(*((const _srcTypename*)_src)); break; \
+					case Uint16N: *((uint16N*)dst_) = Convert<_srcTypename, uint16N>(*((const _srcTypename*)_src)); break; \
+					case Sint32N: *((sint32N*)dst_) = Convert<_srcTypename, sint32N>(*((const _srcTypename*)_src)); break; \
+					case Uint32N: *((uint32N*)dst_) = Convert<_srcTypename, uint32N>(*((const _srcTypename*)_src)); break; \
+					case Sint64N: *((sint64N*)dst_) = Convert<_srcTypename, sint64N>(*((const _srcTypename*)_src)); break; \
+					case Uint64N: *((uint64N*)dst_) = Convert<_srcTypename, uint64N>(*((const _srcTypename*)_src)); break; \
+					case Float32: *((float32*)dst_) = Convert<_srcTypename, float32>(*((const _srcTypename*)_src)); break; \
+					case Float64: *((float64*)dst_) = Convert<_srcTypename, float64>(*((const _srcTypename*)_src)); break; \
 				}; \
 				break				
 
 		for (uint i = 0; i < _count; ++i) {
 			switch (_srcType) {
-				case_decl(kSint8  , sint8  );
-				case_decl(kUint8  , uint8  );
-				case_decl(kSint16 , sint16 );
-				case_decl(kUint16 , uint16 );
-				case_decl(kSint32 , sint32 );
-				case_decl(kUint32 , uint32 );
-				case_decl(kSint64 , sint64 );
-				case_decl(kUint64 , uint64 );
-				case_decl(kSint8N , sint8N );
-				case_decl(kUint8N , uint8N );
-				case_decl(kSint16N, sint16N);
-				case_decl(kUint16N, uint16N);
-				case_decl(kSint32N, sint32N);
-				case_decl(kUint32N, uint32N);
-				case_decl(kSint64N, sint64N);
-				case_decl(kUint64N, uint64N);
+				case_decl(Sint8  , sint8  );
+				case_decl(Uint8  , uint8  );
+				case_decl(Sint16 , sint16 );
+				case_decl(Uint16 , uint16 );
+				case_decl(Sint32 , sint32 );
+				case_decl(Uint32 , uint32 );
+				case_decl(Sint64 , sint64 );
+				case_decl(Uint64 , uint64 );
+				case_decl(Sint8N , sint8N );
+				case_decl(Uint8N , uint8N );
+				case_decl(Sint16N, sint16N);
+				case_decl(Uint16N, uint16N);
+				case_decl(Sint32N, sint32N);
+				case_decl(Uint32N, uint32N);
+				case_decl(Sint64N, sint64N);
+				case_decl(Uint64N, uint64N);
 				//case_decl(kFloat16, float16);
-				case_decl(kFloat32, float32);
-				case_decl(kFloat64, float64);
+				case_decl(Float32, float32);
+				case_decl(Float64, float64);
 				default: APT_ASSERT(false); break;
 			};
 			_src = (const char*)_src + GetSizeBytes(_srcType);
