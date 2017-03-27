@@ -46,7 +46,7 @@ public:
 	char skipLine();
 	char skipWhitespace(); // include empty lines
 
-	void reset() { m_pos = m_start; }
+	void reset(const char* _pos = nullptr) { m_pos = _pos ? _pos : m_start; }
 
 	// Return the first occurence of any characters from _list in the region between _beg and 
 	// the current position, or 0 if none.

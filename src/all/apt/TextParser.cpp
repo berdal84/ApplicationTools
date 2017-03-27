@@ -159,6 +159,7 @@ int TextParser::getLineCount(const char* _pos) const
 
 bool TextParser::readNextBool(bool& out_)
 {
+	skipWhitespace();
 	if (*m_pos == 't' || *m_pos == 'T' || *m_pos == '1') {
 		advanceToNextWhitespace();
 		out_ = true;
@@ -174,6 +175,7 @@ bool TextParser::readNextBool(bool& out_)
 
 bool TextParser::readNextDouble(double& out_)
 {
+	skipWhitespace();
 	if (isNum() || *m_pos == '+' || *m_pos == '-') {
 		const char* beg = m_pos;
 		advanceToNextWhitespace();
@@ -185,6 +187,7 @@ bool TextParser::readNextDouble(double& out_)
 
 bool TextParser::readNextInt(long int& out_)
 {
+	skipWhitespace();
 	if (isNum() || *m_pos == '+' || *m_pos == '-') {
 		const char* beg = m_pos;
 		advanceToNextWhitespace();
@@ -196,6 +199,7 @@ bool TextParser::readNextInt(long int& out_)
 
 bool TextParser::compareNext(const char* _str)
 {
+	skipWhitespace();
 	const char* beg = m_pos;
 	advanceToNextWhitespace();
 	if (matches(beg, _str)) {
