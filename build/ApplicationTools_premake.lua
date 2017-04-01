@@ -62,7 +62,8 @@ workspace "ApplicationTools"
 			})
 		removefiles({ 
 			ALL_EXTERN_DIR .. "glm/**", 
-			ALL_EXTERN_DIR .. "rapidjson/**" 
+			ALL_EXTERN_DIR .. "rapidjson/**", 
+			ALL_EXTERN_DIR .. "EASTL/string.*", -- clashes with String.h
 			})
 		filter { "platforms:Win*" }
 			files({ 

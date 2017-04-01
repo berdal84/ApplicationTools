@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="extern">
@@ -352,9 +352,6 @@
     <ClInclude Include="..\..\src\all\extern\EASTL\stack.h">
       <Filter>extern\EASTL</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\all\extern\EASTL\string.h">
-      <Filter>extern\EASTL</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\all\extern\EASTL\string_hash_map.h">
       <Filter>extern\EASTL</Filter>
     </ClInclude>
@@ -430,6 +427,7 @@
     <ClCompile Include="..\..\src\all\apt\String.cpp" />
     <ClCompile Include="..\..\src\all\apt\StringHash.cpp" />
     <ClCompile Include="..\..\src\all\apt\TextParser.cpp" />
+    <ClCompile Include="..\..\src\all\apt\Time.cpp" />
     <ClCompile Include="..\..\src\all\apt\def.cpp" />
     <ClCompile Include="..\..\src\all\apt\hash.cpp" />
     <ClCompile Include="..\..\src\all\apt\log.cpp" />
@@ -480,7 +478,6 @@
     <ClCompile Include="..\..\src\win\apt\platform.cpp">
       <Filter>win</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\all\apt\Time.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\all\extern\EASTL\EASTL.natvis">
