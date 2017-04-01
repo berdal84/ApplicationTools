@@ -133,7 +133,7 @@ public:
 	static const ClassRef* GetClassRef(int _i)
 	{
 		APT_ASSERT(_i < GetClassRefCount());
-		return (*s_registry)[_i];
+		return (s_registry->begin() + _i)->second;
 	}
 
 	// Return ptr to a new instance of the class specified by _name, or nullptr if an error occurred.

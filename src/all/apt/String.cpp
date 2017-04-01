@@ -242,7 +242,7 @@ StringBase::StringBase(StringBase&& _rhs)
 	, m_capacity(_rhs.m_capacity)
 {
 	if (_rhs.isLocal()) {
-		strncpy(m_buf, getLocalBuf(), m_capacity);
+		strncpy(m_buf, _rhs.getLocalBuf(), m_capacity);
 	} else {
 		m_buf = _rhs.m_buf;
 		_rhs.m_buf = _rhs.getLocalBuf();
