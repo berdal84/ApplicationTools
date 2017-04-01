@@ -249,6 +249,7 @@
     <ClCompile Include="..\..\src\all\apt\hash.cpp" />
     <ClCompile Include="..\..\src\all\apt\log.cpp" />
     <ClCompile Include="..\..\src\all\apt\memory.cpp" />
+    <ClCompile Include="..\..\src\all\apt\Time.cpp" />
     <ClCompile Include="..\..\src\all\apt\types.cpp" />
     <ClCompile Include="..\..\src\all\extern\EASTL\source\allocator_eastl.cpp" />
     <ClCompile Include="..\..\src\all\extern\EASTL\source\assert.cpp" />

@@ -480,6 +480,7 @@
     <ClCompile Include="..\..\src\win\apt\platform.cpp">
       <Filter>win</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\all\apt\Time.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\all\extern\EASTL\EASTL.natvis">

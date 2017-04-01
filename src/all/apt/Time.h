@@ -47,7 +47,7 @@ class Timestamp
 	friend class Time;
 public:
 	// Default/value-initializing ctor.
-	Timestamp(sint64 _raw = 0ll): m_raw(_raw) {}
+	Timestamp(sint64 _raw = 0): m_raw(_raw) {}
 
 	// Raw time value in system-dependent units.
 	sint64 getRaw() const { return m_raw; }
@@ -61,6 +61,10 @@ public:
 	// Raw value converted to microseconds (10^-6s).
 	double asMicroseconds() const;
 	
+	// Return a string with an appropriate units e.g. "2.43s", "17.2ms", "400us".
+	// \note Returns a ptr to a local static buffer - for normal use this should 
+	//    be fine, just print the string and don't keep the ptr.
+	const char*     asString() const;
 
 	const Timestamp operator- (const Timestamp& rhs) const  { return m_raw -  rhs.m_raw; }
 	const Timestamp operator+ (const Timestamp& rhs) const  { return m_raw +  rhs.m_raw; }
@@ -114,7 +118,7 @@ public:
 	// E.g. ISO 8601 format would be "%Y-%m-%dT%H:%M:%SZ".
 	// \note Returns a ptr to a local static buffer - for normal use this should 
 	//    be fine, just print the string and don't keep the ptr.
-	const char*    asString(const char* _format = 0) const;
+	const char*    asString(const char* _format = nullptr) const;
 
 	const DateTime operator- (const DateTime& rhs) const  { return m_raw -  rhs.m_raw; }
 	const DateTime operator+ (const DateTime& rhs) const  { return m_raw +  rhs.m_raw; }
