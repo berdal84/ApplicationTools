@@ -237,30 +237,29 @@ StringBase::StringBase(uint _localBufferSize)
 	m_buf[0] = '\0';
 }
 
-StringBase::StringBase(StringBase&& _rhs)
-	: m_buf(getLocalBuf())
-	, m_capacity(_rhs.m_capacity)
-{
-	if (_rhs.isLocal()) {
-		strncpy(m_buf, _rhs.getLocalBuf(), m_capacity);
-	} else {
-		m_buf = _rhs.m_buf;
-		_rhs.m_buf = _rhs.getLocalBuf();
-	}
-}
-
-StringBase& StringBase::operator=(StringBase&& _rhs)
-{
-	if (&_rhs != this) {
-		if (_rhs.isLocal()) {
-			strncpy(m_buf, getLocalBuf(), m_capacity);
-		} else {
-			m_buf = _rhs.m_buf;
-			_rhs.m_buf = _rhs.getLocalBuf();
-		}
-	}
-	return *this;
-}
+//StringBase::StringBase(StringBase&& _rhs)
+//	: m_buf(getLocalBuf())
+//	, m_capacity(_rhs.m_capacity)
+//{
+//	if (_rhs.isLocal()) {
+//		strncpy(m_buf, _rhs.getLocalBuf(), m_capacity);
+//	} else {
+//		m_buf = _rhs.m_buf;
+//		_rhs.m_buf = _rhs.getLocalBuf();
+//	}
+//}
+//StringBase& StringBase::operator=(StringBase&& _rhs)
+//{
+//	if (&_rhs != this) {
+//		if (_rhs.isLocal()) {
+//			strncpy(m_buf, getLocalBuf(), m_capacity);
+//		} else {
+//			m_buf = _rhs.m_buf;
+//			_rhs.m_buf = _rhs.getLocalBuf();
+//		}
+//	}
+//	return *this;
+//}
 
 StringBase::~StringBase()
 {

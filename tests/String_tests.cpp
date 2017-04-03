@@ -25,6 +25,12 @@ static void VectorTest()
 	while (!strv.empty()) {
 		strv.pop_back();
 	}
+
+	strv.clear();
+	for (int i = 0; i < 100; ++i) {
+		strv.push_back(String<kCapacity>("HELLO"));
+		REQUIRE((strv.back() == "HELLO") == true);
+	}
 }
 
 TEST_CASE("Vector", "[String]")

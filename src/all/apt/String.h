@@ -84,9 +84,9 @@ protected:
 	StringBase(uint _localBufferSize);
 	// Move ctor. If _rhs is local it *must* have the same capacity as this (because the local buffer 
 	// size isn't stored). This is enforced by the deriving String class move ctors.
-	StringBase(StringBase&& _rhs);
+	//StringBase(StringBase&& _rhs);
 	// Move assignment. As move ctor.
-	StringBase& operator=(StringBase&& _rhs);
+	//StringBase& operator=(StringBase&& _rhs);
 
 	~StringBase();
 
@@ -115,8 +115,8 @@ public:
 	String():                              StringBase(kCapacity)       {}
 	String(const String<kCapacity>& _rhs): StringBase(kCapacity)       { set(_rhs); }
 	String<kCapacity>& operator=(const String<kCapacity>& _rhs)        { set(_rhs); return *this; }
-	String(String<kCapacity>&& _rhs):      StringBase(std::move(_rhs)) {}
-	String<kCapacity>& operator=(String<kCapacity>&& _rhs)             { StringBase::operator=(std::move(_rhs)); return *this; }
+	//String(String<kCapacity>&& _rhs):      StringBase(std::move(_rhs)) {}
+	//String<kCapacity>& operator=(String<kCapacity>&& _rhs)             { StringBase::operator=(std::move(_rhs)); return *this; }
 	String(const char* _fmt, ...):         StringBase(kCapacity)
 	{
 		if (_fmt) {
@@ -135,8 +135,8 @@ public:
 	String():                      StringBase()                {}
 	String(const String<0>& _rhs): StringBase()                { set(_rhs); }
 	String<0>& operator=(const String<0>& _rhs)                { set(_rhs); return *this; }
-	String(String<0>&& _rhs):      StringBase(std::move(_rhs)) {}
-	String<0>& operator=(String<0>&& _rhs)                     { (String<0>)StringBase::operator=(std::move(_rhs)); return *this; }
+	//String(String<0>&& _rhs):      StringBase(std::move(_rhs)) {}
+	//String<0>& operator=(String<0>&& _rhs)                     { (String<0>)StringBase::operator=(std::move(_rhs)); return *this; }
 	String(const char* _fmt, ...): StringBase()
 	{
 		if (_fmt) {
