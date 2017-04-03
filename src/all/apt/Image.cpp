@@ -537,7 +537,6 @@ Image_ReadPng_end:
 }
 bool Image::WritePng(File& file_, const Image& _img)
 {
-	
 	LodePNGColorType colorType;
 	unsigned bitdepth;
 	bool ret = true;
@@ -550,30 +549,41 @@ bool Image::WritePng(File& file_, const Image& _img)
 		case Layout_RG:    colorType = LCT_GREY_ALPHA; break;
 		case Layout_RGB:   colorType = LCT_RGB;        break;
 		case Layout_RGBA:  colorType = LCT_RGBA;       break;
-		default:             APT_ASSERT_MSG(false, "Invalid image layout");
-		                     ret = false;
+		default:           APT_ASSERT_MSG(false, "Invalid image layout");
+		                   ret = false;
 	};
 
 	switch (_img.m_dataType) {
 		case DataType::Uint8N:  bitdepth = 8;   break;
 		case DataType::Uint16N: bitdepth = 16;
-		                         // \hack \todo Can lodepng be modified to swizzle the bytes automatically on x86?
-	                             buf = (char*)malloc(_img.getRawImageSize());
-	                             memcpy(buf, _img.getRawImage(), _img.getRawImageSize());
-		                         SwapByteOrder(buf, (unsigned)_img.getRawImageSize()); break;
-		default:                 APT_ASSERT_MSG(false, "Unsupported data type");
-		                         ret = false;
+		                       // \hack \todo Can lodepng be modified to swizzle the bytes automatically on x86?
+	                            buf = (char*)malloc(_img.getRawImageSize());
+	                            memcpy(buf, _img.getRawImage(), _img.getRawImageSize());
+		                        SwapByteOrder(buf, (unsigned)_img.getRawImageSize()); break;
+		default:                APT_ASSERT_MSG(false, "Unsupported data type");
+		                        ret = false;
 	};
+
+ // don't use the default encoder state, which ignores colorType in some cases
+	LodePNGEncoderSettings enc;
+	lodepng_encoder_settings_init(&enc);
+	enc.auto_convert = false;
+	LodePNGState state;
+	lodepng_state_init(&state);
+	state.info_raw.colortype = colorType;
+	state.info_raw.bitdepth = bitdepth;
+	state.encoder = enc;
 
 	unsigned char* d;
 	uint dsize;
-	unsigned err = lodepng_encode_memory(&d, &dsize, (unsigned char*)(buf ? buf : _img.getRawImage()), (unsigned)_img.getWidth(), (unsigned)_img.getHeight(), colorType, bitdepth);
+	unsigned err = lodepng_encode(&d, &dsize, (unsigned char*)(buf ? buf : _img.getRawImage()), (unsigned)_img.getWidth(), (unsigned)_img.getHeight(), &state);
 	if (err) {
 		goto Image_WritePng_end;
 	}
 	file_.setData((const char*)d, dsize);
 
 Image_WritePng_end:
+	lodepng_state_cleanup(&state);
 	free(buf);
 	free(d);
 	if (err) {
