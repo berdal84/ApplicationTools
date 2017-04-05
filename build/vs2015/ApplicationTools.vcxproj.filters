@@ -352,6 +352,9 @@
     <ClInclude Include="..\..\src\all\extern\EASTL\stack.h">
       <Filter>extern\EASTL</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\all\extern\EASTL\string.h">
+      <Filter>extern\EASTL</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\all\extern\EASTL\string_hash_map.h">
       <Filter>extern\EASTL</Filter>
     </ClInclude>
@@ -454,7 +457,7 @@
     <ClCompile Include="..\..\src\all\extern\EASTL\source\red_black_tree.cpp">
       <Filter>extern\EASTL\source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\all\extern\EASTL\source\string.cpp">
+    <ClCompile Include="..\..\src\all\extern\EASTL\source\string_eastl.cpp">
       <Filter>extern\EASTL\source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\all\extern\EASTL\source\thread_support.cpp">

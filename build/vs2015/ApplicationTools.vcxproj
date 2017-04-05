@@ -211,6 +211,7 @@
     <ClInclude Include="..\..\src\all\extern\EASTL\slist.h" />
     <ClInclude Include="..\..\src\all\extern\EASTL\sort.h" />
     <ClInclude Include="..\..\src\all\extern\EASTL\stack.h" />
+    <ClInclude Include="..\..\src\all\extern\EASTL\string.h" />
     <ClInclude Include="..\..\src\all\extern\EASTL\string_hash_map.h" />
     <ClInclude Include="..\..\src\all\extern\EASTL\string_map.h" />
     <ClInclude Include="..\..\src\all\extern\EASTL\string_view.h" />
@@ -257,7 +258,7 @@
     <ClCompile Include="..\..\src\all\extern\EASTL\source\intrusive_list.cpp" />
     <ClCompile Include="..\..\src\all\extern\EASTL\source\numeric_limits.cpp" />
     <ClCompile Include="..\..\src\all\extern\EASTL\source\red_black_tree.cpp" />
-    <ClCompile Include="..\..\src\all\extern\EASTL\source\string.cpp" />
+    <ClCompile Include="..\..\src\all\extern\EASTL\source\string_eastl.cpp" />
     <ClCompile Include="..\..\src\all\extern\EASTL\source\thread_support.cpp" />
     <ClCompile Include="..\..\src\all\extern\dds.cpp" />
     <ClCompile Include="..\..\src\all\extern\lodepng.cpp" />
