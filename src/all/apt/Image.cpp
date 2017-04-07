@@ -129,6 +129,7 @@ bool Image::Read(Image& img_, const File& _file, FileFormat _format)
 		case FileFormat_Png: return ReadPng(img_, _file.getData(), _file.getDataSize());
 		case FileFormat_Bmp:
 		case FileFormat_Gif:
+		case FileFormat_Hdr:
 		case FileFormat_Jpg:
 		case FileFormat_Psd:
 		case FileFormat_Tga: return ReadDefault(img_, _file.getData(), _file.getDataSize());
@@ -172,6 +173,7 @@ bool Image::Write(const Image& _img, File& file_, FileFormat _format)
 		case FileFormat_Dds: ret = WriteDds(file_, _img); break;
 		case FileFormat_Png: ret = WritePng(file_, _img); break;
 		case FileFormat_Tga: ret = WriteTga(file_, _img); break;
+		case FileFormat_Hdr: ret = WriteHdr(file_, _img); break;
 		default: APT_LOG_ERR("Image: File format does not supported writing '%s'", file_.getPath()); goto Image_Write_end;
 	};
 
@@ -323,6 +325,11 @@ bool Image::validateFileFormat(FileFormat _format) const
 		case FileFormat_Dds:
 			if (m_type == Type_3dArray) return false;
 			return true;
+		case FileFormat_Hdr:
+			if (m_compression != Compression_None) return false;
+			if (!DataType::IsFloat(m_dataType)) return false;
+			if (IsDataTypeBpc(m_dataType, 8) || IsDataTypeBpc(m_dataType, 16)) return false;
+			return true;
 		case FileFormat_Png:
 			if (m_compression != Compression_None) return false;
 			if (DataType::IsFloat(m_dataType))  return false;
@@ -396,6 +403,8 @@ Image::FileFormat Image::GuessFormat(const char* _path)
 			return FileFormat_Bmp;
 		} else if (strcmp_ignore_case(ext, ".dds") == 0) {
 			return FileFormat_Dds;
+		} else if (strcmp_ignore_case(ext, ".hdr") == 0) {
+			return FileFormat_Hdr;
 		} else if (strcmp_ignore_case(ext, ".png") == 0) {
 			return FileFormat_Png;
 		} else if (strcmp_ignore_case(ext, ".tga") == 0) {
@@ -422,6 +431,7 @@ bool Image::IsDataTypeBpc(DataType _type, int _bpc)
 #define STBI_NO_STDIO
 #define STBI_ONLY_BMP
 #define STBI_ONLY_GIF
+#define STBI_ONLY_HDR
 #define STBI_ONLY_JPEG
 #define STBI_ONLY_PSD
 #define STBI_ONLY_TGA
@@ -460,21 +470,27 @@ static void SwapByteOrder(char* _d_, unsigned _dsize)
 
 bool Image::ReadDefault(Image& img_, const char* _data, uint _dataSize)
 {
-	int x, y, cmp;
-	unsigned char* d = stbi_load_from_memory((unsigned char*)_data, (int)_dataSize, &x, &y, &cmp, 0);
+	int w, h, cmp;
+	stbi_uc* d;
+	bool isHdr = stbi_is_hdr_from_memory((stbi_uc*)_data, (int)_dataSize) != 0;
+	if (isHdr) {
+		d = (stbi_uc*)stbi_loadf_from_memory((stbi_uc*)_data, (int)_dataSize, &w, &h, &cmp, 0);
+	} else {
+		d = stbi_load_from_memory((stbi_uc*)_data, (int)_dataSize, &w, &h, &cmp, 0);
+	}
 	if (!d) {
-		APT_LOG_ERR("stbi_load_from_memory() failed '%s'", stbi_failure_reason());
+		APT_LOG_ERR("stbi_load%s_from_memory() failed '%s'", isHdr ? "f" : "", stbi_failure_reason());
 		return false;
 	}
-	img_.m_width       = x;
-	img_.m_height      = y;
+	img_.m_width       = w;
+	img_.m_height      = h;
 	img_.m_depth       = img_.m_arrayCount = img_.m_mipmapCount = 1;
 	img_.m_type        = Type_2d;
 	img_.m_layout      = GuessLayout((uint)cmp);
-	img_.m_dataType    = DataType::Uint8N;
+	img_.m_dataType    = isHdr ? DataType::Float32 : DataType::Uint8N;
 	img_.m_compression = Compression_None;
 	img_.alloc();
-	memcpy(img_.m_data, d, x * y * cmp); // \todo, avoid this
+	memcpy(img_.m_data, d, w * h * cmp * isHdr ? sizeof(float) : sizeof(stbi_uc)); // \todo avoid this, let image own the ptr
 	stbi_image_free(d);
 	return true;
 }
@@ -604,6 +620,14 @@ bool Image::WriteTga(File& file_, const Image& _img)
 {
 	if (!stbi_write_tga_to_func(StbiWriteFile, &file_, (int)_img.m_width, (int)_img.m_height, (int)GetComponentCount(_img.m_layout), _img.m_data)) {
 		APT_LOG_ERR("stbi_write_tga_to_func() failed");
+		return false;
+	}
+	return true;
+}
+bool Image::WriteHdr(File& file_, const Image& _img)
+{
+	if (!stbi_write_hdr_to_func(StbiWriteFile, &file_, (int)_img.m_width, (int)_img.m_height, (int)GetComponentCount(_img.m_layout), (float*)_img.m_data)) {
+		APT_LOG_ERR("stbi_write_hdr_to_func() failed");
 		return false;
 	}
 	return true;

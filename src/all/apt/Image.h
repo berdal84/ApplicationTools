@@ -17,8 +17,6 @@ class File;
 //   to be clearer (e.g. include "bytes" in the name).
 // \todo Read*() functions and setRawData() should correctly release the 
 //   existing image first (or only if the load succeeded).
-// \todo Conversion behaviour between data types is not well define. Need to
-//   consider how to manage unnormalized floating point data.
 ////////////////////////////////////////////////////////////////////////////////
 class Image
 {
@@ -67,13 +65,14 @@ public:
 
 	enum FileFormat
 	{
-	 // load + save supported
+	 // read + write supported
 		FileFormat_Bmp,
 		FileFormat_Dds,
+		FileFormat_Hdr,
 		FileFormat_Png,
 		FileFormat_Tga,
 
-	 // load only
+	 // read only
 		FileFormat_Jpg, 
 		FileFormat_Gif,
 		FileFormat_Psd,
@@ -206,6 +205,7 @@ private:
 	static bool WritePng(File& file_, const Image& _png);
 	static bool WriteBmp(File& file_, const Image& _img);
 	static bool WriteTga(File& file_, const Image& _img);
+	static bool WriteHdr(File& file_, const Image& _img);
 
 }; // class Image
 
