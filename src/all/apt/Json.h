@@ -85,7 +85,7 @@ public:
 	static bool  Write(const Json& _json, File& file_);
 	static bool  Write(const Json& _json, const char* _path, FileSystem::RootType _rootHint = FileSystem::RootType_Default);
 		
-	Json(const char* _path = 0, FileSystem::RootType _rootHint = FileSystem::RootType_Default);
+	Json(const char* _path = nullptr, FileSystem::RootType _rootHint = FileSystem::RootType_Default);
 	~Json();
 
 	// Find a named value in the current object. Return true if the value is found, in which case getValue() may be called.
@@ -144,7 +144,7 @@ private:
 }; // class Json
 
 ////////////////////////////////////////////////////////////////////////////////
-/// JsonSerializer
+// JsonSerializer
 ////////////////////////////////////////////////////////////////////////////////
 class JsonSerializer
 {
@@ -172,8 +172,8 @@ public:
 	bool value(tType& _value_);
 
 	// Visit a named string in the current object/array. Pass 0 as _value_ to get the string length.
+	// Return String length, excluding the terminating null.
 	// \note This is the 'raw' api, prefer to use value(StringBase&).
-	/// \return String length, excluding the terminating null.
 	int string(const char* _name, char* _string_);
 	int string(char* _string_);
 

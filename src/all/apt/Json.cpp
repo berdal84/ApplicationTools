@@ -118,7 +118,7 @@ bool Json::Write(const Json& _json, const char* _path, FileSystem::RootType _roo
 }
 
 Json::Json(const char* _path, FileSystem::RootType _rootHint)
-	: m_impl(0)
+	: m_impl(nullptr)
 {
 	m_impl = new Impl;
 	m_impl->m_dom.SetObject();
