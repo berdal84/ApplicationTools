@@ -1,6 +1,6 @@
 #pragma once
-#ifndef apt_IniFile_h
-#define apt_IniFile_h
+#ifndef apt_Ini_h
+#define apt_Ini_h
 
 #include <apt/def.h>
 #include <apt/String.h>
@@ -12,7 +12,7 @@ namespace apt {
 class File;
 
 ////////////////////////////////////////////////////////////////////////////////
-// IniFile
+// Ini
 // Read/write INI files; e.g.
 // \code
 //  ; comment
@@ -30,7 +30,7 @@ class File;
 // \todo String escape characters
 // \todo Line breaks within strings
 ////////////////////////////////////////////////////////////////////////////////
-class IniFile
+class Ini
 {
 public:
 
@@ -52,7 +52,7 @@ public:
 
 	class Property
 	{
-		friend class IniFile;
+		friend class Ini;
 
 		uint8   m_type;
 		uint16  m_count;
@@ -84,19 +84,19 @@ public:
 	
 	// Read from a file and parse. Invalidates any existing Property instances returned by getProperty();
 	// Return false if an error occurred.
-	static bool Read(IniFile& iniFile_, const File& _file);
-	static bool Read(IniFile& iniFile_, const char* _path);
+	static bool Read(Ini& iniFile_, const File& _file);
+	static bool Read(Ini& iniFile_, const char* _path);
 
 	// Write to a file.
-	static bool Write(const IniFile& _iniFile, File& file_);
-	static bool Write(const IniFile& _iniFile, const char* _path);
+	static bool Write(const Ini& _iniFile, File& file_);
+	static bool Write(const Ini& _iniFile, const char* _path);
 
-	IniFile();
-	~IniFile();
+	Ini();
+	~Ini();
 	
 	// Retrieve a named property, optionally specifying the section to search.
 	// Note that the returned Property instance is only valid during the lifetime
-	// of the IniFile to which it belongs. Calling load() will invalidate all
+	// of the Ini to which it belongs. Calling load() will invalidate all
 	// previously returned Property instances.
 	// Return property instance. If no matching property was found, isNull() will return true.
 	Property getProperty(const char* _name, const char* _section = 0) const;
@@ -135,8 +135,8 @@ private:
 	const Section* findSection(const char* _name) const;
 	const Key* findKey(const char* _name, const Section* _section) const;
 	
-}; // class IniFile
+}; // class Ini
 
 } // namespace apt
 
-#endif // apt_IniFile_h
+#endif // apt_Ini_h

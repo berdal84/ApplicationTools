@@ -1,9 +1,10 @@
-#include <apt/IniFile.h>
+#include <apt/Ini.h>
 
 #include <apt/log.h>
 #include <apt/File.h>
 #include <apt/String.h>
 #include <apt/TextParser.h>
+#include <apt/Time.h>
 
 using namespace apt;
 
@@ -13,13 +14,14 @@ static const char* kLineEnd = "\n";
 
 // PUBLIC
 
-bool IniFile::Read(IniFile& iniFile_, const File& _file)
+bool Ini::Read(Ini& iniFile_, const File& _file)
 {
 	return iniFile_.parse(_file.getData());
 }
 
-bool IniFile::Read(IniFile& iniFile_, const char* _path)
+bool Ini::Read(Ini& iniFile_, const char* _path)
 {
+	APT_AUTOTIMER("Ini::Read(%s)", _path);
 	File f;
 	if (!File::Read(f, _path)) {
 		return false;
@@ -27,7 +29,7 @@ bool IniFile::Read(IniFile& iniFile_, const char* _path)
 	return Read(iniFile_, f);
 }
 
-bool IniFile::Write(const IniFile& _iniFile, File& file_)
+bool Ini::Write(const Ini& _iniFile, File& file_)
 {
 	String<0> buf;
 
@@ -65,8 +67,9 @@ bool IniFile::Write(const IniFile& _iniFile, File& file_)
 	return true;
 }
 
-bool IniFile::Write(const IniFile& _iniFile, const char* _path)
+bool Ini::Write(const Ini& _iniFile, const char* _path)
 {
+	APT_AUTOTIMER("Ini::Write(%s)", _path);
 	File f;
 	if (Write(_iniFile, f)) {
 		return File::Write(f, _path);
@@ -74,14 +77,14 @@ bool IniFile::Write(const IniFile& _iniFile, const char* _path)
 	return false;
 }
 
-IniFile::IniFile()
+Ini::Ini()
 {
  // push default section
 	Section s = { "", 0, (uint16)m_keys.size() };
 	m_sections.push_back(s);
 }
 
-IniFile::~IniFile()
+Ini::~Ini()
 {
 	for (uint i = 0; i < m_keys.size(); ++i) {
 		Key& k = m_keys[i];
@@ -94,7 +97,7 @@ IniFile::~IniFile()
 	}
 }
 
-IniFile::Property IniFile::getProperty(const char* _name, const char* _section) const
+Ini::Property Ini::getProperty(const char* _name, const char* _section) const
 {
 	Property ret(ValueType_Bool, 0, 0);
 
@@ -108,16 +111,16 @@ IniFile::Property IniFile::getProperty(const char* _name, const char* _section) 
 	return ret;
 }
 
-void IniFile::pushSection(const char* _name)
+void Ini::pushSection(const char* _name)
 {
-	APT_ASSERT_MSG(findSection(_name) == 0, "IniFile::pushSection: '%s' already exists", _name);
+	APT_ASSERT_MSG(findSection(_name) == 0, "Ini::pushSection: '%s' already exists", _name);
 	Section s = { NameStr(_name), 0, (uint16)m_keys.size() };
 	m_sections.push_back(s);
 }
 
 #define DEFINE_pushValueArray(_type, _typeEnum, _valueMember) \
-	template <> void IniFile::pushValueArray<_type>(const char* _name, const _type _value[], uint16 _count) { \
-		APT_ASSERT_MSG(findKey(_name, &m_sections.back()) == 0, "IniFile::pushValue: '%s' already exists in section '%s'", _name, m_sections.back().m_name.isEmpty() ? "default" : (const char*)m_sections.back().m_name); \
+	template <> void Ini::pushValueArray<_type>(const char* _name, const _type _value[], uint16 _count) { \
+		APT_ASSERT_MSG(findKey(_name, &m_sections.back()) == 0, "Ini::pushValue: '%s' already exists in section '%s'", _name, m_sections.back().m_name.isEmpty() ? "default" : (const char*)m_sections.back().m_name); \
 		Key key = { NameStr(_name), ValueType:: ## _typeEnum, _count, (uint16)m_values.size() }; \
 		m_keys.push_back(key); \
 		for (uint16 i = 0; i < _count; ++i) { \
@@ -132,9 +135,9 @@ DEFINE_pushValueArray(double, ValueType_Double, m_double)
 DEFINE_pushValueArray(float,  ValueType_Double, m_double)
 #undef DEFINE_pushValueArray
 
-void IniFile::pushValueArray(const char* _name, const char* _value[], uint16 _count)
+void Ini::pushValueArray(const char* _name, const char* _value[], uint16 _count)
 {
-	APT_ASSERT_MSG(findKey(_name, &m_sections.back()) == 0, "IniFile::pushValue: '%s' already exists in section '%s'", _name, m_sections.back().m_name.isEmpty() ? "default" : (const char*)m_sections.back().m_name);
+	APT_ASSERT_MSG(findKey(_name, &m_sections.back()) == 0, "Ini::pushValue: '%s' already exists in section '%s'", _name, m_sections.back().m_name.isEmpty() ? "default" : (const char*)m_sections.back().m_name);
 	Key key = { NameStr(_name), ValueType_String, _count, (uint16)m_values.size() };
 	m_keys.push_back(key);
 	for (uint16 i = 0; i < _count; ++i) {
@@ -147,7 +150,7 @@ void IniFile::pushValueArray(const char* _name, const char* _value[], uint16 _co
 
 // PRIVATE
 
-bool IniFile::parse(const char* _str)
+bool Ini::parse(const char* _str)
 {
 	APT_ASSERT(_str);
 	
@@ -277,7 +280,7 @@ bool IniFile::parse(const char* _str)
 	return true;
 }
 
-const IniFile::Section* IniFile::findSection(const char* _name) const
+const Ini::Section* Ini::findSection(const char* _name) const
 {
 	for (uint i = 0; i < m_sections.size(); ++i) {
 		if (m_sections[i].m_name == _name) {
@@ -286,7 +289,7 @@ const IniFile::Section* IniFile::findSection(const char* _name) const
 	}
 	return 0;
 }
-const IniFile::Key* IniFile::findKey(const char* _name, const Section* _section) const
+const Ini::Key* Ini::findKey(const char* _name, const Section* _section) const
 {
 	uint koff = 0;
 	uint kcount = m_keys.size();
