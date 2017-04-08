@@ -81,9 +81,11 @@ namespace apt {
 
 // Forward declarations
 
+class ArgList;
 class File;
 class FileSystem;
 class Image;
+class Ini;
 class Json;
 class JsonSerializer;
 class MemoryPool;
