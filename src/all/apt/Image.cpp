@@ -142,6 +142,7 @@ bool Image::Read(Image& img_, const File& _file, FileFormat _format)
 
 bool Image::Read(Image& img_, const char* _path, FileFormat _format)
 {
+	APT_AUTOTIMER("Image::Read(%s)", _path);
 	File f;
 	f.setPath(_path);
 	if (!File::Read(f, _path)) {
@@ -186,6 +187,7 @@ Image_Write_end:
 
 bool Image::Write(const Image& _img, const char* _path, FileFormat _format)
 {
+	APT_AUTOTIMER("Image::Write(%s)", _path);
 	File f;
 	f.setPath(_path);
 	if (!Write(_img, f, _format)) {
@@ -557,7 +559,6 @@ bool Image::WritePng(File& file_, const Image& _img)
 	unsigned bitdepth;
 	bool ret = true;
 
- 
 	char* buf = 0;
 
 	switch (_img.m_layout) {

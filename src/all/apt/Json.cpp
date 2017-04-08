@@ -4,6 +4,7 @@
 #include <apt/math.h>
 #include <apt/FileSystem.h>
 #include <apt/String.h>
+#include <apt/Time.h>
 
 #include <cstring>
 
@@ -90,6 +91,7 @@ bool Json::Read(Json& json_, const File& _file)
 
 bool Json::Read(Json& json_, const char* _path, FileSystem::RootType _rootHint)
 {
+	APT_AUTOTIMER("Json::Read(%s)", _path);
 	File f;
 	if (!FileSystem::ReadIfExists(f, _path, _rootHint)) {
 		return false;
@@ -110,6 +112,7 @@ bool Json::Write(const Json& _json, File& file_)
 
 bool Json::Write(const Json& _json, const char* _path, FileSystem::RootType _rootHint)
 {
+	APT_AUTOTIMER("Json::Write(%s)", _path);
 	File f;
 	if (Write(_json, f)) {
 		return FileSystem::Write(f, _path, _rootHint);

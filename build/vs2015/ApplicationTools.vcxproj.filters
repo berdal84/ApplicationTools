@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="extern">
@@ -32,7 +32,6 @@
     <ClInclude Include="..\..\src\all\apt\File.h" />
     <ClInclude Include="..\..\src\all\apt\FileSystem.h" />
     <ClInclude Include="..\..\src\all\apt\Image.h" />
-    <ClInclude Include="..\..\src\all\apt\IniFile.h" />
     <ClInclude Include="..\..\src\all\apt\Json.h" />
     <ClInclude Include="..\..\src\all\apt\MemoryPool.h" />
     <ClInclude Include="..\..\src\all\apt\PersistentVector.h" />
@@ -418,13 +417,13 @@
     <ClInclude Include="..\..\src\win\apt\win.h">
       <Filter>win</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\all\apt\Ini.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\all\apt\ArgList.cpp" />
     <ClCompile Include="..\..\src\all\apt\File.cpp" />
     <ClCompile Include="..\..\src\all\apt\FileSystem.cpp" />
     <ClCompile Include="..\..\src\all\apt\Image.cpp" />
-    <ClCompile Include="..\..\src\all\apt\IniFile.cpp" />
     <ClCompile Include="..\..\src\all\apt\Json.cpp" />
     <ClCompile Include="..\..\src\all\apt\MemoryPool.cpp" />
     <ClCompile Include="..\..\src\all\apt\String.cpp" />
@@ -481,6 +480,7 @@
     <ClCompile Include="..\..\src\win\apt\platform.cpp">
       <Filter>win</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\all\apt\Ini.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\all\extern\EASTL\EASTL.natvis">

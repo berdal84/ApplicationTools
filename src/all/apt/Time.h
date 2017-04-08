@@ -5,6 +5,7 @@
 #include <apt/def.h>
 #include <apt/log.h>
 #include <apt/static_initializer.h>
+#include <apt/String.h>
 
 namespace apt {
 
@@ -137,32 +138,35 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 // AutoTimer
-// Scoped timer. Measures the time between ctor, dtor calls and logs the
-// interval in the dtor. Use APT_TIME_DBG to declare an AutoTimer instance for 
-// debug builds only.
+// Scoped timer. Measures the time between ctor and dtor, logs the interval in
+// the dtor. Use APT_TIME_DBG to declare an AutoTimer instance for debug builds 
+// only.
 ////////////////////////////////////////////////////////////////////////////////
 class AutoTimer
 {
-	Timestamp   m_start;
-	const char* m_name;
+	Timestamp  m_start;
+	String<64> m_msg;
 public:
-	AutoTimer(const char* _name)
-		: m_name(_name) 
-	{ 
+	AutoTimer(const char* _fmt, ...)
+	{
+		va_list args;
+		va_start(args, _fmt);
+		m_msg.setfv(_fmt, args);
+		va_end(args);
 		m_start = Time::GetTimestamp(); 
 	}
 	~AutoTimer() 
 	{ 
 		Timestamp interval = Time::GetTimestamp() - m_start;
-		APT_LOG("%s -- %fms", m_name, interval.asMilliseconds());
+		APT_LOG("%s -- %s", (const char*)m_msg, interval.asString());
 	}
 };
 
-#define APT_AUTOTIMER(name) apt::AutoTimer APT_UNIQUE_NAME(_aptAutoTimer_)(name)
+#define APT_AUTOTIMER(...) apt::AutoTimer APT_UNIQUE_NAME(_aptAutoTimer_)(__VA_ARGS__)
 #ifdef APT_DEBUG
-	#define APT_AUTOTIMER_DBG(name) APT_AUTOTIMER(name)
+	#define APT_AUTOTIMER_DBG(...) APT_AUTOTIMER(__VA_ARGS__)
 #else
-	#define APT_AUTOTIMER_DBG(name) APT_UNUSED(name)
+	#define APT_AUTOTIMER_DBG(...) do { } while (0)
 #endif
 
 } // namespace apt

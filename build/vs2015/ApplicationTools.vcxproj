@@ -93,7 +93,7 @@
     <ClInclude Include="..\..\src\all\apt\File.h" />
     <ClInclude Include="..\..\src\all\apt\FileSystem.h" />
     <ClInclude Include="..\..\src\all\apt\Image.h" />
-    <ClInclude Include="..\..\src\all\apt\IniFile.h" />
+    <ClInclude Include="..\..\src\all\apt\Ini.h" />
     <ClInclude Include="..\..\src\all\apt\Json.h" />
     <ClInclude Include="..\..\src\all\apt\MemoryPool.h" />
     <ClInclude Include="..\..\src\all\apt\PersistentVector.h" />
@@ -239,7 +239,7 @@
     <ClCompile Include="..\..\src\all\apt\File.cpp" />
     <ClCompile Include="..\..\src\all\apt\FileSystem.cpp" />
     <ClCompile Include="..\..\src\all\apt\Image.cpp" />
-    <ClCompile Include="..\..\src\all\apt\IniFile.cpp" />
+    <ClCompile Include="..\..\src\all\apt\Ini.cpp" />
     <ClCompile Include="..\..\src\all\apt\Json.cpp" />
     <ClCompile Include="..\..\src\all\apt\MemoryPool.cpp" />
     <ClCompile Include="..\..\src\all\apt\String.cpp" />
