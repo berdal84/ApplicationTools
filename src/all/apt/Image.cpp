@@ -492,7 +492,7 @@ bool Image::ReadDefault(Image& img_, const char* _data, uint _dataSize)
 	img_.m_dataType    = isHdr ? DataType::Float32 : DataType::Uint8N;
 	img_.m_compression = Compression_None;
 	img_.alloc();
-	memcpy(img_.m_data, d, w * h * cmp * isHdr ? sizeof(float) : sizeof(stbi_uc)); // \todo avoid this, let image own the ptr
+	memcpy(img_.m_data, d, w * h * cmp * (isHdr ? sizeof(float) : sizeof(stbi_uc))); // \todo avoid this, let image own the ptr
 	stbi_image_free(d);
 	return true;
 }
