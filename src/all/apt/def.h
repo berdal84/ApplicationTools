@@ -132,7 +132,7 @@ AssertBehavior AssertAndCallback(const char* _e, const char* _file, int _line, c
 const char* StripPath(const char* _path);
 
 template <typename tType, unsigned kCount>
-inline unsigned ArrayCount(const tType (&)[kCount]) { return kCount; }
+inline constexpr unsigned ArrayCount(const tType (&)[kCount]) { return kCount; }
 
 template <typename tType>
 inline tType Min(tType a, tType b) { return a < b ? a : b; }
