@@ -727,10 +727,12 @@ bool JsonSerializer::beginObject(const char* _name)
 				return false;
 			}
 		}
-		if (m_json->getType() == Json::ValueType_Object) { // \todo assert if it's not an object?
+
+		if (m_json->getType() == Json::ValueType_Object) {
 			m_json->enterObject();
 			return true;
 		}
+
 	} else {
 		m_json->beginObject(_name);
 		return true;
@@ -750,18 +752,26 @@ bool JsonSerializer::beginArray(const char* _name)
 {
 	if (m_mode == Mode_Read) {
 		if (insideArray()) {
-			return m_json->next();
+			if (!m_json->next()) {
+				return false;
+			}
 		} else {
 			APT_ASSERT(_name);
 			if (!m_json->find(_name)) {
 				return false;
 			}
-			return m_json->enterArray();
 		}
+				
+		if (m_json->getType() == Json::ValueType_Array) {
+			m_json->enterArray();
+			return true;
+		}
+
 	} else {
 		m_json->beginArray(_name);
 		return true;
 	}
+	return false;
 }
 void JsonSerializer::endArray()
 {

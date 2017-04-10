@@ -80,11 +80,12 @@ public:
 		ValueType_Count
 	};
 
-	static bool  Read(Json& json_, const File& _file);
-	static bool  Read(Json& json_, const char* _path, FileSystem::RootType _rootHint = FileSystem::RootType_Default);
-	static bool  Write(const Json& _json, File& file_);
-	static bool  Write(const Json& _json, const char* _path, FileSystem::RootType _rootHint = FileSystem::RootType_Default);
+	static bool Read(Json& json_, const File& _file);
+	static bool Read(Json& json_, const char* _path, FileSystem::RootType _rootHint = FileSystem::RootType_Default);
+	static bool Write(const Json& _json, File& file_);
+	static bool Write(const Json& _json, const char* _path, FileSystem::RootType _rootHint = FileSystem::RootType_Default);
 		
+	// Reads from _path if specified.
 	Json(const char* _path = nullptr, FileSystem::RootType _rootHint = FileSystem::RootType_Default);
 	~Json();
 
