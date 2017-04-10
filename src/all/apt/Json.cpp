@@ -750,24 +750,18 @@ bool JsonSerializer::beginArray(const char* _name)
 {
 	if (m_mode == Mode_Read) {
 		if (insideArray()) {
-			if (!m_json->next()) {
-				return false;
-			}
+			return m_json->next();
 		} else {
 			APT_ASSERT(_name);
 			if (!m_json->find(_name)) {
 				return false;
 			}
-			if (m_json->getType() == Json::ValueType_Array) { // \todo assert if it's not an array?
-				m_json->enterArray();
-				return true;
-			}
+			return m_json->enterArray();
 		}
 	} else {
 		m_json->beginArray(_name);
 		return true;
 	}
-	return false;
 }
 void JsonSerializer::endArray()
 {
