@@ -11,7 +11,7 @@ namespace apt {
 // Json
 // Traversal of a loaded document is a state machine:
 // 
-//  Json json("json.json") // use Json::Read() if to check the return code
+//  Json json("json.json") // use Json::Read() if you need to check the return code
 //  
 //  if (json.find("Value")) {                    // find a value in the DOM root
 //     if (json.getType() == Json::ValueType_Number) {    // check it's the right type
@@ -92,7 +92,7 @@ public:
 	// Find a named value in the current object. Return true if the value is found, in which case getValue() may be called.
 	bool find(const char* _name);
 	
-	// Get the next value in the current object/array. Return true if not the end of the object/array, in which case getValue() may be called;
+	// Get the next value in the current object/array. Return true if not the end of the object/array, in which case getValue() may be called.
 	bool next();
 
 	// Get the type of the current value.
@@ -117,10 +117,10 @@ public:
 	// Return length of the current array (or -1 if not in an array).
 	int getArrayLength() const;
 
-	// Create and enter an object. If the object already exists this has the effect as a call to find() followed by #
-	// a call to enterObject(). If _name is 0 the object is expected to be an array member.
+	// Create and enter an object. If the object already exists this has the same effect as a call to find() followed by
+	// a call to enterObject(). If _name is nullptr the object is expected to be an array member.
 	void beginObject(const char* _name = nullptr);
-	/// Leave the current object.
+	// Leave the current object.
 	void endObject() { leaveObject(); }
 	
 	// Create and set a named value. If the object already exists this modifies the type and value of the existing object.
@@ -128,7 +128,7 @@ public:
 	void setValue(const char* _name, tType _value);
 
 	// Create and enter an array. If the array already exists this has the effect as a call to find() followed by a 
-	// call to enterArray(). If _name is 0 the array is expected to be an array member.
+	// call to enterArray(). If _name is nullptr the array is expected to be an array member.
 	void beginArray(const char* _name = nullptr);
 	// Leave the current array.
 	void endArray() { leaveArray(); }
@@ -172,8 +172,8 @@ public:
 	template <typename tType>
 	bool value(tType& _value_);
 
-	// Visit a named string in the current object/array. Pass 0 as _value_ to get the string length.
-	// Return String length, excluding the terminating null.
+	// Visit a named string in the current object/array. Pass nullptr as _string_ to get the string length.
+	// Return the string length, excluding the terminating null.
 	// \note This is the 'raw' api, prefer to use value(StringBase&).
 	int string(const char* _name, char* _string_);
 	int string(char* _string_);
@@ -189,7 +189,7 @@ private:
 	bool insideArray();
 	
 };
-class Serializer: public JsonSerializer {}; // \todo Absract base class
+class Serializer: public JsonSerializer {}; // \todo Absract base class?
 
 } // namespace apt
 
