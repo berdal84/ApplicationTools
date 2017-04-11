@@ -98,6 +98,7 @@
     <ClCompile Include="..\..\tests\Factory_tests.cpp" />
     <ClCompile Include="..\..\tests\Json_tests.cpp" />
     <ClCompile Include="..\..\tests\String_tests.cpp" />
+    <ClCompile Include="..\..\tests\math_tests.cpp" />
     <ClCompile Include="..\..\tests\types_tests.cpp" />
   </ItemGroup>
   <ItemGroup>
