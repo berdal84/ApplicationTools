@@ -11,8 +11,8 @@ namespace apt {
 ////////////////////////////////////////////////////////////////////////////////
 // FileSystem
 // Manage file access. A fixed number of directory 'roots' may be set, which 
-// are searched in reverse order when resolving a path (e.g. kApplication is
-// checked before kCommon).
+// are searched in reverse order when resolving a path (e.g. RootType_Application
+// is checked before RootType_Common).
 ////////////////////////////////////////////////////////////////////////////////
 class FileSystem
 	: private non_instantiable<FileSystem>
@@ -34,20 +34,18 @@ public:
 	static const char* GetRoot(RootType _type)                    { return s_roots[_type]; }
 	static void        SetRoot(RootType _type, const char* _path) { s_roots[_type].set(_path); s_rootLengths[_type] = (int)strlen(_path); }
 
-	// Read a file into memory. Each root is searched, beginning at _rootHint. 
-	// If _path is 0, the path from file_ is used. Return false if an error occurred, in 
-	// which case file_ remains unchanged. On success, any resources already associated 
-	// with file_ are released.
-	static bool        Read(File& file_, const char* _path = 0, RootType _rootHint = RootType_Default);
+	// Read a file into memory. Each root is searched, beginning at _rootHint. If _path is nullptr, the 
+	// path from file_ is used. Return false if an error occurred, in which case file_ remains unchanged. 
+	// On success, any resources already associated with file_ are released.
+	static bool        Read(File& file_, const char* _path = nullptr, RootType _rootHint = RootType_Default);
 
 	// As Read() but first checks if the file exists. Return false if the file does not exist 
 	// or if an error occurred.
-	static bool        ReadIfExists(File& file_, const char* _path = 0, RootType _rootHint = RootType_Default);
+	static bool        ReadIfExists(File& file_, const char* _path = nullptr, RootType _rootHint = RootType_Default);
 
-	// Write _file's data to _path. If _path is 0, the path from _file is used. Return false 
-	// if an error occurred, in which case any existing file at _path may or may not have been 
-	// overwritten.
-	static bool        Write(const File& _file, const char* _path = 0, RootType _root = RootType_Default);
+	// Write _file's data to _path. If _path is nullptr, the path from _file is used. Return false 
+	// if an error occurred, in which case any existing file at _path may or may not have been overwritten.
+	static bool        Write(const File& _file, const char* _path = nullptr, RootType _root = RootType_Default);
 
 	// Return true if _path exists. Each root is searched, beginning at _rootHint.
 	static bool        Exists(const char* _path, RootType _rootHint = RootType_Default);
