@@ -41,7 +41,7 @@ bool FileSystem::Exists(const char* _path, RootType _rootHint)
 	return FindExisting(buf, _path, _rootHint);
 }
 
-void FileSystem::StripRoot(PathStr& ret_, const char* _path)
+void FileSystem::StripRoot(StringBase& ret_, const char* _path)
 {
 	for (int r = 0; r < RootType_Count; ++r) {
 		if (s_rootLengths[r] == 0) {
@@ -57,15 +57,45 @@ void FileSystem::StripRoot(PathStr& ret_, const char* _path)
 	StripPath(ret_, _path);
 }
 
-void FileSystem::StripPath(PathStr& ret_, const char* _path)
+void FileSystem::StripPath(StringBase& ret_, const char* _path)
 {
-	int i = 0, last = 0;
-	while (_path[i] != '\0') {
-		if (_path[i] == s_separator)
-			last = i + 1;
-		++i;
+	const char* beg = _path;
+	while (*_path) {
+		if (*_path == '/' || *_path == '\\') {
+			beg = _path + 1;
+		}
+		++_path;
 	}
-	ret_.set(_path + i);
+	ret_.set(beg);
+}
+
+void FileSystem::GetPath(StringBase& ret_, const char* _path)
+{
+	const char* beg = _path;
+	const char* end = _path;
+	while (*_path) {
+		if (*_path == '/' || *_path == '\\') {
+			end = _path + 1;
+		}
+		++_path;
+	}
+	ret_.set(beg, end - beg);
+}
+
+void FileSystem::GetFileName(StringBase& ret_, const char* _path)
+{
+	const char* beg = _path;
+	while (*_path) {
+		if (*_path == '/' || *_path == '\\') {
+			beg = _path + 1;
+		}
+		++_path;
+	}
+	const char* end = beg;
+	while (*end && *end != '.') {
+		++end;
+	}
+	ret_.set(beg, end - beg);
 }
 
 const char* FileSystem::GetExtension(const char* _path)
@@ -79,7 +109,7 @@ const char* FileSystem::GetExtension(const char* _path)
 FileSystem::PathStr FileSystem::s_roots[RootType_Count];
 int FileSystem::s_rootLengths[RootType_Count];
 
-void FileSystem::MakePath(PathStr& ret_, const char* _path, RootType _root)
+void FileSystem::MakePath(StringBase& ret_, const char* _path, RootType _root)
 {
 	APT_ASSERT(_root < RootType_Count);
 	bool useRoot = !s_roots[_root].isEmpty();

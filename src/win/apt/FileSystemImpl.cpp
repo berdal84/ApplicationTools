@@ -29,7 +29,7 @@ static void BuildFilterString(const char* _filters, StringBase& ret_)
 
 // PUBLIC
 
-void FileSystem::MakeRelative(PathStr& ret_, const char* _path, RootType _root)
+void FileSystem::MakeRelative(StringBase& ret_, const char* _path, RootType _root)
 {
  // construct the full root
 	TCHAR root[MAX_PATH] = {};
@@ -55,7 +55,7 @@ void FileSystem::MakeRelative(PathStr& ret_, const char* _path, RootType _root)
 	ret_.replace('\\', s_separator);
 }
 
-bool FileSystem::PlatformSelect(PathStr& result_, const char* _filters)
+bool FileSystem::PlatformSelect(StringBase& ret_, const char* _filters)
 {
 	static DWORD       s_filterIndex = 0;
 	static const DWORD kMaxOutputLength = MAX_PATH;
@@ -76,8 +76,8 @@ bool FileSystem::PlatformSelect(PathStr& result_, const char* _filters)
 	if (GetOpenFileName(&ofn) != 0) {
 		s_filterIndex = ofn.nFilterIndex;
 	 // parse s_output into results_
-		result_.set(s_output);
-		result_.replace('\\', '/'); // sanitize path for display
+		ret_.set(s_output);
+		ret_.replace('\\', '/'); // sanitize path for display
 		return true;
 	} else {
 		DWORD err = CommDlgExtendedError();
@@ -89,7 +89,7 @@ bool FileSystem::PlatformSelect(PathStr& result_, const char* _filters)
 	return false;
 }
 
-int FileSystem::PlatformSelectMulti(PathStr* results_, int _maxResults, const char* _filters)
+int FileSystem::PlatformSelectMulti(StringBase* retList_, int _maxResults, const char* _filters)
 {
 	static DWORD       s_filterIndex = 0;
 	static const DWORD kMaxOutputLength = 1024 * 4;
@@ -119,8 +119,8 @@ int FileSystem::PlatformSelectMulti(PathStr* results_, int _maxResults, const ch
 			if (*tp == '\0') {
 				break;
 			}
-			results_[ret].appendf("%s\\%s", s_output, (const char*)tp);
-			results_[ret].replace('\\', '/'); // sanitize path for display
+			retList_[ret].appendf("%s\\%s", s_output, (const char*)tp);
+			retList_[ret].replace('\\', '/'); // sanitize path for display
 			++ret;
 		}
 		return ret;

@@ -39,8 +39,7 @@ public:
 	// On success, any resources already associated with file_ are released.
 	static bool        Read(File& file_, const char* _path = nullptr, RootType _rootHint = RootType_Default);
 
-	// As Read() but first checks if the file exists. Return false if the file does not exist 
-	// or if an error occurred.
+	// As Read() but first checks if the file exists. Return false if the file does not exist or if an error occurred.
 	static bool        ReadIfExists(File& file_, const char* _path = nullptr, RootType _rootHint = RootType_Default);
 
 	// Write _file's data to _path. If _path is nullptr, the path from _file is used. Return false 
@@ -51,32 +50,45 @@ public:
 	static bool        Exists(const char* _path, RootType _rootHint = RootType_Default);
 
 	// Concatenates _path + s_separator + s_root[_root].
-	static void        MakePath(PathStr& ret_, const char* _path, RootType _root);
+	static void        MakePath(StringBase& ret_, const char* _path, RootType _root);
 
 	// Make _path relative to _root. It is safe for _path to point to the string buffer in ret_.
-	static void        MakeRelative(PathStr& ret_, const char* _path, RootType _root = RootType_Root);
-	static void        MakeRelative(PathStr& ret_, RootType _root = RootType_Root) { MakeRelative(ret_, ret_, _root); }
+	static void        MakeRelative(StringBase& ret_, const char* _path, RootType _root = RootType_Root);
+	static void        MakeRelative(StringBase& ret_, RootType _root = RootType_Root) { MakeRelative(ret_, ret_, _root); }
 
 	// Strip path from _path up to and including any root directory. It is safe for _path to point to 
 	// the string buffer in ret_.
-	static void        StripRoot(PathStr& ret_, const char* _path);
-	static void        StripRoot(PathStr& ret_) { StripRoot(ret_, ret_); }
+	static void        StripRoot(StringBase& ret_, const char* _path);
+	static void        StripRoot(StringBase& ret_) { StripRoot(ret_, ret_); }
 
 	// Strip path from _path. It is safe for _path to point to the string buffer in ret_.
-	static void        StripPath(PathStr& ret_, const char* _path);
-	static void        StripPath(PathStr& ret_) { StripPath(ret_, ret_); }
+	static void        StripPath(StringBase& ret_, const char* _path);
+	static void        StripPath(StringBase& ret_) { StripPath(ret_, ret_); }
+
+	// Extract path from _path (remove file name + extension). It is safe for _path to point
+	// the string buffer in ret_.
+	static void        GetPath(StringBase& ret_, const char* _path);
+	static void        GetPath(StringBase& ret_) { GetFileName(ret_, ret_); }
+
+	// Extract file name from _path. It is safe for _path to point to the string buffer in ret_.
+	static void        GetFileName(StringBase& ret_, const char* _path);
+	static void        GetFileName(StringBase& ret_) { GetFileName(ret_, ret_); }
+
+	// Extract extenson from _path. It is safe for _path to point to the string buffer in ret_.
+	static void        GetExtension(StringBase& ret_, const char* _path) { ret_.set(GetExtension(_path)); }
+	static void        GetExtension(StringBase& ret_) { GetExtension(ret_, ret_); }
 
 	// Return ptr to the character following the last occurrence of '.' in _path.
 	static const char* GetExtension(const char* _path);
-
+	
 	// Select a file/files via the platform UI. _filters is a null-separated list of filter strings.
-	static bool        PlatformSelect(PathStr& result_, const char* _filters = "");
-	static int         PlatformSelectMulti(PathStr* results_, int _maxResults, const char* _filters = "");
+	static bool        PlatformSelect(StringBase& ret_, const char* _filters = "");
+	static int         PlatformSelectMulti(StringBase* retList_, int _maxResults, const char* _filters = "");
 
 private:
 	static PathStr    s_roots[RootType_Count];
 	static int        s_rootLengths[RootType_Count];
-	static const char s_separator; // per-platform
+	static const char s_separator; // per-platform default separator
 	
 	// Get a path to an existing file based on _path and _rootHint. Return false if no existing file was found.
 	static bool FindExisting(PathStr& ret_, const char* _path, RootType _rootHint);
