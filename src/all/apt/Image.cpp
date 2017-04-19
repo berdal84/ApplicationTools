@@ -3,11 +3,11 @@
 #include <apt/def.h>
 #include <apt/log.h>
 #include <apt/File.h>
+#include <apt/FileSystem.h>
 #include <apt/Time.h>
 
 #include <cmath>
 #include <cstring>
-#include <cstdio> // stb_image requires sprintf
 
 using namespace apt;
 
@@ -377,48 +377,24 @@ Image::Layout Image::GuessLayout(uint _cmpCount)
 	};
 }
 
-static char lowercase(char c)
-{
-	if (c >= 'A' && c <= 'Z') {
-		c += 'a' - 'A';
-	}
-	return c;
-}
-static int strcmp_ignore_case(const char* str1, const char* str2)
-{
-	APT_ASSERT(str1 && str2);
-	while (*str1 && *str2) {
-		int dif = (int)lowercase(*str1) - (int)lowercase(*str2);
-		if (dif != 0) {
-			return dif;
-		}
-		++str1;
-		++str2;
-	}
-	return 0;
-}
-
 Image::FileFormat Image::GuessFormat(const char* _path)
 {
-	const char* ext = strrchr(_path, (int)'.');
-	if (ext) {
-		if        (strcmp_ignore_case(ext, ".bmp") == 0) {
-			return FileFormat_Bmp;
-		} else if (strcmp_ignore_case(ext, ".dds") == 0) {
-			return FileFormat_Dds;
-		} else if (strcmp_ignore_case(ext, ".hdr") == 0) {
-			return FileFormat_Hdr;
-		} else if (strcmp_ignore_case(ext, ".png") == 0) {
-			return FileFormat_Png;
-		} else if (strcmp_ignore_case(ext, ".tga") == 0) {
-			return FileFormat_Tga;
-		} else if (strcmp_ignore_case(ext, ".jpg") == 0 || strcmp_ignore_case(ext, ".jpeg") == 0) {
-			return FileFormat_Jpg;
-		} else if (strcmp_ignore_case(ext, ".gif") == 0) {
-			return FileFormat_Gif;
-		} else if (strcmp_ignore_case(ext, ".psd") == 0) {
-			return FileFormat_Psd;
-		}
+	if        (FileSystem::CompareExtension("bmp", _path)) {
+		return FileFormat_Bmp;
+	} else if (FileSystem::CompareExtension("dds", _path)) {
+		return FileFormat_Dds;
+	} else if (FileSystem::CompareExtension("hdr", _path)) {
+		return FileFormat_Hdr;
+	} else if (FileSystem::CompareExtension("png", _path)) {
+		return FileFormat_Png;
+	} else if (FileSystem::CompareExtension("tga", _path)) {
+		return FileFormat_Tga;
+	} else if (FileSystem::CompareExtension("jpg", _path) || FileSystem::CompareExtension("jpeg", _path)) {
+		return FileFormat_Jpg;
+	} else if (FileSystem::CompareExtension("gif", _path)) {
+		return FileFormat_Gif;
+	} else if (FileSystem::CompareExtension("psd", _path)) {
+		return FileFormat_Psd;
 	}
 
 	return FileFormat_Invalid;
@@ -446,6 +422,7 @@ bool Image::IsDataTypeBpc(DataType _type, int _bpc)
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define STBI_WRITE_NO_STDIO
 #define STBIW_ASSERT(x) APT_ASSERT(x)
+#include <cstdio>
 #include <stb_image_write.h>
 static void StbiWriteFile(void* file_, void* _data, int _size)
 {

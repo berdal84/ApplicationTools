@@ -60,7 +60,6 @@ public:
 	// the string buffer in ret_.
 	static void        StripRoot(StringBase& ret_, const char* _path);
 	static void        StripRoot(StringBase& ret_) { StripRoot(ret_, ret_); }
-
 	// Strip path from _path. It is safe for _path to point to the string buffer in ret_.
 	static void        StripPath(StringBase& ret_, const char* _path);
 	static void        StripPath(StringBase& ret_) { StripPath(ret_, ret_); }
@@ -69,17 +68,17 @@ public:
 	// the string buffer in ret_.
 	static void        GetPath(StringBase& ret_, const char* _path);
 	static void        GetPath(StringBase& ret_) { GetFileName(ret_, ret_); }
-
 	// Extract file name from _path. It is safe for _path to point to the string buffer in ret_.
 	static void        GetFileName(StringBase& ret_, const char* _path);
 	static void        GetFileName(StringBase& ret_) { GetFileName(ret_, ret_); }
-
-	// Extract extenson from _path. It is safe for _path to point to the string buffer in ret_.
-	static void        GetExtension(StringBase& ret_, const char* _path) { ret_.set(GetExtension(_path)); }
+	// Extract extension from _path. It is safe for _path to point to the string buffer in ret_.
+	static void        GetExtension(StringBase& ret_, const char* _path) { ret_.set(FindExtension(_path)); }
 	static void        GetExtension(StringBase& ret_) { GetExtension(ret_, ret_); }
 
 	// Return ptr to the character following the last occurrence of '.' in _path.
-	static const char* GetExtension(const char* _path);
+	static const char* FindExtension(const char* _path);
+	// Compare _ext with the extension from _path (case insensitive).
+	static bool        CompareExtension(const char* _ext, const char* _path);
 	
 	// Select a file/files via the platform UI. _filters is a null-separated list of filter strings.
 	static bool        PlatformSelect(StringBase& ret_, const char* _filters = "");

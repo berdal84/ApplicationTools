@@ -111,10 +111,22 @@ void FileSystem::GetFileName(StringBase& ret_, const char* _path)
 	ret_.set(beg, end - beg);
 }
 
-const char* FileSystem::GetExtension(const char* _path)
+const char* FileSystem::FindExtension(const char* _path)
 {
 	const char* ret = strrchr(_path, (int)'.');
 	return ret == nullptr ? nullptr : ret + 1;
+}
+
+bool FileSystem::CompareExtension(const char* _ext, const char* _path)
+{
+	if (*_ext == '.') {
+		++_ext;
+	}
+	const char* cmp = FindExtension(_path);
+	if (cmp) {
+		return _stricmp(_ext, cmp) == 0;
+	}
+	return false;
 }
 
 // PRIVATE
