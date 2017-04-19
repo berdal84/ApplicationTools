@@ -17,6 +17,7 @@ class File;
 //   to be clearer (e.g. include "bytes" in the name).
 // \todo Read*() functions and setRawData() should correctly release the 
 //   existing image first (or only if the load succeeded).
+// \todo 1/2/3d sample functions (need sample/wrap enums).
 ////////////////////////////////////////////////////////////////////////////////
 class Image
 {
@@ -150,7 +151,7 @@ public:
 	// Get the size of the returned buffer via getRawImageSize().
 	char* getRawImage(uint _array = 0, uint _mip = 0) const;
 
-	// Return Size (bytes) of the raw image at the specified mipmap level.
+	// Return size (bytes) of the raw image at the specified mipmap level.
 	uint getRawImageSize(uint _mip = 0) const;
 
 	// Fill the image internal data buffer for a given _array/_mip, performing 

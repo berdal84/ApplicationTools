@@ -4,9 +4,22 @@
 #include <apt/File.h>
 #include <apt/String.h>
 
+#include <cstring>
+
 using namespace apt;
 
 // PUBLIC
+
+const char* FileSystem::GetRoot(RootType _type)
+{
+	return s_roots[_type];
+}
+
+void FileSystem::SetRoot(RootType _type, const char* _path)
+{
+	s_roots[_type].set(_path); 
+	s_rootLengths[_type] = (int)strlen(_path);
+}
 
 bool FileSystem::Read(File& file_, const char* _path, RootType _rootHint)
 {

@@ -54,16 +54,13 @@ namespace apt {
 //
 //
 // It is also possible to iterate over the registered subclasses (useful for
-// generating drop down boxes for a UI):
+// generating drop down lists for a UI):
 //
 //    for (int i = 0; i < Entity::GetClassRefCount(); ++i) {
 //       const Entity::ClassRef* cref = Entity::GetClassRef(i);
 //       cref->getName(); // returns a const char* matching the class name
 //       Entity* inst = Entity::Create(cref); // use the cref directly with Create().
 //    }
-//
-//
-// \todo Use a hash map instead of std::vector.
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType>
 class Factory
@@ -167,7 +164,7 @@ public:
 	const ClassRef* getClassRef() const { return m_cref; }
 
 private:
-	static eastl::vector_map<StringHash, ClassRef*>* s_registry; // \todo hash map
+	static eastl::vector_map<StringHash, ClassRef*>* s_registry;
 	const ClassRef* m_cref;
 };
 #define APT_FACTORY_DEFINE(_baseClass) \

@@ -5,7 +5,6 @@
 #include <apt/def.h>
 
 #include <cstdarg> // va_list
-#include <utility> // std::move
 
 namespace apt {
 
@@ -58,8 +57,8 @@ public:
 	// \note String length is not stored internally, hence getLength() is not a constant time operation.
 	uint getLength() const;
 
-	void clear()                                { m_buf[0] = '\0'; }
-	bool isEmpty() const                        { return m_buf[0] == '\0'; }
+	void clear()                                { *m_buf = '\0'; }
+	bool isEmpty() const                        { return *m_buf == '\0'; }
 	bool isLocal() const                        { return m_buf == getLocalBuf(); }
 	uint getCapacity() const                    { return m_capacity; }
 	void setCapacity(uint _capacity);
@@ -68,7 +67,7 @@ public:
 	operator const char*() const                { return m_buf; }
 	operator char*()                            { return m_buf; }
 	
-	friend void swap(StringBase& _a, StringBase& _b);
+	friend void swap(StringBase& _a_, StringBase& _b_);
 
 protected:
 	
@@ -78,9 +77,9 @@ protected:
 	StringBase(uint _localBufferSize);
 	// Move ctor. If _rhs is local it *must* have the same capacity as this (because the local buffer 
 	// size isn't stored). This is enforced by the deriving String class move ctors.
-	//StringBase(StringBase&& _rhs);
+	StringBase(StringBase&& _rhs_);
 	// Move assignment. As move ctor.
-	//StringBase& operator=(StringBase&& _rhs);
+	StringBase& operator=(StringBase&& _rhs_);
 
 	~StringBase();
 
@@ -106,11 +105,11 @@ class String: public StringBase
 	char m_localBuf[kCapacity];
 
 public:
-	String():                              StringBase(kCapacity)       {}
-	String(const String<kCapacity>& _rhs): StringBase(kCapacity)       { set(_rhs); }
-	String<kCapacity>& operator=(const String<kCapacity>& _rhs)        { set(_rhs); return *this; }
-	//String(String<kCapacity>&& _rhs):      StringBase(std::move(_rhs)) {}
-	//String<kCapacity>& operator=(String<kCapacity>&& _rhs)             { StringBase::operator=(std::move(_rhs)); return *this; }
+	String():                              StringBase(kCapacity)           {}
+	String(const String<kCapacity>& _rhs): StringBase(kCapacity)           { set(_rhs); }
+	String<kCapacity>& operator=(const String<kCapacity>& _rhs)            { if (&_rhs != this) set(_rhs); return *this; }
+	String(String<kCapacity>&& _rhs):      StringBase((StringBase&&)_rhs)  {}
+	String<kCapacity>& operator=(String<kCapacity>&& _rhs)                 { StringBase::operator=((StringBase&&)_rhs); return *this; }
 	String(const char* _fmt, ...):         StringBase(kCapacity)
 	{
 		if (_fmt) {
@@ -126,11 +125,11 @@ template <>
 class String<0>: public StringBase
 {
 public:
-	String():                      StringBase()                {}
-	String(const String<0>& _rhs): StringBase()                { set(_rhs); }
-	String<0>& operator=(const String<0>& _rhs)                { set(_rhs); return *this; }
-	//String(String<0>&& _rhs):      StringBase(std::move(_rhs)) {}
-	//String<0>& operator=(String<0>&& _rhs)                     { (String<0>)StringBase::operator=(std::move(_rhs)); return *this; }
+	String():                      StringBase()                   {}
+	String(const String<0>& _rhs): StringBase()                   { set(_rhs); }
+	String<0>& operator=(const String<0>& _rhs)                   { if (&_rhs != this) set(_rhs); return *this; }
+	String(String<0>&& _rhs):      StringBase((StringBase&&)_rhs) {}
+	String<0>& operator=(String<0>&& _rhs)                        { (String<0>)StringBase::operator=((StringBase&&)_rhs); return *this; }
 	String(const char* _fmt, ...): StringBase()
 	{
 		if (_fmt) {

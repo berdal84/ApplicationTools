@@ -7,6 +7,7 @@
 
 #include <cmath>
 #include <cstring>
+#include <cstdio> // stb_image requires sprintf
 
 using namespace apt;
 

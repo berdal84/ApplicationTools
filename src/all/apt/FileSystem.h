@@ -31,8 +31,8 @@ public:
 	};
 
 	// Get/set a path for the specified root type.
-	static const char* GetRoot(RootType _type)                    { return s_roots[_type]; }
-	static void        SetRoot(RootType _type, const char* _path) { s_roots[_type].set(_path); s_rootLengths[_type] = (int)strlen(_path); }
+	static const char* GetRoot(RootType _type);
+	static void        SetRoot(RootType _type, const char* _path);
 
 	// Read a file into memory. Each root is searched, beginning at _rootHint. If _path is nullptr, the 
 	// path from file_ is used. Return false if an error occurred, in which case file_ remains unchanged. 
