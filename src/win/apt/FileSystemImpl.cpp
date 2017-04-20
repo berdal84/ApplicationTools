@@ -10,6 +10,8 @@
 #include <commdlg.h>
 #include <cstring>
 
+#include <EASTL/vector.h>
+
 #pragma comment(lib, "shlwapi")
 
 using namespace apt;
@@ -55,7 +57,12 @@ void FileSystem::MakeRelative(StringBase& ret_, const char* _path, RootType _roo
 	ret_.replace('\\', s_separator);
 }
 
-bool FileSystem::PlatformSelect(StringBase& ret_, const char* _filters)
+bool FileSystem::IsAbsolute(const char* _path)
+{
+	return PathIsRelative(_path) == FALSE;
+}
+
+bool FileSystem::PlatformSelect(PathStr& ret_, const char* _filters)
 {
 	static DWORD       s_filterIndex = 0;
 	static const DWORD kMaxOutputLength = MAX_PATH;
@@ -89,7 +96,7 @@ bool FileSystem::PlatformSelect(StringBase& ret_, const char* _filters)
 	return false;
 }
 
-int FileSystem::PlatformSelectMulti(StringBase* retList_, int _maxResults, const char* _filters)
+int FileSystem::PlatformSelectMulti(PathStr retList_[], int _maxResults, const char* _filters)
 {
 	static DWORD       s_filterIndex = 0;
 	static const DWORD kMaxOutputLength = 1024 * 4;
@@ -133,6 +140,50 @@ int FileSystem::PlatformSelectMulti(StringBase* retList_, int _maxResults, const
 		}		
 	}
 	return 0;
+}
+
+int FileSystem::ListFiles(PathStr retList_[], int _maxResults, const char* _path, const char* _filter, bool _recursive)
+{
+	eastl::vector<PathStr> dirs;
+	dirs.push_back(_path);
+	int ret = 0;
+	while (ret < _maxResults && !dirs.empty()) {
+		PathStr root = (PathStr&&)dirs.back();
+		dirs.pop_back();
+		root.replace('/', '\\');
+		PathStr search = root;
+		search.appendf("\\%s", _filter); // \todo check if / or \\ already at the end, same for the dir code below
+
+		WIN32_FIND_DATA ffd;
+		HANDLE h = FindFirstFile((const char*)search, &ffd);
+		if (h == INVALID_HANDLE_VALUE) {
+			APT_LOG_ERR("ListFiles (FindFirstFile): %s", GetPlatformErrorString(GetLastError()));
+			continue;
+		} 
+
+		do {
+			if (strcmp(ffd.cFileName, ".") != 0 && strcmp(ffd.cFileName, "..") != 0) {
+				if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+					if (_recursive) {
+						dirs.push_back(root);
+						dirs.back().appendf("\\%s", ffd.cFileName, _filter);
+					}
+				} else {
+					retList_[ret++].setf("%s\\%s", (const char*)root, ffd.cFileName);
+				}
+			}
+	
+        } while (ret < _maxResults && FindNextFile(h, &ffd) != 0);
+
+		DWORD err = GetLastError();
+		if (err != ERROR_NO_MORE_FILES) {
+			APT_LOG_ERR("ListFiles (FindNextFile): %s", GetPlatformErrorString(err));
+		}
+
+		FindClose(h);
+    }
+
+	return ret;
 }
 
 // PROTECTED

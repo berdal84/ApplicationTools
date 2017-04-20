@@ -137,7 +137,7 @@ int FileSystem::s_rootLengths[RootType_Count];
 void FileSystem::MakePath(StringBase& ret_, const char* _path, RootType _root)
 {
 	APT_ASSERT(_root < RootType_Count);
-	bool useRoot = !s_roots[_root].isEmpty();
+	bool useRoot = !s_roots[_root].isEmpty() && !IsAbsolute(_path);
 	if (useRoot) {
 	 // check if the root already exists in path as a directory
 		const char* r = strstr(s_roots[_root], _path);

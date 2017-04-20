@@ -36,7 +36,7 @@ public:
 
 	// Read a file into memory. Each root is searched, beginning at _rootHint. If _path is nullptr, the 
 	// path from file_ is used. Return false if an error occurred, in which case file_ remains unchanged. 
-	// On success, any resources already associated with file_ are released.
+	// On success, any resources already associated with file_ are released. _rootHint is ignored if _path is absolute.
 	static bool        Read(File& file_, const char* _path = nullptr, RootType _rootHint = RootType_Default);
 
 	// As Read() but first checks if the file exists. Return false if the file does not exist or if an error occurred.
@@ -44,17 +44,21 @@ public:
 
 	// Write _file's data to _path. If _path is nullptr, the path from _file is used. Return false 
 	// if an error occurred, in which case any existing file at _path may or may not have been overwritten.
+	// _root is ignored if _path is absolute.
 	static bool        Write(const File& _file, const char* _path = nullptr, RootType _root = RootType_Default);
 
 	// Return true if _path exists. Each root is searched, beginning at _rootHint.
 	static bool        Exists(const char* _path, RootType _rootHint = RootType_Default);
 
-	// Concatenates _path + s_separator + s_root[_root].
+	// Concatenates _path + s_separator + s_root[_root]. If _path is absolute the root is ignored.
 	static void        MakePath(StringBase& ret_, const char* _path, RootType _root);
 
 	// Make _path relative to _root. It is safe for _path to point to the string buffer in ret_.
 	static void        MakeRelative(StringBase& ret_, const char* _path, RootType _root = RootType_Root);
 	static void        MakeRelative(StringBase& ret_, RootType _root = RootType_Root) { MakeRelative(ret_, ret_, _root); }
+	
+	// Return true if _path is absolute.
+	static bool        IsAbsolute(const char* _path);
 
 	// Strip path from _path up to and including any root directory. It is safe for _path to point to 
 	// the string buffer in ret_.
@@ -81,8 +85,11 @@ public:
 	static bool        CompareExtension(const char* _ext, const char* _path);
 	
 	// Select a file/files via the platform UI. _filters is a null-separated list of filter strings.
-	static bool        PlatformSelect(StringBase& ret_, const char* _filters = "");
-	static int         PlatformSelectMulti(StringBase* retList_, int _maxResults, const char* _filters = "");
+	static bool        PlatformSelect(PathStr& ret_, const char* _filters = "");
+	static int         PlatformSelectMulti(PathStr retList_[], int _maxResults, const char* _filters = "");
+
+	// List up to _maxResults files in _path with option recursion.
+	static int         ListFiles(PathStr retList_[], int _maxResults, const char* _path, const char* _filter = "*.*", bool _recursive = false);
 
 private:
 	static PathStr    s_roots[RootType_Count];
