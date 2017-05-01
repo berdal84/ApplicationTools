@@ -69,6 +69,7 @@ public:
 	 // read + write supported
 		FileFormat_Bmp,
 		FileFormat_Dds,
+		FileFormat_Exr,
 		FileFormat_Hdr,
 		FileFormat_Png,
 		FileFormat_Tga,
@@ -202,8 +203,10 @@ private:
 	static bool WriteDds(File& file_, const Image& _img);
 	// Image.cpp
 	static bool ReadDefault(Image& img_, const char* _data, uint _dataSize);
+	static bool ReadExr(Image& img_, const char* _data, uint _dataSize);
 	static bool ReadPng(Image& img_, const char* _data, uint _dataSize);
-	static bool WritePng(File& file_, const Image& _png);
+	static bool WriteExr(File& file_, const Image& _img);
+	static bool WritePng(File& file_, const Image& _img);
 	static bool WriteBmp(File& file_, const Image& _img);
 	static bool WriteTga(File& file_, const Image& _img);
 	static bool WriteHdr(File& file_, const Image& _img);

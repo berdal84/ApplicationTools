@@ -128,6 +128,7 @@ bool Image::Read(Image& img_, const File& _file, FileFormat _format)
 	switch (_format) {
 		case FileFormat_Dds: return ReadDds(img_, _file.getData(), _file.getDataSize());
 		case FileFormat_Png: return ReadPng(img_, _file.getData(), _file.getDataSize());
+		case FileFormat_Exr: return ReadExr(img_, _file.getData(), _file.getDataSize());
 		case FileFormat_Bmp:
 		case FileFormat_Gif:
 		case FileFormat_Hdr:
@@ -176,6 +177,7 @@ bool Image::Write(const Image& _img, File& file_, FileFormat _format)
 		case FileFormat_Png: ret = WritePng(file_, _img); break;
 		case FileFormat_Tga: ret = WriteTga(file_, _img); break;
 		case FileFormat_Hdr: ret = WriteHdr(file_, _img); break;
+		case FileFormat_Exr: ret = WriteExr(file_, _img); break;
 		default: APT_LOG_ERR("Image: File format does not supported writing '%s'", file_.getPath()); goto Image_Write_end;
 	};
 
@@ -328,6 +330,10 @@ bool Image::validateFileFormat(FileFormat _format) const
 		case FileFormat_Dds:
 			if (m_type == Type_3dArray) return false;
 			return true;
+		case FileFormat_Exr:
+			if (m_compression != Compression_None) return false;
+			if (!DataType::IsFloat(m_dataType)) return false;
+			if (IsDataTypeBpc(m_dataType, 8) || IsDataTypeBpc(m_dataType, 16)) return false;
 		case FileFormat_Hdr:
 			if (m_compression != Compression_None) return false;
 			if (!DataType::IsFloat(m_dataType)) return false;
@@ -383,6 +389,8 @@ Image::FileFormat Image::GuessFormat(const char* _path)
 		return FileFormat_Bmp;
 	} else if (FileSystem::CompareExtension("dds", _path)) {
 		return FileFormat_Dds;
+	} else if (FileSystem::CompareExtension("exr", _path)) {
+		return FileFormat_Exr;
 	} else if (FileSystem::CompareExtension("hdr", _path)) {
 		return FileFormat_Hdr;
 	} else if (FileSystem::CompareExtension("png", _path)) {
@@ -447,6 +455,9 @@ static void SwapByteOrder(char* _d_, unsigned _dsize)
         _d_[i] = tmp;
     }
 }
+
+#define TINYEXR_IMPLEMENTATION
+#include <tinyexr.h>
 
 bool Image::ReadDefault(Image& img_, const char* _data, uint _dataSize)
 {
@@ -526,7 +537,7 @@ Image_ReadPng_end:
 	free(d);
 	lodepng_state_cleanup(&state);
 	if (err) {
-		APT_LOG_ERR("lodepng error:\n\t'%s'", lodepng_error_text(err));
+		APT_LOG_ERR("lodepng error: '%s'", lodepng_error_text(err));
 		return false;
 	}
 	return ret;
@@ -582,11 +593,141 @@ Image_WritePng_end:
 	free(buf);
 	free(d);
 	if (err) {
-		APT_LOG_ERR("lodepng error:\n\t'%s'", lodepng_error_text(err));
+		APT_LOG_ERR("lodepng error: '%s'", lodepng_error_text(err));
 		return false;
 	}
 	return ret;
 }
+
+bool Image::ReadExr(Image& img_, const char* _data, uint _dataSize)
+{
+	bool ret = true;
+	const char* err = nullptr;
+
+	EXRVersion version = {};
+	EXRHeader header = {};
+	InitEXRHeader(&header);
+	EXRImage exr = {};
+	InitEXRImage(&exr);
+	
+	if (ParseEXRVersionFromMemory(&version, (const unsigned char*)_data, _dataSize) != TINYEXR_SUCCESS) {
+		ret = false;
+		goto Image_ReadExr_end;
+	}
+	if (ParseEXRHeaderFromMemory(&header, &version, (const unsigned char*)_data, _dataSize, &err) != TINYEXR_SUCCESS) {
+		ret = false;
+		goto Image_ReadExr_end;
+	}
+	if (header.multipart) {
+		err = "Multipart EXR not supported";
+		ret = false;
+		goto Image_ReadExr_end;
+	}
+	if (header.tiled) {
+		err = "Tiled EXR not supported";
+		ret = false;
+		goto Image_ReadExr_end;
+	}	
+	for (int i = 0; i < header.num_channels; ++i) {
+		header.requested_pixel_types[i] = TINYEXR_PIXELTYPE_FLOAT;
+	}
+	if (LoadEXRImageFromMemory(&exr, &header, (const unsigned char*)_data, _dataSize, &err) != TINYEXR_SUCCESS) {
+		ret = false;
+		goto Image_ReadExr_end;
+	}
+
+	switch (exr.num_channels) {
+		case 1: img_.m_layout = Layout_R;    break;
+		case 2: img_.m_layout = Layout_RG;   break;
+		case 3: img_.m_layout = Layout_RGB;  break;
+		case 4: img_.m_layout = Layout_RGBA; break;
+		default: err = "Unsupported # channels"; ret = false; goto Image_ReadExr_end; 
+	};
+
+	img_.m_width       = exr.width;
+	img_.m_height      = exr.height;
+	img_.m_depth       = img_.m_arrayCount = img_.m_mipmapCount = 1;
+	img_.m_type        = Type_2d;
+	img_.m_dataType    = DataType::Float32;
+	img_.m_compression = Compression_None;
+	img_.alloc();
+
+	float* data = (float*)img_.m_data;
+	for (uint i = 0, n = img_.m_width * img_.m_height; i < n; ++i) {
+	 // \hack read the channels in reverse order (convert ABGR -> RGBA)
+	 // \todo inspect the channel names directly
+		for (int j = exr.num_channels - 1; j >= 0; --j, ++data) {
+			*data = ((float*)exr.images[j])[i];
+		}
+	}
+
+Image_ReadExr_end:
+	FreeEXRHeader(&header);
+	FreeEXRImage(&exr);
+	if (err) {
+		APT_LOG_ERR("ReadExr: '%s'", err);
+		return false;
+	}
+	return ret;
+}
+
+bool Image::WriteExr(File& file_, const Image& _img)
+{
+	const char* err = nullptr;
+
+	EXRHeader header;
+	InitEXRHeader(&header);
+	EXRImage exr;
+	InitEXRImage(&exr);
+
+	switch (_img.m_layout) {
+		case Layout_R:    exr.num_channels = 1; break;
+		case Layout_RG:   exr.num_channels = 2; break;
+		case Layout_RGBA: exr.num_channels = 4; break;
+		case Layout_RGB:  
+		default:          exr.num_channels = 3; break;
+	};
+	float* channels[4] = {};
+	for (int i = exr.num_channels - 1; i >= 0; --i) {
+		channels[i] = (float*)malloc(sizeof(float) * _img.m_width * _img.m_height);
+		for (uint j = i, n = _img.m_width * _img.m_height; j < n; j += (uint)exr.num_channels) {
+			channels[i][j] = ((float*)_img.m_data)[j];
+		}
+	}
+	
+	exr.images = (unsigned char**)channels;
+	exr.width = (int)_img.m_width;
+	exr.height = (int)_img.m_height;
+
+	header.num_channels = exr.num_channels;
+	header.channels = (EXRChannelInfo*)malloc(sizeof(EXRChannelInfo) * header.num_channels);
+	header.pixel_types = (int*)malloc(sizeof(int) * header.num_channels);
+	header.requested_pixel_types = header.pixel_types;
+	const char* channelNames[] = { "A", "B", "G", "R" };
+	const char** name = channelNames + (4 - header.num_channels);
+	for (int i = 0; i < header.num_channels; ++i) {
+		strcpy(header.channels[i].name, name[i]);
+		header.pixel_types[i] = TINYEXR_PIXELTYPE_FLOAT;
+	}
+
+	unsigned char* data;
+	size_t dataSize = SaveEXRImageToMemory(&exr, &header, &data, &err);
+	if (!err) {
+		file_.setData((char*)data, dataSize);
+	}
+	free(data);
+	free(header.channels);
+	free(header.pixel_types);
+	for (int i = 0; i < exr.num_channels; ++i) {
+		free(channels[i]);
+	}
+	if (err) {
+		APT_LOG_ERR("ReadExr: '%s'", err);
+		return false;
+	}
+	return true;
+}
+
 bool Image::WriteBmp(File& file_, const Image& _img)
 {
 	if (!stbi_write_bmp_to_func(StbiWriteFile, &file_, (int)_img.m_width, (int)_img.m_height, (int)GetComponentCount(_img.m_layout), _img.m_data)) {
