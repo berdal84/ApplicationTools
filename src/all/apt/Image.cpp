@@ -688,13 +688,13 @@ bool Image::WriteExr(File& file_, const Image& _img)
 		default:          exr.num_channels = 3; break;
 	};
 	float* channels[4] = {};
-	for (int i = exr.num_channels - 1; i >= 0; --i) {
+	for (int i = 0; i < exr.num_channels; ++i) {
+		int k = exr.num_channels - i - 1;
 		channels[i] = (float*)malloc(sizeof(float) * _img.m_width * _img.m_height);
-		for (uint j = i, n = _img.m_width * _img.m_height; j < n; j += (uint)exr.num_channels) {
-			channels[i][j] = ((float*)_img.m_data)[j];
+		for (uint j = 0, n = _img.m_width * _img.m_height; j < n; ++j) {
+			channels[i][j] = ((float*)_img.m_data)[j * exr.num_channels + k];
 		}
 	}
-	
 	exr.images = (unsigned char**)channels;
 	exr.width = (int)_img.m_width;
 	exr.height = (int)_img.m_height;
