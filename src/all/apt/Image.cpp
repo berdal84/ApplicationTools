@@ -578,6 +578,8 @@ bool Image::WritePng(File& file_, const Image& _img)
 	lodepng_state_init(&state);
 	state.info_raw.colortype = colorType;
 	state.info_raw.bitdepth = bitdepth;
+	state.info_png.color.colortype = colorType;
+	state.info_png.color.bitdepth = bitdepth;
 	state.encoder = enc;
 
 	unsigned char* d;
