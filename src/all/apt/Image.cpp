@@ -206,7 +206,7 @@ uint Image::GetMaxMipmapSize(uint _width, uint _height, uint _depth)
 	const uint log2Height = (uint)(log((double)_height) * rlog2);
 	const uint log2Depth  = (uint)(log((double)_depth)  * rlog2);
 	uint mipCount = APT_MAX(log2Width, APT_MAX(log2Height, log2Depth)) + 1; // +1 for level 0
-	mipCount = APT_MIN(APT_MIN(mipCount, (uint)1u), kMaxMipmapCount);
+	mipCount = APT_MIN(APT_MAX(mipCount, (uint)1), kMaxMipmapCount);
 	return mipCount;
 }
 
@@ -215,8 +215,8 @@ char* Image::getRawImage(uint _array, uint _mip) const
 	APT_ASSERT(m_data);
 	APT_ASSERT(_array < m_arrayCount);
 	APT_ASSERT(_mip < m_mipmapCount);
-	if (m_data == 0 || _array >= m_arrayCount || _mip >= m_mipmapCount) {
-		return 0;
+	if (!m_data || _array >= m_arrayCount || _mip >= m_mipmapCount) {
+		return nullptr;
 	}
 
 	uint offset = _array * m_arrayLayerSize + m_mipOffsets[_mip];
@@ -227,7 +227,7 @@ uint Image::getRawImageSize(uint _mip) const
 {
 	APT_ASSERT(m_data);
 	APT_ASSERT(_mip < m_mipmapCount);
-	if (m_data == 0 || _mip >= m_mipmapCount) {
+	if (!m_data || _mip >= m_mipmapCount) {
 		return 0;
 	}
 
@@ -306,9 +306,9 @@ void Image::alloc()
 		m_mipOffsets[i] = m_arrayLayerSize;
 		m_mipSizes[i] = m_texelSize * w * h * d;
 		m_arrayLayerSize += m_mipSizes[i];
-		w = APT_MAX(w / 2, (uint)1);
-		h = APT_MAX(h / 2, (uint)1);
-		d = APT_MAX(d / 2, (uint)1);
+		w = APT_MAX(w >> 1, (uint)1);
+		h = APT_MAX(h >> 1, (uint)1);
+		d = APT_MAX(d >> 1, (uint)1);
 		++i;
 		APT_ASSERT(i < kMaxMipmapCount);
 	} while (i < lim);
@@ -368,7 +368,7 @@ uint Image::GetComponentCount(Layout _layout)
 		case Layout_RGB:       return 3;
 		case Layout_RGBA:      return 4;
 		case Layout_Invalid:
-		default:                 return 0;
+		default:               return 0;
 	};
 }
 
