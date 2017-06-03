@@ -1,9 +1,9 @@
-Common application tools, a reasonably slim set of genuinely useful stuff:
+Common application tools:
 
 - Platform/compiler/architecture defines + related macros.
-- Assert/verify macros (with a callback for app-specific behavior).
+- Assert/verify macros (+ callback for app-specific behavior).
 - Time functions.
-- Hash functions.
+- Hash functions (FNV1a).
 - File + file system tools.
 - Common file format load/parse (image files, JSON, INI).
 - Misc useful base classes for common idioms (factory, static initializer, etc.).
