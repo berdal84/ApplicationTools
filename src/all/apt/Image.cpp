@@ -199,15 +199,13 @@ bool Image::Write(const Image& _img, const char* _path, FileFormat _format)
 	return File::Write(f, _path);
 }
 
-uint Image::GetMaxMipmapSize(uint _width, uint _height, uint _depth)
+uint Image::GetMaxMipmapCount(uint _width, uint _height, uint _depth)
 {
-	const double rlog2    = 1.0 / log(2.0);
-	const uint log2Width  = (uint)(log((double)_width)  * rlog2);
-	const uint log2Height = (uint)(log((double)_height) * rlog2);
-	const uint log2Depth  = (uint)(log((double)_depth)  * rlog2);
-	uint mipCount = APT_MAX(log2Width, APT_MAX(log2Height, log2Depth)) + 1; // +1 for level 0
-	mipCount = APT_MIN(APT_MAX(mipCount, (uint)1), kMaxMipmapCount);
-	return mipCount;
+	double rlog2 = 1.0 / log(2.0);
+	uint log2Width  = (uint)ceil(log((double)_width)  * rlog2);
+	uint log2Height = (uint)ceil(log((double)_height) * rlog2);
+	uint log2Depth  = (uint)ceil(log((double)_depth)  * rlog2);
+	return APT_MAX(log2Width, APT_MAX(log2Height, log2Depth)) + 1; // +1 for level 0
 }
 
 char* Image::getRawImage(uint _array, uint _mip) const
@@ -301,7 +299,7 @@ void Image::alloc()
 	m_texelSize = DataType::GetSizeBytes(m_dataType) * GetComponentCount(m_layout);
 	uint w = m_width, h = m_height, d = m_depth;
 	m_arrayLayerSize = 0;
-	uint i = 0, lim = APT_MIN(m_mipmapCount, GetMaxMipmapSize(w, h, d));
+	uint i = 0, lim = APT_MIN(m_mipmapCount, GetMaxMipmapCount(w, h, d));
 	do {
 		m_mipOffsets[i] = m_arrayLayerSize;
 		m_mipSizes[i] = m_texelSize * w * h * d;
@@ -319,45 +317,54 @@ void Image::alloc()
 
 bool Image::validateFileFormat(FileFormat _format) const
 {
+	#define Image_ERR_IF(_cond, _msg, ...) \
+		if (_cond) { \
+			APT_LOG_ERR("Image: " _msg); \
+			return false; \
+		}
+
 	switch (_format) {
 		case FileFormat_Bmp:
-			if (m_compression != Compression_None) return false;
-			if (DataType::IsFloat(m_dataType))  return false;
-			if (DataType::IsSigned(m_dataType)) return false;
-			if (!DataType::IsNormalized(m_dataType)) return false;
-			if (IsDataTypeBpc(m_dataType, 16) || IsDataTypeBpc(m_dataType, 32)) return false;
-			return true;
-		case FileFormat_Dds:
-			if (m_type == Type_3dArray) return false;
-			return true;
-		case FileFormat_Exr:
-			if (m_compression != Compression_None) return false;
-			if (!DataType::IsFloat(m_dataType)) return false;
-			if (IsDataTypeBpc(m_dataType, 8) || IsDataTypeBpc(m_dataType, 16)) return false;
-		case FileFormat_Hdr:
-			if (m_compression != Compression_None) return false;
-			if (!DataType::IsFloat(m_dataType)) return false;
-			if (IsDataTypeBpc(m_dataType, 8) || IsDataTypeBpc(m_dataType, 16)) return false;
-			return true;
-		case FileFormat_Png:
-			if (m_compression != Compression_None) return false;
-			if (DataType::IsFloat(m_dataType))  return false;
-			if (DataType::IsSigned(m_dataType)) return false;
-			if (!DataType::IsNormalized(m_dataType)) return false;
-			if (IsDataTypeBpc(m_dataType, 32)) return false;
-			return true;
-		case FileFormat_Tga:
-			if (m_compression != Compression_None) return false;
-			if (DataType::IsFloat(m_dataType))  return false;
-			if (DataType::IsSigned(m_dataType)) return false;
-			if (!DataType::IsNormalized(m_dataType)) return false;
-			if (IsDataTypeBpc(m_dataType, 16) || IsDataTypeBpc(m_dataType, 32)) return false;
-			return true;
-		default:
+			Image_ERR_IF(m_compression != Compression_None,   "BMP compression not supported");
+			Image_ERR_IF(DataType::IsFloat(m_dataType),       "BMP float data types not supported");
+			Image_ERR_IF(DataType::IsSigned(m_dataType),      "BMP signed data types not supported");
+			Image_ERR_IF(!DataType::IsNormalized(m_dataType), "BMP only normalized data types are supported");
+			Image_ERR_IF(!IsDataTypeBpc(m_dataType, 8),       "BMP only 8 bit data types are supported");
 			break;
+		case FileFormat_Dds:
+			Image_ERR_IF(m_type == Type_3dArray,              "DDS 3d arrays not supported");
+			break;
+		case FileFormat_Exr:
+			Image_ERR_IF(m_compression != Compression_None,   "EXR compression not supported");
+			Image_ERR_IF(!DataType::IsFloat(m_dataType),      "EXR only float data types are supported");
+			Image_ERR_IF(!IsDataTypeBpc(m_dataType, 32),      "EXR only 32 bit data types are supported");
+			break;
+		case FileFormat_Hdr:
+			Image_ERR_IF(m_compression != Compression_None,   "HDR compression not supported");
+			Image_ERR_IF(!DataType::IsFloat(m_dataType),      "HDR only float data types are supported");
+			Image_ERR_IF(!IsDataTypeBpc(m_dataType, 32),      "HDR only 32 bit data types are supported");
+			break;
+		case FileFormat_Png:
+			Image_ERR_IF(m_compression != Compression_None,   "PNG compression not supported");
+			Image_ERR_IF(DataType::IsFloat(m_dataType),       "PNG float data types not supported");
+			Image_ERR_IF(DataType::IsSigned(m_dataType),      "PNG signed data types not supported");
+			Image_ERR_IF(!DataType::IsNormalized(m_dataType), "PNG only normalized data types are supported");
+			Image_ERR_IF(IsDataTypeBpc(m_dataType, 32),       "PNG only 8 and 16 bit data types are supported");
+			break;
+		case FileFormat_Tga:
+			Image_ERR_IF(m_compression != Compression_None,   "TGA compression not supported");
+			Image_ERR_IF(DataType::IsFloat(m_dataType),       "TGA float data types not supported");
+			Image_ERR_IF(DataType::IsSigned(m_dataType),      "TGA signed data types not supported");
+			Image_ERR_IF(!DataType::IsNormalized(m_dataType), "TGA only normalized data types are supported");
+			Image_ERR_IF(IsDataTypeBpc(m_dataType, 32),       "TGA only 8 and 16 bit data types are supported");
+			break;
+		default:
+			return false;
 	};
 
-	return false;
+	return true;
+
+	#undef Image_ERR_IF
 }
 
 uint Image::GetComponentCount(Layout _layout)

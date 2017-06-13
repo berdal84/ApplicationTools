@@ -10,11 +10,7 @@ namespace apt {
 class File;
 
 ////////////////////////////////////////////////////////////////////////////////
-// Image
-// \todo Remove alloc() call from Create()? Have these functions init metadata
-//   only, then alloc() on the first call to set data/load?
-// \todo Clean the *Size functions, add descriptive comments and/or rename them
-//   to be clearer (e.g. include "bytes" in the name).
+// Image.
 // \todo Read*() functions and setRawData() should correctly release the 
 //   existing image first (or only if the load succeeded).
 // \todo 1/2/3d sample functions (need sample/wrap enums).
@@ -108,22 +104,19 @@ public:
 	// Release memory, _image_ is set to 0.
 	static void Destroy(Image*& _image_);
 
-	// Read from a file. If _format is not provided, the format is assumed from 
-	// the file's extension.
+	// Read from a file. If _format is not provided, the format is assumed from the file's extension.
 	// Return false if an error occurred, in which case img_ remains unchanged.
 	static bool Read(Image& img_, const File& _file, FileFormat _format = FileFormat_Invalid);
 	static bool Read(Image& img_, const char* _path, FileFormat _format = FileFormat_Invalid);
 
-	// Write _img to a file. If _format is not provided, the format is assumed 
-	// from the file's extension. 
-	// \note The File* variant only writes to memory. A subsequent call to 
-	//   File::Write() is required to actually write to disk.
+	// Write _img to a file. If _format is not provided, the format is assumed from the file's extension. 
+	// \note The File* variant only writes to memory. A subsequent call to File::Write() is required to actually write to disk.
 	// Return false if an error occurred.
 	static bool Write(const Image& _img, File& file_, FileFormat _format = FileFormat_Invalid);
 	static bool Write(const Image& _img, const char* _path, FileFormat _format = FileFormat_Invalid);
 
 	// Return the maximum number of mips for an image.
-	static uint GetMaxMipmapSize(uint _width, uint _height, uint _depth = 1u);
+	static uint GetMaxMipmapCount(uint _width, uint _height, uint _depth = 1);
 
 	// Default ctor, initializes metadata but doesn't allocate any memory.
 	Image(): m_data(0)                           { init(); }
@@ -155,8 +148,7 @@ public:
 	// Return size (bytes) of the raw image at the specified mipmap level.
 	uint getRawImageSize(uint _mip = 0) const;
 
-	// Fill the image internal data buffer for a given _array/_mip, performing 
-	// conversion to the image's internal format from the format of _src.
+	// Fill the image internal data buffer for a given _array/_mip, performing conversion to the image's internal format from the format of _src.
 	void setRawImage(uint _array, uint _mip, const void* _src, Layout _layout, DataType _dataType, CompressionType _compressionType);
 
 private:
