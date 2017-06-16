@@ -11,6 +11,11 @@ class File;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Image.
+// Raw image data is stored in a packed format with consecutive image channels
+// corresponding to the image layout. Array layers and cubemap faces are stored 
+// as consecutive images, whereas volume slices are contiguous. Each image is 
+// adjacent to its mipmap.
+//
 // \todo Read*() functions and setRawData() should correctly release the 
 //   existing image first (or only if the load succeeded).
 // \todo 1/2/3d sample functions (need sample/wrap enums).
@@ -162,7 +167,7 @@ private:
 	uint m_width, m_height, m_depth;     // Image dimensions, min = 1.
 	uint m_arrayCount;                   // 1 for non-arrays, 6 for cubemaps.
 	uint m_mipmapCount;                  // Number of valid mipmap levels, min = 1.
-	uint m_arrayLayerSize;               // Data size (bytes) of a single array layer (including mip chain).
+	uint m_arrayLayerSize;               // Data size (bytes) of a single array layer (including mipmap).
 	uint m_texelSize;                    // Bytes in a single texel (uncompressed images only).
 	
 	Type m_type;                         // 1d, 2d, cubemap, etc.
@@ -170,7 +175,7 @@ private:
 	DataType m_dataType;                 // Component type.
 	CompressionType m_compression;       // Compression type (or kCompression_None if uncompressed).
 
-	char* m_data;                        // Raw image data. Each image is adjacent to its mipmap chain.
+	char* m_data;                        // Raw image data.
 	uint m_mipOffsets[kMaxMipmapCount];  // Offset (bytes, from image start) per mipmap level.
 	uint m_mipSizes[kMaxMipmapCount];    // Data size (bytes) per mipmap level.
 
