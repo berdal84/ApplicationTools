@@ -45,6 +45,24 @@ static void ConvertCopyImage(const void* _src, void* _dst, uint _srcCount, uint 
 	}
 }
 
+static uint GetImageSize(uint _w, uint _h, uint _d, Image::CompressionType _compression, uint _bytesPerTexel)
+{
+	switch (_compression) {
+		case Image::Compression_BC1:
+		case Image::Compression_BC4:
+			return APT_MAX(((_w + 3) / 4) * ((_h + 3) / 4) * 8, (uint)1) * _d;
+		case Image::Compression_BC2:
+		case Image::Compression_BC3:
+		case Image::Compression_BC5:
+		case Image::Compression_BC6:
+		case Image::Compression_BC7:
+			return APT_MAX(((_w + 3) / 4) * ((_h + 3) / 4) * 16, (uint)1) * _d;
+		default:
+			break;
+	};
+	return _w * _h * _d * _bytesPerTexel;
+}
+
 /*******************************************************************************
 
                                    Image
@@ -285,24 +303,42 @@ void Image::init()
 	m_layout      = Layout_Invalid;
 	m_dataType    = DataType::InvalidType;
 	
-	char* m_data = 0;
+	char* m_data = nullptr;
 	memset(m_mipOffsets, 0, sizeof(uint) * kMaxMipmapCount);
 	memset(m_mipSizes,   0, sizeof(uint) * kMaxMipmapCount);
 	m_arrayLayerSize = 0;
-	m_texelSize = 0;
+	m_bytesPerTexel = 0.0f;
 }
 
 void Image::alloc()
 {
 	free(m_data);
-	
-	m_texelSize = DataType::GetSizeBytes(m_dataType) * GetComponentCount(m_layout);
+
+	if (m_compression == Compression_None) {
+		m_bytesPerTexel = (float)(DataType::GetSizeBytes(m_dataType) * GetComponentCount(m_layout));
+	} else {
+		switch (m_compression) {
+			case Compression_BC1:
+			case Compression_BC4:
+				m_bytesPerTexel = 0.5f;
+				break;
+			case Compression_BC2:
+			case Compression_BC3:
+			case Compression_BC5:
+			case Compression_BC6:
+			case Compression_BC7:
+				m_bytesPerTexel = 1.0f;
+				break;
+			default:
+				APT_ASSERT(false); // unknown compression type?
+		};
+	}
 	uint w = m_width, h = m_height, d = m_depth;
 	m_arrayLayerSize = 0;
 	uint i = 0, lim = APT_MIN(m_mipmapCount, GetMaxMipmapCount(w, h, d));
 	do {
 		m_mipOffsets[i] = m_arrayLayerSize;
-		m_mipSizes[i] = m_texelSize * w * h * d;
+		m_mipSizes[i] = GetImageSize(w, h, d, m_compression, (uint)m_bytesPerTexel);
 		m_arrayLayerSize += m_mipSizes[i];
 		w = APT_MAX(w >> 1, (uint)1);
 		h = APT_MAX(h >> 1, (uint)1);

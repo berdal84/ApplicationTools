@@ -127,24 +127,24 @@ public:
 	Image(): m_data(0)                           { init(); }
 	~Image();
 
-	uint            getWidth() const             { return m_width; }
-	uint            getHeight() const            { return m_height; }
-	uint            getDepth() const             { return m_depth; }
-	uint            getArrayCount() const        { return m_arrayCount; }
+	uint            getWidth() const             { return m_width;          }
+	uint            getHeight() const            { return m_height;         }
+	uint            getDepth() const             { return m_depth;          }
+	uint            getArrayCount() const        { return m_arrayCount;     }
 	uint            getArrayLayerSize() const    { return m_arrayLayerSize; }
-	uint            getMipmapCount() const       { return m_mipmapCount; }
-	uint            getTexelSize() const         { return m_texelSize; }
-	Type            getType() const              { return m_type; }
-	Layout          getLayout() const            { return m_layout; }
-	DataType        getImageDataType() const     { return m_dataType; }
-	CompressionType getCompressionType() const   { return m_compression; }
+	uint            getMipmapCount() const       { return m_mipmapCount;    }
+	float           getBytesPerTexel() const     { return m_bytesPerTexel;  }
+	Type            getType() const              { return m_type;           }
+	Layout          getLayout() const            { return m_layout;         }
+	DataType        getImageDataType() const     { return m_dataType;       }
+	CompressionType getCompressionType() const   { return m_compression;    }
 
-	bool            isCubemap() const            { return m_type == Type_Cubemap; }
+	bool            isCubemap() const            { return m_type == Type_Cubemap;            }
 	bool            isCompressed() const         { return m_compression != Compression_None; }
-	bool            is1d() const                 { return m_height == 1; }
-	bool            is2d() const                 { return m_depth == 1 && !isCubemap(); }
-	bool            is3d() const                 { return m_depth > 1; }
-	bool            isArray() const              { return m_arrayCount > 1 && !isCubemap(); }
+	bool            is1d() const                 { return m_height == 1;                     }
+	bool            is2d() const                 { return m_depth == 1 && !isCubemap();      }
+	bool            is3d() const                 { return m_depth > 1;                       }
+	bool            isArray() const              { return m_arrayCount > 1 && !isCubemap();  }
 
 	// Return a ptr to raw image data. _array < getArrayCount(), _mip < getMipmapCount(). 
 	// Get the size of the returned buffer via getRawImageSize().
@@ -164,11 +164,11 @@ private:
 	// Allocate m_data, set mip sizes/offsets. Sets m_errorState.
 	void alloc();
 
-	uint m_width, m_height, m_depth;     // Image dimensions, min = 1.
-	uint m_arrayCount;                   // 1 for non-arrays, 6 for cubemaps.
-	uint m_mipmapCount;                  // Number of valid mipmap levels, min = 1.
-	uint m_arrayLayerSize;               // Data size (bytes) of a single array layer (including mipmap).
-	uint m_texelSize;                    // Bytes in a single texel (uncompressed images only).
+	uint  m_width, m_height, m_depth;    // Image dimensions, min = 1.
+	uint  m_arrayCount;                  // 1 for non-arrays, 6 for cubemaps.
+	uint  m_mipmapCount;                 // Number of valid mipmap levels, min = 1.
+	uint  m_arrayLayerSize;              // Data size (bytes) of a single array layer (including mipmap).
+	float m_bytesPerTexel;               // Maybe be <1 for compressed images.
 	
 	Type m_type;                         // 1d, 2d, cubemap, etc.
 	Layout m_layout;                     // Component layout.
@@ -179,8 +179,7 @@ private:
 	uint m_mipOffsets[kMaxMipmapCount];  // Offset (bytes, from image start) per mipmap level.
 	uint m_mipSizes[kMaxMipmapCount];    // Data size (bytes) per mipmap level.
 
-	// Return true if the file format supports the image layout, data type and compression 
-	// (non-savable file formats will always return false).
+	// Return true if _format supports the image layout, data type and compression. Non-writeable formats always return false.
 	bool validateFileFormat(FileFormat _format) const;
 
 	// Number of components associated with a layout.

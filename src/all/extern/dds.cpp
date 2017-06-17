@@ -406,24 +406,6 @@ typedef struct
 
 using namespace apt;
 
-static uint GetImageSize(uint _w, uint _h, uint _d, const Image& _img)
-{
-	switch (_img.getCompressionType()) {
-		case Image::Compression_BC1:
-		case Image::Compression_BC4:
-			return APT_MAX(((_w + 3) / 4) * ((_h + 3) / 4) * 8, (uint)1) * _d;
-		case Image::Compression_BC2:
-		case Image::Compression_BC3:
-		case Image::Compression_BC5:
-		case Image::Compression_BC6:
-		case Image::Compression_BC7:
-			return APT_MAX(((_w + 3) / 4) * ((_h + 3) / 4) * 16, (uint)1) * _d;
-		default:
-			break;
-	};
-	return _w * _h * _d * _img.getTexelSize();
-}
-
 bool Image::ReadDds(Image& img_, const char* _data, uint _dataSize)
 {
 	APT_ASSERT(_data);
@@ -471,8 +453,7 @@ bool Image::ReadDds(Image& img_, const char* _data, uint _dataSize)
 		if (img_.m_depth > 1) {
 			img_.m_type = Image::Type_3d;
 		}
-	 // \note the following test is (incorrectly) positive for DDS with a mip chain exported
-	 //   from the NVidia Photoshop tool
+	 // \note the following test is (incorrectly) positive for DDS with a mip chain exported from the NVidia Photoshop tool
 		//if (ddsh->dwCaps & DDS_SURFACE_FLAGS_CUBEMAP) {
 		//	img_.m_type = Image::Type_Cubemap;
 		//}
@@ -483,7 +464,7 @@ bool Image::ReadDds(Image& img_, const char* _data, uint _dataSize)
 			case Image::Type_2d:      img_.m_type = Image::Type_2dArray; break;
 			case Image::Type_3d:      img_.m_type = Image::Type_3dArray; break;
 			case Image::Type_Cubemap: img_.m_type = Image::Type_CubemapArray; break;
-			default:                    APT_LOG_ERR("DDS: Unknown image type"); return false;
+			default:                  APT_LOG_ERR("DDS: Unknown image type"); return false;
 		};
 	}
 	// layout, data type, compression format
@@ -673,34 +654,7 @@ bool Image::ReadDds(Image& img_, const char* _data, uint _dataSize)
 			img_.m_dataType = DataType::Uint8N;
 		}
 	}
-	if (img_.m_compression == Image::Compression_None) {
-		img_.m_texelSize = DataType::GetSizeBytes(img_.m_dataType) * Image::GetComponentCount(img_.m_layout);
-	}
-
-// compute image sizes
-	img_.m_arrayLayerSize = 0;
-	uint w, h, d, c;
-	w = img_.m_width;
-	h = img_.m_height;
-	d = img_.m_depth;
-	c = Image::GetComponentCount(img_.m_layout);
-	for (unsigned i = 0; i < img_.m_mipmapCount; ++i) {
-		img_.m_mipOffsets[i] = img_.m_arrayLayerSize;
-		img_.m_mipSizes[i] = GetImageSize(w, h, d, img_);
-		img_.m_arrayLayerSize += img_.m_mipSizes[i];
-		w = APT_MAX(w / 2u, (uint)1u);
-		h = APT_MAX(h / 2u, (uint)1u);
-		d = APT_MAX(d / 2u, (uint)1u);
-	}
-
-// alloc & copy pixel data
- // \todo Handle bgra->rgba conversion?
- // \todo Remove pitch?
-	img_.m_data = new char[img_.m_arrayLayerSize * img_.m_arrayCount];
-	APT_ASSERT(img_.m_data);
-	if (!img_.m_data) {
-		return false;
-	}
+	img_.alloc();
 	unsigned doff = sizeof(DWORD) + sizeof(DDS_HEADER) + (dxt10h ? sizeof(DDS_HEADER_DXT10) : 0);
 	if (img_.m_depth > 1 && img_.m_mipmapCount > 1) {
 	 // 3d textures are stored mip-wise (all slices for mip0 followed by all slices for mip1, etc).
@@ -771,7 +725,7 @@ bool Image::WriteDds(File& file_, const Image& _img)
 					case Image::Layout_RG:   dxt10h->dxgiFormat = DXGI_FORMAT_R32G32_FLOAT; break;
 					case Image::Layout_RGB:  dxt10h->dxgiFormat = DXGI_FORMAT_R32G32B32_FLOAT; break;
 					case Image::Layout_RGBA: 
-					default:                   dxt10h->dxgiFormat = DXGI_FORMAT_R32G32B32A32_FLOAT; break;
+					default:                 dxt10h->dxgiFormat = DXGI_FORMAT_R32G32B32A32_FLOAT; break;
 				};
 				break;
 			case DataType::Uint32:
@@ -789,7 +743,7 @@ bool Image::WriteDds(File& file_, const Image& _img)
 					case Image::Layout_RG:   dxt10h->dxgiFormat = DXGI_FORMAT_R32G32_SINT; break;
 					case Image::Layout_RGB:  dxt10h->dxgiFormat = DXGI_FORMAT_R32G32B32_SINT; break;
 					case Image::Layout_RGBA: 
-					default:                   dxt10h->dxgiFormat = DXGI_FORMAT_R32G32B32A32_SINT; break;
+					default:                 dxt10h->dxgiFormat = DXGI_FORMAT_R32G32B32A32_SINT; break;
 				};
 				break;
 			case DataType::Uint16:
@@ -798,7 +752,7 @@ bool Image::WriteDds(File& file_, const Image& _img)
 					case Image::Layout_RG:   dxt10h->dxgiFormat = DXGI_FORMAT_R16G16_UINT; break;
 					//case Image::Layout_RGB:  dxt10h->dxgiFormat = DXGI_FORMAT_R16G16B16_UINT; break;
 					case Image::Layout_RGBA: 
-					default:                  dxt10h->dxgiFormat = DXGI_FORMAT_R16G16B16A16_UINT; break;
+					default:                 dxt10h->dxgiFormat = DXGI_FORMAT_R16G16B16A16_UINT; break;
 				};
 				break;
 			case DataType::Uint16N:
@@ -807,7 +761,7 @@ bool Image::WriteDds(File& file_, const Image& _img)
 					case Image::Layout_RG:   dxt10h->dxgiFormat = DXGI_FORMAT_R16G16_UNORM; break;
 					//case Image::Layout_RGB:  dxt10h->dxgiFormat = DXGI_FORMAT_R16G16B16_UNORM; break;
 					case Image::Layout_RGBA: 
-					default:                  dxt10h->dxgiFormat = DXGI_FORMAT_R16G16B16A16_UNORM; break;
+					default:                 dxt10h->dxgiFormat = DXGI_FORMAT_R16G16B16A16_UNORM; break;
 				};
 				break;
 			case DataType::Sint16:
@@ -816,7 +770,7 @@ bool Image::WriteDds(File& file_, const Image& _img)
 					case Image::Layout_RG:   dxt10h->dxgiFormat = DXGI_FORMAT_R16G16_SINT; break;
 					//case Image::Layout_RGB:  dxt10h->dxgiFormat = DXGI_FORMAT_R16G16B16_SINT; break;
 					case Image::Layout_RGBA: 
-					default:                  dxt10h->dxgiFormat = DXGI_FORMAT_R16G16B16A16_SINT; break;
+					default:                 dxt10h->dxgiFormat = DXGI_FORMAT_R16G16B16A16_SINT; break;
 				};
 				break;
 			case DataType::Sint16N:
@@ -825,7 +779,7 @@ bool Image::WriteDds(File& file_, const Image& _img)
 					case Image::Layout_RG:   dxt10h->dxgiFormat = DXGI_FORMAT_R16G16_SNORM; break;
 					//case Image::Layout_RGB:  dxt10h->dxgiFormat = DXGI_FORMAT_R16G16B16_SNORM; break;
 					case Image::Layout_RGBA: 
-					default:                  dxt10h->dxgiFormat = DXGI_FORMAT_R16G16B16A16_SNORM; break;
+					default:                 dxt10h->dxgiFormat = DXGI_FORMAT_R16G16B16A16_SNORM; break;
 				};
 				break;
 			case DataType::Uint8:
@@ -834,7 +788,7 @@ bool Image::WriteDds(File& file_, const Image& _img)
 					case Image::Layout_RG:   dxt10h->dxgiFormat = DXGI_FORMAT_R8G8_UINT; break;
 					//case Image::Layout_RGB:  dxt10h->dxgiFormat = DXGI_FORMAT_R8G8B8_UINT; break;
 					case Image::Layout_RGBA: 
-					default:                   dxt10h->dxgiFormat = DXGI_FORMAT_R8G8B8A8_UINT; break;
+					default:                 dxt10h->dxgiFormat = DXGI_FORMAT_R8G8B8A8_UINT; break;
 				};
 				break;
 			case DataType::Uint8N:
@@ -843,7 +797,7 @@ bool Image::WriteDds(File& file_, const Image& _img)
 					case Image::Layout_RG:   dxt10h->dxgiFormat = DXGI_FORMAT_R8G8_UNORM; break;
 					//case Image::Layout_RGB:  dxt10h->dxgiFormat = DXGI_FORMAT_R8G8B8_UNORM; break;
 					case Image::Layout_RGBA: 
-					default:                   dxt10h->dxgiFormat = DXGI_FORMAT_R8G8B8A8_UNORM; break;
+					default:                 dxt10h->dxgiFormat = DXGI_FORMAT_R8G8B8A8_UNORM; break;
 				};
 				break;
 			case DataType::Sint8:
@@ -852,7 +806,7 @@ bool Image::WriteDds(File& file_, const Image& _img)
 					case Image::Layout_RG:   dxt10h->dxgiFormat = DXGI_FORMAT_R8G8_SINT; break;
 					//case Image::Layout_RGB: dxt10h->dxgiFormat = DXGI_FORMAT_R8G8B8_SINT; break;
 					case Image::Layout_RGBA: 
-					default:                   dxt10h->dxgiFormat = DXGI_FORMAT_R8G8B8A8_SINT; break;
+					default:                 dxt10h->dxgiFormat = DXGI_FORMAT_R8G8B8A8_SINT; break;
 				};
 				break;
 			case DataType::Sint8N:
@@ -861,7 +815,7 @@ bool Image::WriteDds(File& file_, const Image& _img)
 					case Image::Layout_RG:   dxt10h->dxgiFormat = DXGI_FORMAT_R8G8_SNORM; break;
 					//case Image::Layout_RGB: dxt10h->dxgiFormat = DXGI_FORMAT_R8G8B8_SNORM; break;
 					case Image::Layout_RGBA: 
-					default:                   dxt10h->dxgiFormat = DXGI_FORMAT_R8G8B8A8_SNORM; break;
+					default:                 dxt10h->dxgiFormat = DXGI_FORMAT_R8G8B8A8_SNORM; break;
 				};
 				break;
 			default:
@@ -877,7 +831,7 @@ bool Image::WriteDds(File& file_, const Image& _img)
 		case Image::Type_Cubemap:
 		case Image::Type_CubemapArray: dxt10h->resourceDimension = DDS_RESOURCE_DIMENSION_TEXTURE2D; break;
 		case Image::Type_3d:           dxt10h->resourceDimension = DDS_RESOURCE_DIMENSION_TEXTURE3D; break;
-		default:                         dxt10h->resourceDimension = DDS_RESOURCE_DIMENSION_UNKNOWN; break;
+		default:                       dxt10h->resourceDimension = DDS_RESOURCE_DIMENSION_UNKNOWN; break;
 	};
 	dxt10h->miscFlag   = (_img.isCubemap() ? DDS_RESOURCE_MISC_TEXTURECUBE : 0);
 	dxt10h->arraySize  = (UINT)_img.m_arrayCount;
