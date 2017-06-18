@@ -12,9 +12,14 @@ class File;
 ////////////////////////////////////////////////////////////////////////////////
 // Image.
 // Raw image data is stored in a packed format with consecutive image channels
-// corresponding to the image layout. Array layers and cubemap faces are stored 
-// as consecutive images, whereas volume slices are contiguous. Each image is 
-// adjacent to its mipmap.
+// corresponding to the image layout. Array elements and cubemap faces are 
+// stored as consecutive images, whereas volume slices are contiguous. Each 
+// image is adjacent to its mipmap.
+//
+// Cubemaps are equivalent to 2d image arrays with 6 elements. The face order is
+// X+ X- Y+ Y- Z+ Z-. Note that the array count does not include the faces, so
+// a single cubemap has an array count of 1, however access to the faces via
+// getRawImage() should be as array*6+face.
 //
 // \todo Read*() functions and setRawData() should correctly release the 
 //   existing image first (or only if the load succeeded).
@@ -83,12 +88,13 @@ public:
 		FileFormat_Invalid
 	};
 
-	// Allocate an image with the specified parameters. Image data can subsequently be filled via calls to setRawImage().
+	// Allocate an image. Data can subsequently be specified via calls to setRawImage().
 	static Image* Create1d(
 		uint            _width,
 		Layout          _layout, 
 		DataType        _dataType, 
 		uint            _mipmapCount = 1,
+		uint            _arrayCount = 1,
 		CompressionType _compressionType = Compression_None
 		);
 	static Image* Create2d(
@@ -96,6 +102,7 @@ public:
 		Layout          _layout, 
 		DataType        _dataType, 
 		uint            _mipmapCount = 1,
+		uint            _arrayCount = 1,
 		CompressionType _compressionType = Compression_None
 		);
 	static Image* Create3d(
@@ -103,6 +110,15 @@ public:
 		Layout          _layout, 
 		DataType        _dataType, 
 		uint            _mipmapCount = 1,
+		uint            _arrayCount = 1,
+		CompressionType _compressionType = Compression_None
+		);
+	static Image* CreateCubemap(
+		uint            _width,
+		Layout          _layout, 
+		DataType        _dataType, 
+		uint            _mipmapCount = 1,
+		uint            _arrayCount = 1,
 		CompressionType _compressionType = Compression_None
 		);
 
@@ -139,14 +155,14 @@ public:
 	DataType        getImageDataType() const     { return m_dataType;       }
 	CompressionType getCompressionType() const   { return m_compression;    }
 
-	bool            isCubemap() const            { return m_type == Type_Cubemap;            }
-	bool            isCompressed() const         { return m_compression != Compression_None; }
-	bool            is1d() const                 { return m_height == 1;                     }
-	bool            is2d() const                 { return m_depth == 1 && !isCubemap();      }
-	bool            is3d() const                 { return m_depth > 1;                       }
-	bool            isArray() const              { return m_arrayCount > 1 && !isCubemap();  }
+	bool            isCompressed() const         { return m_compression != Compression_None;                 }
+	bool            isCubemap() const            { return m_type == Type_Cubemap || Type_CubemapArray;       }
+	bool            is1d() const                 { return m_type == Type_1d || m_type == Type_1dArray;       }
+	bool            is2d() const                 { return m_type == Type_2d || m_type == Type_2dArray;       }
+	bool            is3d() const                 { return m_type == Type_3d || m_type == Type_3dArray;       }
+	bool            isArray() const              { return isCubemap() ? m_arrayCount > 6 : m_arrayCount > 1; }
 
-	// Return a ptr to raw image data. _array < getArrayCount(), _mip < getMipmapCount(). 
+	// Return a ptr to raw image data.
 	// Get the size of the returned buffer via getRawImageSize().
 	char* getRawImage(uint _array = 0, uint _mip = 0) const;
 
@@ -168,7 +184,7 @@ private:
 	uint  m_arrayCount;                  // 1 for non-arrays, 6 for cubemaps.
 	uint  m_mipmapCount;                 // Number of valid mipmap levels, min = 1.
 	uint  m_arrayLayerSize;              // Data size (bytes) of a single array layer (including mipmap).
-	float m_bytesPerTexel;               // Maybe be <1 for compressed images.
+	float m_bytesPerTexel;               // May be <1 (for compressed images).
 	
 	Type m_type;                         // 1d, 2d, cubemap, etc.
 	Layout m_layout;                     // Component layout.

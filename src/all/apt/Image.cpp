@@ -71,33 +71,35 @@ static uint GetImageSize(uint _w, uint _h, uint _d, Image::CompressionType _comp
 
 // PUBLIC
 
-Image* Image::Create1d(uint _width, Layout _layout, DataType _dataType, uint _mipmapCount, CompressionType _compressionType)
+Image* Image::Create1d(uint _width, Layout _layout, DataType _dataType, uint _mipmapCount, uint _arrayCount, CompressionType _compressionType)
 {
 	Image* ret = new Image;
 	APT_ASSERT(ret);
 	ret->init();
-	ret->m_type        = Type_1d;
+	ret->m_type        = _arrayCount > 1 ? Type_1dArray : Type_1d;
 	ret->m_width       = _width;
 	ret->m_layout      = _layout;
 	ret->m_dataType    = _dataType;
 	ret->m_mipmapCount = _mipmapCount;
+	ret->m_arrayCount  = _arrayCount;
 	ret->m_compression = _compressionType;
 	ret->alloc();
 
 	return ret;
 }
 
-Image* Image::Create2d(uint _width, uint _height, Layout _layout, DataType _dataType, uint _mipmapCount, CompressionType _compressionType)
+Image* Image::Create2d(uint _width, uint _height, Layout _layout, DataType _dataType, uint _mipmapCount, uint _arrayCount, CompressionType _compressionType)
 {
 	Image* ret = new Image;
 	APT_ASSERT(ret);
 	ret->init();
-	ret->m_type        = Type_2d;
+	ret->m_type        = _arrayCount > 1 ? Type_2dArray : Type_2d;
 	ret->m_width       = _width;
 	ret->m_height      = _height;
 	ret->m_layout      = _layout;
 	ret->m_dataType    = _dataType;
 	ret->m_mipmapCount = _mipmapCount;
+	ret->m_arrayCount  = _arrayCount;
 	ret->m_compression = _compressionType;
 	ret->alloc();
 
@@ -105,18 +107,37 @@ Image* Image::Create2d(uint _width, uint _height, Layout _layout, DataType _data
 }
 
 
-Image* Image::Create3d(uint _width, uint _height, uint _depth, Layout _layout, DataType _dataType, uint _mipmapCount, CompressionType _compressionType)
+Image* Image::Create3d(uint _width, uint _height, uint _depth, Layout _layout, DataType _dataType, uint _mipmapCount, uint _arrayCount, CompressionType _compressionType)
 {
 	Image* ret = new Image;
 	APT_ASSERT(ret);
 	ret->init();
-	ret->m_type        = Type_3d;
+	ret->m_type        = _arrayCount > 1 ? Type_3dArray : Type_3d;
 	ret->m_width       = _width;
 	ret->m_height      = _height;
 	ret->m_depth       = _depth;
 	ret->m_layout      = _layout;
 	ret->m_dataType    = _dataType;
 	ret->m_mipmapCount = _mipmapCount;
+	ret->m_arrayCount  = _arrayCount;
+	ret->m_compression = _compressionType;
+	ret->alloc();
+
+	return ret;
+}
+
+Image* Image::CreateCubemap(uint _width, Layout _layout, DataType _dataType, uint _mipmapCount, uint _arrayCount, CompressionType _compressionType)
+{
+	Image* ret = new Image;
+	APT_ASSERT(ret);
+	ret->init();
+	ret->m_type        = _arrayCount > 1 ? Type_CubemapArray : Type_Cubemap;
+	ret->m_width       = _width;
+	ret->m_height      = _width;
+	ret->m_layout      = _layout;
+	ret->m_dataType    = _dataType;
+	ret->m_mipmapCount = _mipmapCount;
+	ret->m_arrayCount  = _arrayCount;
 	ret->m_compression = _compressionType;
 	ret->alloc();
 
@@ -229,12 +250,6 @@ uint Image::GetMaxMipmapCount(uint _width, uint _height, uint _depth)
 char* Image::getRawImage(uint _array, uint _mip) const
 {
 	APT_ASSERT(m_data);
-	APT_ASSERT(_array < m_arrayCount);
-	APT_ASSERT(_mip < m_mipmapCount);
-	if (!m_data || _array >= m_arrayCount || _mip >= m_mipmapCount) {
-		return nullptr;
-	}
-
 	uint offset = _array * m_arrayLayerSize + m_mipOffsets[_mip];
 	return m_data + offset;
 }
@@ -347,7 +362,8 @@ void Image::alloc()
 		APT_ASSERT(i < kMaxMipmapCount);
 	} while (i < lim);
 
-	m_data = (char*)malloc(m_arrayLayerSize * m_arrayCount);
+	uint imageCount = isCubemap() ? m_arrayCount * 6 : m_arrayCount;
+	m_data = (char*)malloc(m_arrayLayerSize * imageCount);
 	APT_ASSERT(m_data);
 }
 
