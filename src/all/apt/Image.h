@@ -155,12 +155,12 @@ public:
 	DataType        getImageDataType() const     { return m_dataType;       }
 	CompressionType getCompressionType() const   { return m_compression;    }
 
-	bool            isCompressed() const         { return m_compression != Compression_None;                 }
-	bool            isCubemap() const            { return m_type == Type_Cubemap || Type_CubemapArray;       }
-	bool            is1d() const                 { return m_type == Type_1d || m_type == Type_1dArray;       }
-	bool            is2d() const                 { return m_type == Type_2d || m_type == Type_2dArray;       }
-	bool            is3d() const                 { return m_type == Type_3d || m_type == Type_3dArray;       }
-	bool            isArray() const              { return isCubemap() ? m_arrayCount > 6 : m_arrayCount > 1; }
+	bool            isCompressed() const         { return m_compression != Compression_None;                     }
+	bool            isCubemap() const            { return m_type == Type_Cubemap || m_type == Type_CubemapArray; }
+	bool            is1d() const                 { return m_type == Type_1d || m_type == Type_1dArray;           }
+	bool            is2d() const                 { return m_type == Type_2d || m_type == Type_2dArray;           }
+	bool            is3d() const                 { return m_type == Type_3d || m_type == Type_3dArray;           }
+	bool            isArray() const              { return isCubemap() ? m_arrayCount > 6 : m_arrayCount > 1;     }
 
 	// Return a ptr to raw image data.
 	// Get the size of the returned buffer via getRawImageSize().
