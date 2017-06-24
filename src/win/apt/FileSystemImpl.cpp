@@ -31,6 +31,18 @@ static void BuildFilterString(const char* _filters, StringBase& ret_)
 
 // PUBLIC
 
+bool FileSystem::Delete(const char* _path)
+{
+	if (DeleteFile(_path) == 0) {
+		DWORD err = GetLastError();
+		if (err != ERROR_FILE_NOT_FOUND) {
+			APT_LOG_ERR("DeleteFile(%s): %s", _path, GetPlatformErrorString(err));
+		}
+		return false;
+	}
+	return true;
+}
+
 void FileSystem::MakeRelative(StringBase& ret_, const char* _path, RootType _root)
 {
  // construct the full root
@@ -89,7 +101,7 @@ bool FileSystem::PlatformSelect(PathStr& ret_, const char* _filters)
 	} else {
 		DWORD err = CommDlgExtendedError();
 		if (err != 0) {
-			APT_LOG_ERR("GetOpenFileName failed (0x%x)", err);
+			APT_LOG_ERR("GetOpenFileName (0x%x)", err);
 			APT_ASSERT(false);
 		}		
 	}
@@ -135,7 +147,7 @@ int FileSystem::PlatformSelectMulti(PathStr retList_[], int _maxResults, const c
 	} else {
 		DWORD err = CommDlgExtendedError();
 		if (err != 0) {
-			APT_LOG_ERR("GetOpenFileName failed (0x%x)", err);
+			APT_LOG_ERR("GetOpenFileName (0x%x)", err);
 			APT_ASSERT(false);
 		}		
 	}
@@ -184,6 +196,24 @@ int FileSystem::ListFiles(PathStr retList_[], int _maxResults, const char* _path
     }
 
 	return ret;
+}
+
+bool FileSystem::CreateDir(const char* _path)
+{
+	TextParser tp(_path);
+	while (tp.advanceToNext("\\/") != 0) {
+		String<64> mkdir;
+		mkdir.set(_path, tp.getCharCount());
+		if (CreateDirectory(mkdir, NULL) == 0) {
+			DWORD err = GetLastError();
+			if (err != ERROR_ALREADY_EXISTS) {
+				APT_LOG_ERR("CreateDirectory(%s): %s", _path, GetPlatformErrorString(err));
+				return false;
+			}
+		}
+		tp.advance(); // skip the delimiter
+	}
+	return true;
 }
 
 // PROTECTED

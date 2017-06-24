@@ -11,11 +11,10 @@ namespace apt {
 ////////////////////////////////////////////////////////////////////////////////
 // FileSystem
 // Manage file access. A fixed number of directory 'roots' may be set, which 
-// are searched in reverse order when resolving a path (e.g. RootType_Application
-// is checked before RootType_Common).
+// are searched in reverse order when resolving a relative path (e.g. 
+// RootType_Application is checked before RootType_Common).
 ////////////////////////////////////////////////////////////////////////////////
-class FileSystem
-	: private non_instantiable<FileSystem>
+class FileSystem : private non_instantiable<FileSystem>
 {
 public:
 	typedef File::PathStr PathStr;
@@ -34,6 +33,7 @@ public:
 	static const char* GetRoot(RootType _type);
 	static void        SetRoot(RootType _type, const char* _path);
 
+
 	// Read a file into memory. Each root is searched, beginning at _rootHint. If _path is nullptr, the 
 	// path from file_ is used. Return false if an error occurred, in which case file_ remains unchanged. 
 	// On success, any resources already associated with file_ are released. _rootHint is ignored if _path is absolute.
@@ -49,6 +49,9 @@ public:
 
 	// Return true if _path exists. Each root is searched, beginning at _rootHint.
 	static bool        Exists(const char* _path, RootType _rootHint = RootType_Default);
+
+	// Delete a file.
+	static bool        Delete(const char* _path);
 
 	// Concatenates _path + s_separator + s_root[_root]. If _path is absolute the root is ignored.
 	static void        MakePath(StringBase& ret_, const char* _path, RootType _root);
@@ -90,6 +93,10 @@ public:
 
 	// List up to _maxResults files in _path with option recursion.
 	static int         ListFiles(PathStr retList_[], int _maxResults, const char* _path, const char* _filter = "*.*", bool _recursive = false);
+
+	// Create the directory specified by _path, plus all parent directories if they do not exist. Return false if an error occurred.
+	// \note If _path contains only directory names, it must end in a path delimiter (e.g. "dir0/dir1/").
+	static bool        CreateDir(const char* _path);
 
 private:
 	static PathStr    s_roots[RootType_Count];
