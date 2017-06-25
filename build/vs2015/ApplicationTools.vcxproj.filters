@@ -406,10 +406,16 @@
     <ClInclude Include="..\..\src\all\extern\lodepng.h">
       <Filter>extern</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\all\extern\noise1234.h">
+      <Filter>extern</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\all\extern\stb_image.h">
       <Filter>extern</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\all\extern\stb_image_write.h">
+      <Filter>extern</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\all\extern\tinyexr.h">
       <Filter>extern</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\win\apt\platform.h">
@@ -468,6 +474,9 @@
       <Filter>extern</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\all\extern\lodepng.cpp">
+      <Filter>extern</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\all\extern\noise1234.cpp">
       <Filter>extern</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\win\apt\FileImpl.cpp">
