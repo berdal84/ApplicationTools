@@ -36,7 +36,7 @@ static DateTime FileTimeToDateTime(const FILETIME& _fileTime)
 	return DateTime(li.QuadPart);
 }
 
-static bool GetFileDateTime(const char* _fullPath, DateTime& created_, DateTime& lastModified_)
+static bool GetFileDateTime(const char* _fullPath, DateTime& created_, DateTime& modified_)
 {
 	const char* err = nullptr;
 	HANDLE h = CreateFile(
@@ -52,13 +52,13 @@ static bool GetFileDateTime(const char* _fullPath, DateTime& created_, DateTime&
 		err = GetPlatformErrorString(GetLastError());
 		goto GetFileDateTime_End;
 	}
-	FILETIME created, lastModified;
-	if (GetFileTime(h, &created, NULL, &lastModified) == 0) {
+	FILETIME created, modified;
+	if (GetFileTime(h, &created, NULL, &modified) == 0) {
 		err = GetPlatformErrorString(GetLastError());
 		goto GetFileDateTime_End;
 	}	
 	created_ = FileTimeToDateTime(created);
-	lastModified_ = FileTimeToDateTime(lastModified);
+	modified_ = FileTimeToDateTime(modified);
 	
 GetFileDateTime_End:
 	if (err) {
@@ -89,20 +89,20 @@ DateTime FileSystem::GetTimeCreated(const char* _path, RootType _rootHint)
 	if (!FindExisting(fullPath, _path, _rootHint)) {
 		return DateTime(); // \todo return invalid sentinel
 	}
-	DateTime created, lastModified;
-	GetFileDateTime(fullPath, created, lastModified);
+	DateTime created, modified;
+	GetFileDateTime(fullPath, created, modified);
 	return created;
 }
 
-DateTime FileSystem::GetTimeLastModified(const char* _path, RootType _rootHint)
+DateTime FileSystem::GetTimeModified(const char* _path, RootType _rootHint)
 {
 	PathStr fullPath;
 	if (!FindExisting(fullPath, _path, _rootHint)) {
 		return DateTime(); // \todo return invalid sentinel
 	}
-	DateTime created, lastModified;
-	GetFileDateTime(fullPath, created, lastModified);
-	return lastModified;
+	DateTime created, modified;
+	GetFileDateTime(fullPath, created, modified);
+	return modified;
 }
 
 void FileSystem::MakeRelative(StringBase& ret_, const char* _path, RootType _root)
