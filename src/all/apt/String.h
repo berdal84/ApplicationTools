@@ -64,12 +64,14 @@ public:
 	uint getCapacity() const                       { return m_capacity; }
 	void setCapacity(uint _capacity);
 
-	bool operator==(const char* _rhs) const;
-	bool operator==(const StringBase& _rhs) const  { return this->operator==((const char*)_rhs); }
-	bool operator<(const char* _rhs) const;
-	bool operator<(const StringBase& _rhs) const   { return this->operator<((const char*)_rhs); }
-	bool operator>(const char* _rhs) const;
-	bool operator>(const StringBase& _rhs) const   { return this->operator>((const char*)_rhs); }
+	bool  operator==(const char* _rhs) const;
+	bool  operator==(const StringBase& _rhs) const  { return this->operator==((const char*)_rhs); }
+	bool  operator<(const char* _rhs) const;
+	bool  operator<(const StringBase& _rhs) const   { return this->operator<((const char*)_rhs); }
+	bool  operator>(const char* _rhs) const;
+	bool  operator>(const StringBase& _rhs) const   { return this->operator>((const char*)_rhs); }
+	char& operator[](int _i)                        { return m_buf[_i]; }
+	char  operator[](int _i) const                  { return m_buf[_i]; }
 
 	// Cast to char*/const char* is explicit to avoid conflicts with the operator overloads above.
 	explicit operator const char*() const          { return m_buf; }
