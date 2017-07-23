@@ -18,8 +18,7 @@ namespace apt {
 //   (prefer the former, buffer ownership issues in the latter case).
 // \todo Checksum/hash util.
 ////////////////////////////////////////////////////////////////////////////////
-class File
-	: private non_copyable<File>
+class File: private non_copyable<File>
 {
 public:
 	typedef String<64> PathStr;

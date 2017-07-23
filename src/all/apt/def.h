@@ -154,18 +154,23 @@ namespace apt {
 // Forward declarations
 
 class ArgList;
+template <typename tType> class Factory;
 class File;
 class FileSystem;
 class Image;
-class IniFile;
+class Ini;
+class Json;
+class JsonSerializer;
 class MemoryPool;
+template <typename tType> class PersistentVector;
 template <typename tType> class Pool;
 template <typename tType> class RingBuffer;
+class Serializer;
 template <uint kCapacity> class String;
 class StringHash;
 class TextParser;
 class Timestamp;
-class Datetime;
+class DateTime;
 
 ////////////////////////////////////////////////////////////////////////////////
 // non_copyable

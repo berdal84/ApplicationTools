@@ -9,8 +9,7 @@
 // \todo 
 //#define APT_MATH_SIMD
 
-// \hack glm typedefs sized ints with the same names as apt; to get around the ensuing conflict we #define them with glm_ prefixes, 
-// then #undef them again below
+// \hack glm typedefs sized ints with the same names as apt; to get around the ensuing conflict we #define them with glm_ prefixes, then #undef them again below
 #define aligned glm_hack_aligned
 #define int8    glm_hack_int8
 #define int16   glm_hack_int16

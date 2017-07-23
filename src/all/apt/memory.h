@@ -9,9 +9,8 @@ namespace apt {
 // Allocate _size bytes with _align aligment.
 void* malloc_aligned(uint _size, uint _align);
 
-// Reallocate memory previously allocated via malloc_aligned (or allocate a new
-// block if _p is null). The alignment of a previously allocated block may not
-// be changed.
+// Reallocate memory previously allocated via malloc_aligned (or allocate a new block if _p is null). The alignment of a previously 
+// allocated block may not be changed.
 void* realloc_aligned(void* _p, uint _size, uint _align);
 
 // Free memory previous allocated via malloc_aligned().
