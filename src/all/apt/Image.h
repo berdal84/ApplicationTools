@@ -7,8 +7,6 @@
 
 namespace apt {
 
-class File;
-
 ////////////////////////////////////////////////////////////////////////////////
 // Image.
 // Raw image data is stored in a packed format with consecutive image channels
@@ -29,8 +27,6 @@ class Image
 {
 public:
 	static const uint kMaxMipmapCount = 32;
-
-	typedef apt::DataType DataType;
 
 	enum Type
 	{
