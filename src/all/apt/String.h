@@ -49,6 +49,8 @@ public:
 	// Replace all instances of _find with _replace. Return the number of instances replaced.
 	uint replace(char _find, char _replace); // single char (faster, in-place)
 	uint replace(const char* _find, const char* _replace); // substring
+	uint replacef(const char* _find, const char* _fmt, ...);
+	uint replacefv(const char* _find, const char* _fmt, va_list _args);
 
 	// Convert to upper/lower case.
 	void toUpperCase();

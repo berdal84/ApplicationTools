@@ -167,6 +167,22 @@ uint StringBase::replace(const char* _find, const char* _replace)
 	return ret;
 }
 
+uint StringBase::replacef(const char* _find, const char* _fmt, ...)
+{
+	va_list args;
+	va_start(args, _fmt);
+	uint ret = replacefv(_find, _fmt, args);
+	va_end(args);
+	return ret;
+}
+
+uint StringBase::replacefv(const char* _find, const char* _fmt, va_list _args)
+{
+	String<64> tmp;
+	tmp.setfv(_fmt, _args);
+	return replace(_find, (const char*)tmp);
+}
+
 void StringBase::toLowerCase()
 {
 	char* tmp = m_buf;
