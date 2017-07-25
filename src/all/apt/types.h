@@ -293,7 +293,7 @@ inline tType BitfieldMask(int _offset, int _count)
 template <typename tType>
 inline tType BitfieldInsert(tType _base, tType _insert, int _offset, int _count) 
 { 
-	tType mask = Mask<tType>(_count);
+	tType mask = BitfieldMask<tType>(_count);
 	return (_base & ~(mask << _offset)) | ((_insert & mask) << _offset);
 }
 
@@ -301,7 +301,7 @@ inline tType BitfieldInsert(tType _base, tType _insert, int _offset, int _count)
 template <typename tType>
 inline tType BitfieldExtract(tType _base, int _offset, int _count) 
 { 
-	tType mask = Mask<tType>(_count) << _offset;
+	tType mask = BitfieldMask<tType>(_count) << _offset;
 	return (_base & mask) >> _offset;
 }
 
