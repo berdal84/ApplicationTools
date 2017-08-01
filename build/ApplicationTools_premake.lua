@@ -8,7 +8,7 @@
 	The call ApplicationTools_ProjectExternal() inside your workspace declaration:
 		
 		workspace "MyWorkspace"
-			ApplicationTools_External("extern/ApplicationTools")
+			ApplicationTools_ProjectExternal("extern/ApplicationTools")
 			
 	Finally, for each project which needs to link ApplicationTools:
 		
