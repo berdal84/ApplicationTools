@@ -58,6 +58,8 @@ local function ApplicationTools_Common(_root)
 	WIN_SRC_DIR     = _root .. WIN_SRC_DIR
 	WIN_EXTERN_DIR  = _root .. WIN_EXTERN_DIR
 
+	project "*"
+	
 	defines { "EA_COMPILER_NO_EXCEPTIONS" }
 	rtti "Off"
 	exceptionhandling "Off"
@@ -138,6 +140,8 @@ function ApplicationTools_Project(_root, _targetDir)
 		filter {}
 
 		if (APT_LOG_CALLBACK_ONLY or false) then defines { "APT_LOG_CALLBACK_ONLY" } end
+		
+	project "*"
 end
 
 function ApplicationTools_ProjectExternal(_root)
@@ -150,6 +154,8 @@ function ApplicationTools_ProjectExternal(_root)
 		uuid(APT_UUID)
 		kind "StaticLib"
 		language "C++"
+		
+	project "*"
 end
 
 function ApplicationTools_Link()
