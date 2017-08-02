@@ -1,5 +1,5 @@
 --APT_LOG_CALLBACK_ONLY = true
-dofile("ApplicationTools_premake.lua")
+dofile "ApplicationTools_premake.lua"
 
 workspace "ApplicationTools"
 	location(_ACTION)
@@ -9,6 +9,7 @@ workspace "ApplicationTools"
 	filter { "platforms:Win64" }
 		system "windows"
 		architecture "x86_64"
+	filter {}
 
 	group "libs"
 		ApplicationTools_Project(
@@ -26,10 +27,12 @@ workspace "ApplicationTools"
 			targetsuffix "_debug"
 			symbols "On"
 			optimize "Off"
+		filter {}
 
 		filter { "configurations:release" }
 			symbols "Off"
 			optimize "Full"
+		filter {}
 
 		local TESTS_DIR         = "../tests/"
 		local TESTS_EXTERN_DIR  = TESTS_DIR .. "extern/"

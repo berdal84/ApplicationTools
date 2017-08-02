@@ -1,14 +1,14 @@
 --[[
 	Usage #1: External Project File
 	-------------------------------
-	To use one of the bundled project files, call dofile() at the top of your premake script:
+	To use one of the prebuilt project files, call dofile() at the top of your premake script:
 		
 		dofile("extern/ApplicationTools/build/ApplicationTools_premake.lua")
 		
 	The call ApplicationTools_ProjectExternal() inside your workspace declaration:
 		
 		workspace "MyWorkspace"
-			function ApplicationTools_External("extern/ApplicationTools")
+			ApplicationTools_ProjectExternal("extern/ApplicationTools")
 			
 	Finally, for each project which needs to link ApplicationTools:
 		
@@ -33,6 +33,7 @@
 				)
 				
 	Finally, for each project which needs to link ApplicationTools:
+
 		project "MyProject"
 			ApplicationTools_Link()
 	
@@ -63,11 +64,13 @@ local function ApplicationTools_Common(_root)
 
 	filter { "configurations:debug" }
 		defines { "APT_DEBUG" }
+	filter {}
 
 	filter { "action:vs*" }
 		defines { "_CRT_SECURE_NO_WARNINGS", "_SCL_SECURE_NO_WARNINGS" }
 		buildoptions { "/EHsc" }
 		characterset "MBCS" -- force Win32 API to use *A variants (i.e. can pass char* for strings)
+	filter {}
 
 	includedirs({
 		ALL_SRC_DIR,
@@ -78,10 +81,11 @@ local function ApplicationTools_Common(_root)
 			WIN_SRC_DIR,
 			WIN_EXTERN_DIR,
 			})
+	filter {}
 end
 
 function ApplicationTools_Project(_root, _targetDir)
-	_root   = _root or ""
+	_root = _root or ""
 	_targetDir = _targetDir or "../lib"
 
 	ApplicationTools_Common(_root)
@@ -96,10 +100,12 @@ function ApplicationTools_Project(_root, _targetDir)
 			targetsuffix "_debug"
 			symbols "On"
 			optimize "Off"
+		filter {}
 
 		filter { "configurations:release" }
 			symbols "Off"
 			optimize "Full"
+		filter {}
 
 		vpaths({
 			["*"]        = ALL_SRC_DIR .. "apt/**",
@@ -129,6 +135,7 @@ function ApplicationTools_Project(_root, _targetDir)
 				WIN_EXTERN_DIR .. "**.c",
 				WIN_EXTERN_DIR .. "**.cpp",
 				})
+		filter {}
 
 		if (APT_LOG_CALLBACK_ONLY or false) then defines { "APT_LOG_CALLBACK_ONLY" } end
 end
@@ -139,7 +146,7 @@ function ApplicationTools_ProjectExternal(_root)
 	ApplicationTools_Common(_root)
 
 	externalproject "ApplicationTools"
-		location(_root .. "build/" .. _ACTION)
+		location(_root .. "/build/" .. _ACTION)
 		uuid(APT_UUID)
 		kind "StaticLib"
 		language "C++"
