@@ -22,7 +22,7 @@ public:
 
 	enum RootType
 	{
-		RootType_Root,         // By default the working directory of the executable.
+		RootType_Root,         // By default, the working directory of the executable.
 		RootType_Common,       // Shared path for common files.
 		RootType_Application,  // Application-specific files.
 
@@ -43,7 +43,7 @@ public:
 	// As Read() but first checks if the file exists. Return false if the file does not exist or if an error occurred.
 	static bool        ReadIfExists(File& file_, const char* _path = nullptr, RootType _rootHint = RootType_Default);
 
-	// Write _file's data to _path. If _path is nullptr, the path from _file is used. Return false 
+	// Write _file's data to _path. If _path is 0, the path from _file is used. Return false 
 	// if an error occurred, in which case any existing file at _path may or may not have been overwritten.
 	// _root is ignored if _path is absolute.
 	static bool        Write(const File& _file, const char* _path = nullptr, RootType _root = RootType_Default);
@@ -63,29 +63,27 @@ public:
 
 	// Make _path relative to _root. It is safe for _path to point to the string buffer in ret_.
 	static void        MakeRelative(StringBase& ret_, const char* _path, RootType _root = RootType_Root);
-	static void        MakeRelative(StringBase& ret_, RootType _root = RootType_Root) { MakeRelative(ret_, (const char*)ret_, _root); }
+	static void        MakeRelative(StringBase& _ret_, RootType _root = RootType_Root) { MakeRelative(_ret_, (const char*)_ret_, _root); }
 	
 	// Return true if _path is absolute.
 	static bool        IsAbsolute(const char* _path);
 
-	// Strip path from _path up to and including any root directory. It is safe for _path to point to 
-	// the string buffer in ret_.
+	// Strip path from _path up to and including any root directory. It is safe for _path to point to the string buffer in ret_.
 	static void        StripRoot(StringBase& ret_, const char* _path);
-	static void        StripRoot(StringBase& ret_) { StripRoot(ret_, (const char*)ret_); }
+	static void        StripRoot(StringBase& _ret_) { StripRoot(_ret_, (const char*)_ret_); }
 	// Strip path from _path. It is safe for _path to point to the string buffer in ret_.
 	static void        StripPath(StringBase& ret_, const char* _path);
-	static void        StripPath(StringBase& ret_) { StripPath(ret_, (const char*)ret_); }
+	static void        StripPath(StringBase& _ret_) { StripPath(_ret_, (const char*)_ret_); }
 
-	// Extract path from _path (remove file name + extension). It is safe for _path to point
-	// the string buffer in ret_.
+	// Extract path from _path (remove file name + extension). It is safe for _path to point the string buffer in ret_.
 	static void        GetPath(StringBase& ret_, const char* _path);
-	static void        GetPath(StringBase& ret_) { GetFileName(ret_, (const char*)ret_); }
+	static void        GetPath(StringBase& _ret_) { GetFileName(_ret_, (const char*)_ret_); }
 	// Extract file name from _path. It is safe for _path to point to the string buffer in ret_.
 	static void        GetFileName(StringBase& ret_, const char* _path);
-	static void        GetFileName(StringBase& ret_) { GetFileName(ret_, (const char*)ret_); }
+	static void        GetFileName(StringBase& _ret_) { GetFileName(_ret_, (const char*)_ret_); }
 	// Extract extension from _path. It is safe for _path to point to the string buffer in ret_.
 	static void        GetExtension(StringBase& ret_, const char* _path) { ret_.set(FindExtension(_path)); }
-	static void        GetExtension(StringBase& ret_) { GetExtension(ret_, (const char*)ret_); }
+	static void        GetExtension(StringBase& _ret_) { GetExtension(_ret_, (const char*)_ret_); }
 
 	// Return ptr to the character following the last occurrence of '.' in _path.
 	static const char* FindExtension(const char* _path);
@@ -96,11 +94,13 @@ public:
 	static bool        PlatformSelect(PathStr& ret_, const char* _filters = "");
 	static int         PlatformSelectMulti(PathStr retList_[], int _maxResults, const char* _filters = "");
 
-	// List up to _maxResults files in _path with option recursion.
+	// List up to _maxResults files in _path, with optional recursion. Return the number of files which would be found if not limited by _maxResults.
 	static int         ListFiles(PathStr retList_[], int _maxResults, const char* _path, const char* _filter = "*.*", bool _recursive = false);
+	// List up to _maxResults dirs in _path, with optional recursion. Return the number of dirs which would be found if not limited by _maxResults.
+	static int         ListDirs(PathStr retList_[], int _maxResults, const char* _path, bool _recursive = false);
 
 	// Create the directory specified by _path, plus all parent directories if they do not exist. Return false if an error occurred.
-	// \note If _path contains only directory names, it must end in a path delimiter (e.g. "dir0/dir1/").
+	// \note If _path contains only directory names, it must end in a path separator (e.g. "dir0/dir1/").
 	static bool        CreateDir(const char* _path);
 
 private:

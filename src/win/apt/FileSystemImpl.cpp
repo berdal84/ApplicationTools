@@ -221,7 +221,7 @@ int FileSystem::ListFiles(PathStr retList_[], int _maxResults, const char* _path
 	eastl::vector<PathStr> dirs;
 	dirs.push_back(_path);
 	int ret = 0;
-	while (ret < _maxResults && !dirs.empty()) {
+	while (!dirs.empty()) {
 		PathStr root = (PathStr&&)dirs.back();
 		dirs.pop_back();
 		root.replace('/', '\\');
@@ -240,14 +240,65 @@ int FileSystem::ListFiles(PathStr retList_[], int _maxResults, const char* _path
 				if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
 					if (_recursive) {
 						dirs.push_back(root);
-						dirs.back().appendf("\\%s", ffd.cFileName, _filter);
+						dirs.back().appendf("\\%s", ffd.cFileName);
 					}
 				} else {
-					retList_[ret++].setf("%s\\%s", (const char*)root, ffd.cFileName);
+					if (ret < _maxResults) {
+						retList_[ret].setf("%s\\%s", (const char*)root, ffd.cFileName);
+					}
+					++ret;
 				}
 			}
 	
-        } while (ret < _maxResults && FindNextFile(h, &ffd) != 0);
+        } while (FindNextFile(h, &ffd) != 0);
+
+		DWORD err = GetLastError();
+		if (err != ERROR_NO_MORE_FILES) {
+			APT_LOG_ERR("ListFiles (FindNextFile): %s", GetPlatformErrorString(err));
+		}
+
+		FindClose(h);
+    }
+
+	return ret;
+}
+
+int FileSystem::ListDirs(PathStr retList_[], int _maxResults, const char* _path, bool _recursive)
+{
+	eastl::vector<PathStr> dirs;
+	dirs.push_back(_path);
+	int ret = 0;
+	// \note there are 2 choices of behavior here: 'direct' recursion (where sub directories appear immediately after the parent in the list), or
+	// 'deferred' recursion, which is what is implemented. In theory, the latter is better because you can fill a small list of the first couple of levels
+	// of the hierarchy and then manually recurse into those directories as needed.
+	while (!dirs.empty()) {
+		PathStr root = (PathStr&&)dirs.back();
+		dirs.pop_back();
+		root.replace('/', '\\');
+		PathStr search = root;
+		search.appendf("\\*.*"); // \todo check if / or \\ already at the end, same for the dir code below
+	
+		WIN32_FIND_DATA ffd;
+		HANDLE h = FindFirstFile((const char*)search, &ffd);
+		if (h == INVALID_HANDLE_VALUE) {
+			APT_LOG_ERR("ListFiles (FindFirstFile): %s", GetPlatformErrorString(GetLastError()));
+			continue;
+		} 
+
+		do {
+			if (strcmp(ffd.cFileName, ".") != 0 && strcmp(ffd.cFileName, "..") != 0) {
+				if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+					if (_recursive) {
+						dirs.push_back(root);
+						dirs.back().appendf("\\%s", ffd.cFileName);
+					}
+					if (ret < _maxResults) {
+						retList_[ret].setf("%s\\%s", (const char*)root, ffd.cFileName);
+					}
+					++ret;
+				}
+			}
+        } while (FindNextFile(h, &ffd) != 0);
 
 		DWORD err = GetLastError();
 		if (err != ERROR_NO_MORE_FILES) {
