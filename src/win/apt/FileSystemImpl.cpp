@@ -38,6 +38,7 @@ static DateTime FileTimeToDateTime(const FILETIME& _fileTime)
 
 static bool GetFileDateTime(const char* _fullPath, DateTime& created_, DateTime& modified_)
 {
+#if 0
 	const char* err = nullptr;
 	HANDLE h = CreateFile(
 		_fullPath,
@@ -45,7 +46,7 @@ static bool GetFileDateTime(const char* _fullPath, DateTime& created_, DateTime&
 		FILE_SHARE_READ,
 		NULL,
 		OPEN_EXISTING,
-		FILE_ATTRIBUTE_NORMAL,
+		0,
 		NULL
 		);
 	if (h == INVALID_HANDLE_VALUE) {
@@ -67,6 +68,22 @@ GetFileDateTime_End:
 	}
 	APT_PLATFORM_VERIFY(CloseHandle(h));
 	return err == nullptr;
+#else
+	const char* err = nullptr;
+	WIN32_FILE_ATTRIBUTE_DATA attr;
+	if (GetFileAttributesEx(_fullPath, GetFileExInfoStandard, &attr) == 0) {
+		err = GetPlatformErrorString(GetLastError());
+		goto GetFileDateTime_End;
+	}
+	created_ = FileTimeToDateTime(attr.ftCreationTime);
+	modified_ = FileTimeToDateTime(attr.ftLastWriteTime);
+GetFileDateTime_End:
+	if (err) {
+		APT_LOG_ERR("GetFileDateTime: %s", err);
+		APT_ASSERT(false);
+	}
+	return err == nullptr;
+#endif
 } 
 
 // PUBLIC
