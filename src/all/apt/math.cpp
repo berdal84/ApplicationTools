@@ -64,16 +64,17 @@ vec3 apt::ToEulerXYZ(const mat3& _m)
 
 mat3 apt::FromEulerXYZ(const vec3& _euler)
 {
+// https://www.geometrictools.com/Documentation/EulerAngles.pdf
 	float cx = cosf(_euler.x);
 	float sx = sinf(_euler.x);
 	float cy = cosf(_euler.y);
-	float sy = cosf(_euler.y);
+	float sy = sinf(_euler.y);
 	float cz = cosf(_euler.z);
-	float sz = cosf(_euler.z);
+	float sz = sinf(_euler.z);
 	return mat3(
-		cy * cz,                                 cy * sz,                      -sz,
-		sz * sy * cz - cx * sz,   sx * sy * sz + cx * cz,                  sx * cy,
-		cx * sy * cz + sx * sz,                  cx * sy * sz - sx * cz,   cx * cy
+		 cy * cz,     cz * sx * sy + cx * sz,   -cx * cz * sy + sx * sz,
+		-cy * sz,     cx * cz - sx * sy * sz,    cz * sx + cx * sy * sz,
+		 sy,          -cy * sx,                  cx * cy
 		);
 }
 
