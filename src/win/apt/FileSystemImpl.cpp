@@ -243,12 +243,15 @@ int FileSystem::ListFiles(PathStr retList_[], int _maxResults, const char* _path
 		dirs.pop_back();
 		root.replace('/', '\\');
 		PathStr search = root;
-		search.appendf("\\%s", _filter); // \todo check if / or \\ already at the end, same for the dir code below
+		search.appendf("\\*"); // ignore filter here, need to catch dirs for recursion
 
 		WIN32_FIND_DATA ffd;
 		HANDLE h = FindFirstFile((const char*)search, &ffd);
 		if (h == INVALID_HANDLE_VALUE) {
-			APT_LOG_ERR("ListFiles (FindFirstFile): %s", GetPlatformErrorString(GetLastError()));
+			DWORD err = GetLastError();
+			if (err != ERROR_FILE_NOT_FOUND) {
+				APT_LOG_ERR("ListFiles (FindFirstFile): %s", GetPlatformErrorString(err));
+			}
 			continue;
 		} 
 
@@ -260,10 +263,12 @@ int FileSystem::ListFiles(PathStr retList_[], int _maxResults, const char* _path
 						dirs.back().appendf("\\%s", ffd.cFileName);
 					}
 				} else {
-					if (ret < _maxResults) {
-						retList_[ret].setf("%s\\%s", (const char*)root, ffd.cFileName);
+					if (PathMatchSpec((const char*)ffd.cFileName, _filter)) {
+						if (ret < _maxResults) {
+							retList_[ret].setf("%s\\%s", (const char*)root, ffd.cFileName);
+						}
+						++ret;
 					}
-					++ret;
 				}
 			}
 	
@@ -293,14 +298,17 @@ int FileSystem::ListDirs(PathStr retList_[], int _maxResults, const char* _path,
 		dirs.pop_back();
 		root.replace('/', '\\');
 		PathStr search = root;
-		search.appendf("\\*.*"); // \todo check if / or \\ already at the end, same for the dir code below
+		search.appendf("\\*");
 	
 		WIN32_FIND_DATA ffd;
 		HANDLE h = FindFirstFile((const char*)search, &ffd);
 		if (h == INVALID_HANDLE_VALUE) {
-			APT_LOG_ERR("ListFiles (FindFirstFile): %s", GetPlatformErrorString(GetLastError()));
+			DWORD err = GetLastError();
+			if (err != ERROR_FILE_NOT_FOUND) {
+				APT_LOG_ERR("ListFiles (FindFirstFile): %s", GetPlatformErrorString(err));
+			}
 			continue;
-		} 
+		}
 
 		do {
 			if (strcmp(ffd.cFileName, ".") != 0 && strcmp(ffd.cFileName, "..") != 0) {
