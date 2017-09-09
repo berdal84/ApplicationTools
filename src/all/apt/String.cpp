@@ -18,15 +18,15 @@ using namespace apt;
 uint StringBase::set(const char* _src, uint _count)
 {
 	if (!_src) {
-		return 0;
+		return m_length;
 	}
-	uint len = strlen(_src);
-	len = (_count == 0) ? len : APT_MIN(len, _count);
-	len += 1;
-	if (m_capacity < len) {
-		alloc(len);
+	uint len = _count;
+	if (len == 0) {
+		len = strlen(_src);
 	}
-	len -= 1;
+	if (m_capacity < len + 1) {
+		alloc(len + 1);
+	}
 	strncpy(m_buf, _src, len);
 	m_buf[len] = '\0';
 	m_length = len;
@@ -51,34 +51,32 @@ uint StringBase::setfv(const char* _fmt, va_list _args)
  // vsnprintf returns -1 on overflow, requires 2 passes
 	int len = vsnprintf(0, 0, _fmt, args);
 	APT_ASSERT(len >= 0);
-	len += 1;
-	if (m_capacity < (uint)len) {
-		alloc(len);
+	if (m_capacity < (uint)len + 1) {
+		alloc(len + 1);
 	}
-	APT_VERIFY(vsnprintf(m_buf, (size_t)m_capacity, _fmt, args) >= 0);
+	APT_VERIFY(vsnprintf(m_buf, m_capacity, _fmt, args) >= 0);
 #else
-	int len = vsnprintf(m_buf, (size_t)m_capacity, _fmt, args);
+	int len = vsnprintf(m_buf, m_capacity, _fmt, args);
 	APT_ASSERT(len >= 0);
-	len += 1;
-	if (m_capacity < len) {
-		alloc(len);
-		APT_VERIFY(vsnprintf(m_buf, (size_t)m_capacity, _fmt, args) >= 0);
+	if (m_capacity < len + 1) {
+		alloc(len + 1);
+		APT_VERIFY(vsnprintf(m_buf, m_capacity, _fmt, args) >= 0);
 	}
 #endif
-	m_length = (uint)len - 1;
+	m_length = (uint)len;
 	return m_length;
 }
 
 uint StringBase::append(const char* _src, uint _count)
 {
-	uint len = getLength();
-	uint srclen = strlen(_src);
-	srclen = _count == 0 ? srclen : APT_MIN(srclen, _count);
-	srclen += 1;
-	if (m_capacity < len + srclen) {
-		realloc(len + srclen);
+	uint srclen = _count;
+	if (srclen == 0) {
+		srclen = strlen(_src);
 	}
-	srclen -= 1;
+	uint len = getLength();
+	if (m_capacity < len + srclen + 1) {
+		realloc(len + srclen + 1);
+	}
 	strncpy(m_buf + len, _src, srclen);
 	len += srclen;
 	m_buf[len] = '\0';
@@ -103,22 +101,21 @@ uint StringBase::appendfv(const char* _fmt, va_list _args)
 	uint len = getLength();
 	int srclen = vsnprintf(0, 0, _fmt, args);
 	APT_ASSERT(srclen > 0);
-	srclen += 1;
-	if (m_capacity < len + srclen) {
-		realloc(len + srclen);
+	if (m_capacity < len + srclen + 1) {
+		realloc(len + srclen + 1);
 	}
-	APT_VERIFY(vsnprintf(m_buf + len, (size_t)srclen, _fmt, args) >= 0);
-	m_length = (uint)srclen + len - 1;
+	APT_VERIFY(vsnprintf(m_buf + len, m_capacity, _fmt, args) >= 0);
+	m_length = (uint)srclen + len;
 	return m_length;
 }
 
 const char* StringBase::findFirst(const char* _list) const
 {
-	const char* ret = strpbrk(m_buf, _list);
-	return ret ? ret : m_buf;
+	return strpbrk(m_buf, _list);
 }
 const char* StringBase::findLast(const char* _list) const
 {
+#if 0
  // rather than call strlen (which has to search the whole string anyway) we just make several calls to strpbrk
 	const char* ret = 0;
 	const char* tmp = m_buf;
@@ -127,6 +124,19 @@ const char* StringBase::findLast(const char* _list) const
 		ret = tmp == 0 ? ret : tmp;
 	} while (tmp != 0);
 	return ret;
+#else
+	uint i, j;
+	for (i = 0, j = m_length - 1; i < m_length; ++i, --j) {
+		const char* s = _list;
+		while (*s) {
+			if (*s == m_buf[j]) {
+				return &m_buf[j];
+			}
+			++s;
+		}
+	}
+	return nullptr;
+#endif
 }
 
 const char* StringBase::find(const char* _str) const

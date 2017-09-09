@@ -79,3 +79,19 @@ TEST_CASE("relational operators", "[String]")
 	REQUIRE(Str("xyz") > Str("abc"));
 	REQUIRE(Str("abc") == Str("abc"));
 }
+
+TEST_CASE("findFirst, findLast", "[String]")
+{
+	typedef String<16> Str;
+	Str str("abcdef");
+
+	REQUIRE(*str.findFirst("a") == 'a');
+	REQUIRE(*str.findFirst("d") == 'd');
+	REQUIRE(*str.findFirst("f") == 'f');
+	REQUIRE(str.findFirst("x")  == nullptr);
+
+	REQUIRE(*str.findLast("a") == 'a');
+	REQUIRE(*str.findLast("d") == 'd');
+	REQUIRE(*str.findLast("f") == 'f');
+	REQUIRE(str.findLast("x") == nullptr);
+}
