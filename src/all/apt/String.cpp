@@ -315,7 +315,7 @@ StringBase& StringBase::operator=(StringBase&& _rhs_)
 {
 	if (&_rhs_ != this) {
 		if (_rhs_.isLocal()) {
-			strncpy(m_buf, _rhs_.getLocalBuf(), _rhs_.m_length);
+			strncpy(m_buf, _rhs_.getLocalBuf(), _rhs_.m_length + 1);
 			m_length = _rhs_.m_length;
 		} else {
 			m_buf = _rhs_.m_buf;
@@ -349,7 +349,7 @@ void StringBase::realloc(uint _capacity)
 {
 	if (!m_buf || isLocal()) {
 		m_buf = (char*)malloc(_capacity * sizeof(char));
-		strncpy(m_buf, getLocalBuf(), _capacity);
+		strncpy(m_buf, getLocalBuf(), m_length + 1);
 		m_capacity = _capacity;
 	
 	} else {
