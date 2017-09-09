@@ -29,6 +29,7 @@ uint StringBase::set(const char* _src, uint _count)
 	len -= 1;
 	strncpy(m_buf, _src, len);
 	m_buf[len] = '\0';
+	m_length = len;
 	return len;
 }
 
@@ -51,21 +52,21 @@ uint StringBase::setfv(const char* _fmt, va_list _args)
 	int len = vsnprintf(0, 0, _fmt, args);
 	APT_ASSERT(len >= 0);
 	len += 1;
-	if (m_capacity < len) {
+	if (m_capacity < (uint)len) {
 		alloc(len);
 	}
-	APT_VERIFY(vsnprintf(m_buf, m_capacity, _fmt, args) >= 0);
+	APT_VERIFY(vsnprintf(m_buf, (size_t)m_capacity, _fmt, args) >= 0);
 #else
-	int len = vsnprintf(m_buf, m_capacity, _fmt, args);
+	int len = vsnprintf(m_buf, (size_t)m_capacity, _fmt, args);
 	APT_ASSERT(len >= 0);
 	len += 1;
 	if (m_capacity < len) {
 		alloc(len);
-		APT_VERIFY(vsnprintf(m_buf, m_capacity, _fmt, args) >= 0);
+		APT_VERIFY(vsnprintf(m_buf, (size_t)m_capacity, _fmt, args) >= 0);
 	}
 #endif
-	
-	return (uint)len - 1;
+	m_length = (uint)len - 1;
+	return m_length;
 }
 
 uint StringBase::append(const char* _src, uint _count)
@@ -81,6 +82,7 @@ uint StringBase::append(const char* _src, uint _count)
 	strncpy(m_buf + len, _src, srclen);
 	len += srclen;
 	m_buf[len] = '\0';
+	m_length = len;
 	return len;
 }
 
@@ -105,9 +107,9 @@ uint StringBase::appendfv(const char* _fmt, va_list _args)
 	if (m_capacity < len + srclen) {
 		realloc(len + srclen);
 	}
-	APT_VERIFY(vsnprintf(m_buf + len, (uint)srclen, _fmt, args) >= 0);
-	
-	return (uint)srclen + len - 1;;
+	APT_VERIFY(vsnprintf(m_buf + len, (size_t)srclen, _fmt, args) >= 0);
+	m_length = (uint)srclen + len - 1;
+	return m_length;
 }
 
 const char* StringBase::findFirst(const char* _list) const
@@ -153,7 +155,7 @@ uint StringBase::replace(const char* _find, const char* _replace)
 	char* end = nullptr;
 	uint ret = 0;
 	while (end = strstr(beg, _find)) {
-		tmp.append(beg, (uint)(end - beg));
+		tmp.append(beg, end - beg);
 		tmp.append(_replace);
 		beg = end + findlen;
 		++ret;
@@ -197,14 +199,6 @@ void StringBase::toUpperCase()
 	for (; *tmp != '\0'; ++tmp) {
 		*tmp = (char)toupper((int)*tmp);
 	}
-}
-
-uint StringBase::getLength() const
-{
-	if (!m_buf) {
-		return 0;
-	}
-	return strlen(m_buf);
 }
 
 bool StringBase::operator==(const char* _rhs) const
@@ -273,6 +267,7 @@ void apt::swap(StringBase& _a_, StringBase& _b_)
 			swap(_a_.m_capacity, _b_.m_capacity);
 		}
 	}
+	swap(_a_.m_length, _b_.m_length);
 }
 
 // PROTECTED
@@ -280,12 +275,14 @@ void apt::swap(StringBase& _a_, StringBase& _b_)
 StringBase::StringBase()
 	: m_buf(nullptr)
 	, m_capacity(0)
+	, m_length(0)
 {
 }
 
 StringBase::StringBase(uint _localBufferSize)
 	: m_buf(getLocalBuf())
 	, m_capacity(_localBufferSize)
+	, m_length(0)
 {
 	*m_buf = '\0';
 }
@@ -293,24 +290,28 @@ StringBase::StringBase(uint _localBufferSize)
 StringBase::StringBase(StringBase&& _rhs_)
 	: m_buf(getLocalBuf())
 	, m_capacity(_rhs_.m_capacity)
+	, m_length(_rhs_.m_length)
 {
 	if (_rhs_.isLocal()) {
-		strncpy(m_buf, _rhs_.m_buf, _rhs_.m_capacity);
+		strncpy(m_buf, _rhs_.m_buf, _rhs_.m_length + 1);
 	} else {
 		m_buf = _rhs_.m_buf;
 		_rhs_.m_buf = nullptr;
 		_rhs_.m_capacity = 0;
+		_rhs_.m_length = 0;
 	}
 }
 StringBase& StringBase::operator=(StringBase&& _rhs_)
 {
 	if (&_rhs_ != this) {
 		if (_rhs_.isLocal()) {
-			strncpy(m_buf, _rhs_.getLocalBuf(), _rhs_.m_capacity);
+			strncpy(m_buf, _rhs_.getLocalBuf(), _rhs_.m_length);
+			m_length = _rhs_.m_length;
 		} else {
 			m_buf = _rhs_.m_buf;
 			_rhs_.m_buf = nullptr;
 			_rhs_.m_capacity = 0;
+			_rhs_.m_length = 0;
 		}
 	}
 	return *this;

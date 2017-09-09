@@ -22,9 +22,9 @@ public:
 	// _src is found  before _count characters have been copied, the result is padded with zeros 
 	// until _count characters have been written (like strncpy). Unlike strncpy, an implicit null 
 	// char is appended to the end of the result. 
-	// Return the new length of the string, excluding the null terminator.
+	// Return the new length of the string (excluding the null terminator).
 	uint set(const char* _src, uint _count = 0);
-	// Set formatted content. Return the new length of the string, excluding the null terminator.
+	// Set formatted content. Return the new length of the string (excluding the null terminator).
 	uint setf(const char* _fmt, ...);
 	uint setfv(const char* _fmt, va_list _args);
 
@@ -32,13 +32,13 @@ public:
 	// _src is found  before _count characters have been appended, the result is padded with zeros 
 	// until _count characters have been  written (like strncpy). Unlike strncpy, an implicit null 
 	// char is appended to the end of the result. 
-	// Return the new length of the string, excluding the null terminator.
+	// Return the new length of the string (excluding the null terminator).
 	uint append(const char* _src, uint _count = 0);
-	// Append formatted content. Return the new length of the string, excluding the null terminator.
+	// Append formatted content. Return the new length of the string (excluding the null terminator).
 	uint appendf(const char* _fmt, ...);
 	uint appendfv(const char* _fmt, va_list _args);
 
-	// Find the first (or last) occurence of any character in _list (null-terminated). 
+	// Find the first (or last) occurence of any character in _list (null terminated). 
 	// If no match is found return null.
 	const char* findFirst(const char* _list) const;
 	const char* findLast(const char* _list) const;
@@ -56,9 +56,8 @@ public:
 	void toUpperCase();
 	void toLowerCase();
 
-	// String length, excluding the terminating null.
-	// \note String length is not stored internally, hence getLength() is not a constant time operation.
-	uint getLength() const;
+	// String length (excluding the null terminator).
+	uint getLength() const                       { return m_length; }
 
 	void clear()                                   { if (m_buf) { *m_buf = '\0'; } }
 	bool isEmpty() const                           { return m_buf ? *m_buf == '\0' : true; }
@@ -100,6 +99,7 @@ protected:
 
 private:
 	char* m_buf;       // Ptr to local buffer, or heap allocated.
+	uint  m_length;    // String length (excluding the null terminator).
 	uint  m_capacity;  // Local buffer/allocated size.
 
 	// Resize m_buf to _capacity, discard contents.
