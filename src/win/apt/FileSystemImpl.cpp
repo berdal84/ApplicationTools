@@ -28,6 +28,19 @@ static void BuildFilterString(const char* _filters, StringBase& ret_)
 	ret_.replace('#', '\0'); // \hack
 }
 
+// Test _str against a null-separated list of filter strings.
+// \issue #29 expose this as part of the FileSystem interface along with the Matches() function.
+static bool MatchesMulti(const char* _filters, const char* _str)
+{
+	while (*_filters) {
+		if (PathMatchSpec(_str, _filters)) { // \issue #29 use Matches() instead of PathMatchSpec
+			return true;
+		}
+		_filters = strchr(_filters, 0) + 1;
+	}
+	return false;
+}
+
 static DateTime FileTimeToDateTime(const FILETIME& _fileTime)
 {
 	LARGE_INTEGER li;
@@ -84,7 +97,7 @@ GetFileDateTime_End:
 	}
 	return err == nullptr;
 #endif
-} 
+}
 
 // PUBLIC
 
@@ -233,7 +246,7 @@ int FileSystem::PlatformSelectMulti(PathStr retList_[], int _maxResults, const c
 	return 0;
 }
 
-int FileSystem::ListFiles(PathStr retList_[], int _maxResults, const char* _path, const char* _filter, bool _recursive)
+int FileSystem::ListFiles(PathStr retList_[], int _maxResults, const char* _path, const char* _filters, bool _recursive)
 {
 	eastl::vector<PathStr> dirs;
 	dirs.push_back(_path);
@@ -263,7 +276,7 @@ int FileSystem::ListFiles(PathStr retList_[], int _maxResults, const char* _path
 						dirs.back().appendf("\\%s", ffd.cFileName);
 					}
 				} else {
-					if (PathMatchSpec((const char*)ffd.cFileName, _filter)) {
+					if (MatchesMulti(_filters, (const char*)ffd.cFileName)) {
 						if (ret < _maxResults) {
 							retList_[ret].setf("%s\\%s", (const char*)root, ffd.cFileName);
 						}
@@ -285,7 +298,7 @@ int FileSystem::ListFiles(PathStr retList_[], int _maxResults, const char* _path
 	return ret;
 }
 
-int FileSystem::ListDirs(PathStr retList_[], int _maxResults, const char* _path, bool _recursive)
+int FileSystem::ListDirs(PathStr retList_[], int _maxResults, const char* _path, const char* _filters, bool _recursive)
 {
 	eastl::vector<PathStr> dirs;
 	dirs.push_back(_path);
@@ -317,10 +330,12 @@ int FileSystem::ListDirs(PathStr retList_[], int _maxResults, const char* _path,
 						dirs.push_back(root);
 						dirs.back().appendf("\\%s", ffd.cFileName);
 					}
-					if (ret < _maxResults) {
-						retList_[ret].setf("%s\\%s", (const char*)root, ffd.cFileName);
+					if (MatchesMulti(_filters, (const char*)ffd.cFileName)) {
+						if (ret < _maxResults) {
+							retList_[ret].setf("%s\\%s", (const char*)root, ffd.cFileName);
+						}
+						++ret;
 					}
-					++ret;
 				}
 			}
         } while (FindNextFile(h, &ffd) != 0);

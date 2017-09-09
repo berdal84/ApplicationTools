@@ -78,10 +78,10 @@ public:
 	// Extract path from _path (remove file name + extension). It is safe for _path to point the string buffer in ret_.
 	static void        GetPath(StringBase& ret_, const char* _path);
 	static void        GetPath(StringBase& _ret_) { GetFileName(_ret_, (const char*)_ret_); }
-	// Extract file name from _path. It is safe for _path to point to the string buffer in ret_.
+	// Extract file name from _path (remove path + extension). It is safe for _path to point to the string buffer in ret_.
 	static void        GetFileName(StringBase& ret_, const char* _path);
 	static void        GetFileName(StringBase& _ret_) { GetFileName(_ret_, (const char*)_ret_); }
-	// Extract extension from _path. It is safe for _path to point to the string buffer in ret_.
+	// Extract extension from _path (remove path + file name). It is safe for _path to point to the string buffer in ret_.
 	static void        GetExtension(StringBase& ret_, const char* _path) { ret_.set(FindExtension(_path)); }
 	static void        GetExtension(StringBase& _ret_) { GetExtension(_ret_, (const char*)_ret_); }
 
@@ -89,15 +89,20 @@ public:
 	static const char* FindExtension(const char* _path);
 	// Compare _ext with the extension from _path (case insensitive).
 	static bool        CompareExtension(const char* _ext, const char* _path);
+
+	// Return ptr to the character following the last occurrence of '\' or '/' in _path.
+	static const char* FindFileNameAndExtension(const char* _path);
 	
 	// Select a file/files via the platform UI. _filters is a null-separated list of filter strings.
-	static bool        PlatformSelect(PathStr& ret_, const char* _filters = "");
-	static int         PlatformSelectMulti(PathStr retList_[], int _maxResults, const char* _filters = "");
+	static bool        PlatformSelect(PathStr& ret_, const char* _filters = "*\0");
+	static int         PlatformSelectMulti(PathStr retList_[], int _maxResults, const char* _filters = "*\0");
 
-	// List up to _maxResults files in _path, with optional recursion. Return the number of files which would be found if not limited by _maxResults.
-	static int         ListFiles(PathStr retList_[], int _maxResults, const char* _path, const char* _filter = "*.*", bool _recursive = false);
-	// List up to _maxResults dirs in _path, with optional recursion. Return the number of dirs which would be found if not limited by _maxResults.
-	static int         ListDirs(PathStr retList_[], int _maxResults, const char* _path, bool _recursive = false);
+	// List up to _maxResults files in _path, with optional recursion. _filters is a null-separated list of filter strings.
+	// Return the number of files which would be found if not limited by _maxResults.
+	static int         ListFiles(PathStr retList_[], int _maxResults, const char* _path, const char* _filters = "*\0", bool _recursive = false);
+	// List up to _maxResults dirs in _path, with optional recursion. _filters is a null-separated list of filter strings.
+	// Return the number of dirs which would be found if not limited by _maxResults.
+	static int         ListDirs(PathStr retList_[], int _maxResults, const char* _path, const char* _filters = "*\0", bool _recursive = false);
 
 	// Create the directory specified by _path, plus all parent directories if they do not exist. Return false if an error occurred.
 	// \note If _path contains only directory names, it must end in a path separator (e.g. "dir0/dir1/").

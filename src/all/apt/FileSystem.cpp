@@ -129,6 +129,18 @@ bool FileSystem::CompareExtension(const char* _ext, const char* _path)
 	return false;
 }
 
+const char* FileSystem::FindFileNameAndExtension(const char* _path)
+{
+	const char* ret = _path;
+	while (*_path) {
+		if (*_path == '/' || *_path == '\\') {
+			ret = _path + 1;
+		}
+		++_path;
+	}
+	return ret;
+}
+
 // PRIVATE
 
 FileSystem::PathStr FileSystem::s_roots[RootType_Count];

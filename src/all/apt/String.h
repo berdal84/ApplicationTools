@@ -57,7 +57,7 @@ public:
 	void toLowerCase();
 
 	// String length (excluding the null terminator).
-	uint getLength() const                       { return m_length; }
+	uint getLength() const                         { return m_length; }
 
 	void clear()                                   { if (m_buf) { *m_buf = '\0'; } }
 	bool isEmpty() const                           { return m_buf ? *m_buf == '\0' : true; }
