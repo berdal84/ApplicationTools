@@ -59,8 +59,8 @@ public:
 	// String length (excluding the null terminator).
 	uint getLength() const                         { return m_length; }
 
-	void clear()                                   { if (m_buf) { *m_buf = '\0'; } }
-	bool isEmpty() const                           { return m_buf ? *m_buf == '\0' : true; }
+	void clear()                                   { if (m_buf) { *m_buf = '\0'; } m_length = 0; }
+	bool isEmpty() const                           { return m_length == 0; }
 	bool isLocal() const                           { return m_buf == getLocalBuf(); }
 	uint getCapacity() const                       { return m_capacity; }
 	void setCapacity(uint _capacity);
