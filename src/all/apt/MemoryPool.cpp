@@ -99,7 +99,7 @@ bool MemoryPool::isFromPool(const void* _ptr) const
 {
 	uint p = (uint)_ptr;
 	for (uint i = 0; i < m_blockCount; ++i) {
-		if (p >= (uint)m_blocks[i] && p < ((uint)m_blocks[i] + m_blockSize)) {
+		if (p >= (uint)m_blocks[i] && p < ((uint)m_blocks[i] + m_blockSize * m_objectSize)) {
 			return true;
 		}
 	}
