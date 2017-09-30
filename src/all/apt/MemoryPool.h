@@ -24,8 +24,7 @@ namespace apt {
 class MemoryPool: private non_copyable<MemoryPool>
 {
 public:
-	// _objectSize must be at least sizeof(void*). _blockSize is the number of new unused objects 
-	// to allocate when allocate() cannot service a new request.
+	// _objectSize must be at least sizeof(void*). _blockSize is the number of new unused objects to allocate when alloc() cannot service a new request.
 	MemoryPool(uint _objectSize, uint _objectAlignment, uint _blockSize);
 
 	// Free all allocated memory. Any allocated objects should be released via free() before the MemoryPool is destroyed.
