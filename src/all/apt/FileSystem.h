@@ -58,6 +58,11 @@ public:
 	static DateTime    GetTimeCreated(const char* _path, RootType _rootHint = RootType_Default);
 	static DateTime    GetTimeModified(const char* _path, RootType _rootHint = RootType_Default);
 
+	// Match _str against _pattern with the following wildcard characters: '?' matches a single character, '*' matches zero or more characters.
+	static bool        Matches(const char* _pattern, const char* _str);
+	// Call Matches() for each of a set of null-separated patterns e.g. "*.txt\0*.png\0".
+	static bool        MatchesMulti(const char* _patternList, const char* _str);
+
 	// Concatenates _path + s_separator + s_root[_root]. If _path is absolute the root is ignored.
 	static void        MakePath(StringBase& ret_, const char* _path, RootType _root);
 

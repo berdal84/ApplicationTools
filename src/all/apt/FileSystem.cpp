@@ -54,6 +54,83 @@ bool FileSystem::Exists(const char* _path, RootType _rootHint)
 	return FindExisting(buf, _path, _rootHint);
 }
 
+bool FileSystem::Matches(const char* _pattern, const char* _str)
+{
+// based on https://research.swtch.com/glob
+	const size_t plen = strlen(_pattern);
+	const size_t nlen = strlen(_str);
+	size_t px = 0;
+	size_t nx = 0;
+	size_t nextPx = 0;
+	size_t nextNx = 0;
+	while (px < plen || nx < nlen) {
+		if (px < plen) {
+			char c = _pattern[px];
+			switch (c) {
+				case '?': // match 1 char
+					if (nx < nlen) {
+						px++;
+						nx++;
+						continue;
+					}
+					break;
+					
+				case '*': // match 0 or more char
+				// try to match at nx, else restart at nx+1 next.
+					nextPx = px;
+					nextNx = nx + 1;
+					px++;
+					continue;
+				
+				default: // non-wildcard
+					if (nx < nlen && _str[nx] == c) {
+						px++;
+						nx++;
+						continue;
+					}
+					break;
+			};
+		}
+
+		if (0 < nextNx && nextNx <= nlen) {
+			px = nextPx;
+			nx = nextNx;
+			continue;
+		}
+		return false;
+    }
+
+    return true;
+}
+
+bool FileSystem::MatchesMulti(const char* _patternList, const char* _str)
+{
+	while (*_patternList) {
+		if (Matches(_patternList, _str)) {
+			return true;
+		}
+		_patternList = strchr(_patternList, 0);
+		APT_ASSERT(_patternList);
+		++_patternList;
+	}
+	return false;
+}
+
+void FileSystem::MakePath(StringBase& ret_, const char* _path, RootType _root)
+{
+	APT_ASSERT(_root < RootType_Count);
+	bool useRoot = !s_roots[_root].isEmpty() && !IsAbsolute(_path);
+	if (useRoot) {
+	 // check if the root already exists in path as a directory
+		const char* r = strstr((const char*)s_roots[_root], _path);
+		if (!r || *(r + s_rootLengths[_root]) != s_separator) {
+			ret_.setf("%s%c%s", (const char*)s_roots[_root], s_separator, _path);
+			return;
+		}
+	}
+	ret_.set(_path);
+}
+
 void FileSystem::StripRoot(StringBase& ret_, const char* _path)
 {
 	for (int r = 0; r < RootType_Count; ++r) {
@@ -145,21 +222,6 @@ const char* FileSystem::FindFileNameAndExtension(const char* _path)
 
 FileSystem::PathStr FileSystem::s_roots[RootType_Count];
 int FileSystem::s_rootLengths[RootType_Count];
-
-void FileSystem::MakePath(StringBase& ret_, const char* _path, RootType _root)
-{
-	APT_ASSERT(_root < RootType_Count);
-	bool useRoot = !s_roots[_root].isEmpty() && !IsAbsolute(_path);
-	if (useRoot) {
-	 // check if the root already exists in path as a directory
-		const char* r = strstr((const char*)s_roots[_root], _path);
-		if (!r || *(r + s_rootLengths[_root]) != s_separator) {
-			ret_.setf("%s%c%s", (const char*)s_roots[_root], s_separator, _path);
-			return;
-		}
-	}
-	ret_.set(_path);
-}
 
 bool FileSystem::FindExisting(PathStr& ret_, const char* _path, RootType _rootHint)
 {

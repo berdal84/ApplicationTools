@@ -28,19 +28,6 @@ static void BuildFilterString(const char* _filters, StringBase& ret_)
 	ret_.replace('#', '\0'); // \hack
 }
 
-// Test _str against a null-separated list of filter strings.
-// \issue #29 expose this as part of the FileSystem interface along with the Matches() function.
-static bool MatchesMulti(const char* _filters, const char* _str)
-{
-	while (*_filters) {
-		if (PathMatchSpec(_str, _filters)) { // \issue #29 use Matches() instead of PathMatchSpec
-			return true;
-		}
-		_filters = strchr(_filters, 0) + 1;
-	}
-	return false;
-}
-
 static DateTime FileTimeToDateTime(const FILETIME& _fileTime)
 {
 	LARGE_INTEGER li;

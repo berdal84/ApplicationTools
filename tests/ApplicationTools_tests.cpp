@@ -3,11 +3,9 @@
 
 #include <apt/log.h>
 #include <apt/platform.h>
-#include <apt/FileSystem.h>
 #include <apt/Time.h>
 
 using namespace apt;
-
 
 TEST_CASE("adhoc")
 {
