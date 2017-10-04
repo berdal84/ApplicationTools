@@ -4,6 +4,7 @@
 
 #include <apt/apt.h>
 #include <apt/FileSystem.h>
+#include <apt/Serializer.h>
 
 namespace apt {
 
@@ -66,7 +67,8 @@ namespace apt {
 ////////////////////////////////////////////////////////////////////////////////
 class Json
 {
-	friend class JsonSerializer;
+	friend class JsonSerializer; // \todo remove
+	friend class SerializerJson; 
 public:
 	enum ValueType
 	{
@@ -98,8 +100,7 @@ public:
 	// Get the type of the current value.
 	ValueType getType() const;
 
-	// Get the current value. tType is expected to match the type of the current value exactly (i.e. getValue<int>() must be called only 
-	// if the value type is ValueType_Number).
+	// Get the current value. tType is expected to match the type of the current value exactly (i.e. getValue<int>() must be called only if the value type is ValueType_Number).
 	// \note Ptr returned by getValue<const char*> is only valid during the lifetime of the Json object.
 	template <typename tType>
 	tType getValue() const;
@@ -145,51 +146,44 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-// JsonSerializer
+// SerializerJson
 ////////////////////////////////////////////////////////////////////////////////
-class JsonSerializer
+class SerializerJson: public Serializer
 {
 public:
-	enum Mode
-	{
-		Mode_Read,
-		Mode_Write
-	};
-	JsonSerializer(Json* _json_, Mode _mode);
+	SerializerJson(Json* _json_, Mode _mode);
 
-	bool beginObject(const char* _name = nullptr);
-	void endObject();
+	Json* getJson() { return m_json; }
 
-	bool beginArray(const char* _name = nullptr);
-	void endArray();
+	bool beginObject(const char* _name = nullptr) override;
+	void endObject() override;
+
+	bool beginArray(uint& _length_, const char* _name = nullptr) override;
+	void endArray() override;
+
+	bool value(bool&       _value_, const char* _name = nullptr) override;
+	bool value(sint8&      _value_, const char* _name = nullptr) override;
+	bool value(uint8&      _value_, const char* _name = nullptr) override;
+	bool value(sint16&     _value_, const char* _name = nullptr) override;
+	bool value(uint16&     _value_, const char* _name = nullptr) override;
+	bool value(sint32&     _value_, const char* _name = nullptr) override;
+	bool value(uint32&     _value_, const char* _name = nullptr) override;
+	bool value(sint64&     _value_, const char* _name = nullptr) override;
+	bool value(uint64&     _value_, const char* _name = nullptr) override;
+	bool value(float32&    _value_, const char* _name = nullptr) override;
+	bool value(float64&    _value_, const char* _name = nullptr) override;
+	bool value(StringBase& _value_, const char* _name = nullptr) override;
 	
-	// Length of the current array (or -1 if not in an array).
-	int getArrayLength() const { return m_json->getArrayLength(); }
-
-	// Visit a named value in the current object/array.
-	template <typename tType>
-	bool value(const char* _name, tType& _value_);
-	template <typename tType>
-	bool value(tType& _value_);
-
-	// Visit a named string in the current object/array. Pass nullptr as _string_ to get the string length.
-	// Return the string length, excluding the terminating null.
-	// \note This is the 'raw' api, prefer to use value(StringBase&).
-	int string(const char* _name, char* _string_);
-	int string(char* _string_);
-
-	Mode getMode() const     { return m_mode; }
-	void setMode(Mode _mode) { m_mode = _mode; }
+	bool binary(void* _data_, uint& _size_, const char* _name = nullptr) override { APT_ASSERT(false); return false; } // \todo
 
 private:
 	Json* m_json;
-	Mode  m_mode;
 
-	// Return whether the read/write head is inside an array.
-	bool insideArray();
-	
-};
-class Serializer: public JsonSerializer {}; // \todo Absract base class?
+	// 
+	int string(const char* _value_, const char* _name);
+
+}; // class SerializerJson
+
 
 } // namespace apt
 

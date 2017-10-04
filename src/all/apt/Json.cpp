@@ -190,6 +190,11 @@ template <> sint32 Json::getValue<sint32>() const
 	APT_ASSERT_MSG(getType() == ValueType_Number, "Json::getValue: value was not a number");
 	return m_impl->m_value->GetInt();
 }
+template <> sint16 Json::getValue<sint16>() const
+{
+	APT_ASSERT_MSG(getType() == ValueType_Number, "Json::getValue: value was not a number");
+	return (sint16)m_impl->m_value->GetInt();
+}
 template <> sint8 Json::getValue<sint8>() const
 {
 	APT_ASSERT_MSG(getType() == ValueType_Number, "Json::getValue: value was not a number");
@@ -204,6 +209,11 @@ template <> uint32 Json::getValue<uint32>() const
 {
 	APT_ASSERT_MSG(getType() == ValueType_Number, "Json::getValue: value was not a number");
 	return m_impl->m_value->GetUint();
+}
+template <> uint16 Json::getValue<uint16>() const
+{
+	APT_ASSERT_MSG(getType() == ValueType_Number, "Json::getValue: value was not a number");
+	return (uint16)m_impl->m_value->GetUint();
 }
 template <> uint8 Json::getValue<uint8>() const
 {
@@ -450,6 +460,10 @@ template <> void Json::setValue<sint64>(const char* _name, sint64 _val)
 		m_impl->m_value = &(m_impl->top()->MemberEnd() - 1)->value;
 	}
 }
+template <> void Json::setValue<sint16>(const char* _name, sint16 _val)
+{
+	setValue<sint32>(_name, (sint32)_val);
+}
 template <> void Json::setValue<sint8>(const char* _name, sint8 _val)
 {
 	setValue<sint32>(_name, (sint32)_val);
@@ -479,6 +493,10 @@ template <> void Json::setValue<uint32>(const char* _name, uint32 _val)
 			);
 		m_impl->m_value = &(m_impl->top()->MemberEnd() - 1)->value;
 	}
+}
+template <> void Json::setValue<uint16>(const char* _name, uint16 _val)
+{
+	setValue<uint32>(_name, (uint16)_val);
 }
 template <> void Json::setValue<uint8>(const char* _name, uint8 _val)
 {
@@ -549,6 +567,10 @@ template <> void Json::pushValue<sint32>(sint32 _val)
 		);
 	m_impl->m_value = m_impl->top()->End() - 1;
 }
+template <> void Json::pushValue<sint16>(sint16 _val)
+{
+	pushValue<sint32>((sint32)_val);
+}
 template <> void Json::pushValue<sint8>(sint8 _val)
 {
 	pushValue<sint32>((sint32)_val);
@@ -568,6 +590,10 @@ template <> void Json::pushValue<uint32>(uint32 _val)
 		m_impl->m_dom.GetAllocator()
 		);
 	m_impl->m_value = m_impl->top()->End() - 1;
+}
+template <> void Json::pushValue<uint16>(uint16 _val)
+{
+	pushValue((uint32)_val);
 }
 template <> void Json::pushValue<uint8>(uint8 _val)
 {
@@ -701,45 +727,47 @@ template <> void Json::pushValue<mat4>(mat4 _val)
 	leaveArray();
 }
 
-
 /*******************************************************************************
 
-                              JsonSerializer
+                              SerializerJson
 
 *******************************************************************************/
 
-JsonSerializer::JsonSerializer(Json* _json_, Mode _mode)
-	: m_json(_json_)
-	, m_mode(_mode)
+// PUBLIC
+
+SerializerJson::SerializerJson(Json* _json_, Mode _mode)
+	: Serializer(_mode) 
+	, m_json(_json_)
 {
 }
 
-bool JsonSerializer::beginObject(const char* _name)
+bool SerializerJson::beginObject(const char* _name)
 {
-	if (m_mode == Mode_Read) {
-		if (insideArray()) {
+	if (getMode() == Mode_Read) {
+		if (m_json->getArrayLength() >= 0) { // inside array
 			if (!m_json->next()) {
 				return false;
 			}
 		} else {
 			APT_ASSERT(_name);
 			if (!m_json->find(_name)) {
+				setError("SerializerJson::beginObject(); '%s' not found", _name);
 				return false;
 			}
 		}
-
 		if (m_json->getType() == Json::ValueType_Object) {
 			m_json->enterObject();
 			return true;
+		} else {
+			setError("SerializerJson::beginObject(); '%s' not an object", _name ? _name : "");
+			return false;
 		}
-
 	} else {
 		m_json->beginObject(_name);
 		return true;
 	}
-	return false;
 }
-void JsonSerializer::endObject()
+void SerializerJson::endObject()
 {
 	if (m_mode == Mode_Read) {
 		m_json->leaveObject();
@@ -748,32 +776,34 @@ void JsonSerializer::endObject()
 	}
 }
 
-bool JsonSerializer::beginArray(const char* _name)
+bool SerializerJson::beginArray(uint& _length_, const char* _name)
 {
 	if (m_mode == Mode_Read) {
-		if (insideArray()) {
+		if (m_json->getArrayLength() >= 0) { // inside array
 			if (!m_json->next()) {
 				return false;
 			}
 		} else {
 			APT_ASSERT(_name);
 			if (!m_json->find(_name)) {
+				setError("SerializerJson::beginArray(); '%s' not found", _name);
 				return false;
 			}
 		}
-				
 		if (m_json->getType() == Json::ValueType_Array) {
 			m_json->enterArray();
+			_length_ = (uint)m_json->getArrayLength();
 			return true;
+		} else {
+			setError("SerializerJson::beginArray(); '%s' not an array", _name ? _name : "");
+			return false;
 		}
-
 	} else {
 		m_json->beginArray(_name);
 		return true;
 	}
-	return false;
 }
-void JsonSerializer::endArray()
+void SerializerJson::endArray()
 {
 	if (m_mode == Mode_Read) {
 		m_json->leaveArray();
@@ -782,127 +812,83 @@ void JsonSerializer::endArray()
 	}
 }
 
-#define APT_JsonSerializer_value(_type) \
-	template <> bool JsonSerializer::value<_type>(const char* _name, _type& _value_) { \
-		APT_ASSERT_MSG(!insideArray(), "JsonSerializer::value: _name variant called inside an array"); \
-		if (m_mode == Mode_Read) { \
-			if (m_json->find(_name)) { \
-				_value_ = m_json->getValue<_type>(); \
-				return true; \
-			} \
-		} else { \
-			m_json->setValue<_type>(_name, _value_); \
-			return true; \
-		} \
-		return false; \
-	} \
-	template <> bool JsonSerializer::value<_type>(_type& _value_) { \
-		APT_ASSERT_MSG(insideArray(), "JsonSerializer::value: array variant called outside an array"); \
-		if (m_mode == Mode_Read) { \
-			if (!m_json->next()) { \
-				return false; \
-			} \
-			_value_ = m_json->getValue<_type>(); \
-		} else { \
-			m_json->pushValue<_type>(_value_); \
-		} \
-		return true; \
-	}
-
-APT_JsonSerializer_value(bool)
-APT_JsonSerializer_value(sint8)
-APT_JsonSerializer_value(sint32)
-APT_JsonSerializer_value(sint64)
-APT_JsonSerializer_value(uint8)
-APT_JsonSerializer_value(uint32)
-APT_JsonSerializer_value(uint64)
-APT_JsonSerializer_value(float32)
-APT_JsonSerializer_value(float64)
-APT_JsonSerializer_value(vec2)
-APT_JsonSerializer_value(vec3)
-APT_JsonSerializer_value(vec4)
-APT_JsonSerializer_value(mat2)
-APT_JsonSerializer_value(mat3)
-APT_JsonSerializer_value(mat4)
-
-#undef APT_JsonSerializer_value
-
-template <> bool JsonSerializer::value<StringBase>(const char* _name, StringBase& _value_)
+template <typename tType>
+static bool ValueImpl(SerializerJson& _serializer_, tType& _value_, const char* _name)
 {
-	APT_ASSERT(!insideArray());
-	if (m_mode == Mode_Read) {
-		int ln = string(_name, 0);
-		_value_.setCapacity(ln + 1);
-	}
-	return string(_name, (char*)_value_) != 0;
-}
-
-template <> bool JsonSerializer::value<StringBase>(StringBase& _value_)
-{
-	APT_ASSERT(insideArray());
-	if (m_mode == Mode_Read) {
-		int ln = string(0);
-		if (ln == 0) {
-			return false;
-		}
-		_value_.setCapacity(ln + 1);
-	}
-	return string((char*)_value_) != 0;
-}
-
-int JsonSerializer::string(const char* _name, char* _string_)
-{
-	APT_ASSERT(!insideArray()); 
-	if (m_mode == Mode_Read) {
-		if (m_json->find(_name)) {
-			if (_string_) { 
-			 // valid ptr, copy string to buffer
-				const char* str = m_json->getValue<const char*>();
-				strcpy(_string_, str);
-				return (int)strlen(str);
-			} else {
-				return (int)strlen(m_json->getValue<const char*>());
-			}
-		}
-	} else {
-		APT_ASSERT(_string_);
-		m_json->setValue(_name, (const char*)_string_);
-		return (int)strlen(_string_);
-	}
-	return 0;
-}
-
-int JsonSerializer::string(char* _value_)
-{
-	APT_ASSERT(insideArray()); 
-	if (m_mode == Mode_Read) {
-		if (_value_) {
-		 // valid ptr, copy string to buffer
-			const char* str = m_json->getValue<const char*>();
-			strcpy(_value_, str);
-			return (int)strlen(str);
-		} else {
-			if (!m_json->next()) {
-				return 0;
-			}
-			return (int)strlen(m_json->getValue<const char*>());
-		}
-	} else {
-		APT_ASSERT(_value_);
-		m_json->pushValue((const char*)_value_);
-		return (int)strlen(_value_);
-	}
-	return 0;
-}
-
-// PRIVATE
-
-bool JsonSerializer::insideArray()
-{
-	rapidjson::Value* top = m_json->m_impl->top();
-	if (top) {
-		return GetValueType(top->GetType()) == Json::ValueType_Array;
-	} else {
+	Json* json = _serializer_.getJson();
+	if (!_name && json->getArrayLength() == -1) {
+		_serializer_.setError("Error serializing %s; name must be specified if not in an array", Serializer::ValueTypeToStr<tType>());
 		return false;
 	}
+	if (_serializer_.getMode() == SerializerJson::Mode_Read) {
+		if (_name) {
+			if (!json->find(_name)) {
+				_serializer_.setError("Error serializing %s; '%s' not found", Serializer::ValueTypeToStr<tType>(), _name);
+				return false;
+			}
+		} else {
+			if (!json->next()) {
+				return false;
+			}
+		}
+		_value_ = json->getValue<tType>();
+		return true;
+
+	} else {
+		if (_name) {
+			json->setValue<tType>(_name, _value_);
+		} else {
+			json->pushValue<tType>(_value_);
+		}
+		return true; 
+	}
 }
+
+bool SerializerJson::value(bool&    _value_, const char* _name) { return ValueImpl<bool>   (*this, _value_, _name); }
+bool SerializerJson::value(sint8&   _value_, const char* _name) { return ValueImpl<sint8>  (*this, _value_, _name); }
+bool SerializerJson::value(uint8&   _value_, const char* _name) { return ValueImpl<uint8>  (*this, _value_, _name); }
+bool SerializerJson::value(sint16&  _value_, const char* _name) { return ValueImpl<sint16> (*this, _value_, _name); }
+bool SerializerJson::value(uint16&  _value_, const char* _name) { return ValueImpl<uint16> (*this, _value_, _name); }
+bool SerializerJson::value(sint32&  _value_, const char* _name) { return ValueImpl<sint32> (*this, _value_, _name); }
+bool SerializerJson::value(uint32&  _value_, const char* _name) { return ValueImpl<uint32> (*this, _value_, _name); }
+bool SerializerJson::value(sint64&  _value_, const char* _name) { return ValueImpl<sint64> (*this, _value_, _name); }
+bool SerializerJson::value(uint64&  _value_, const char* _name) { return ValueImpl<uint64> (*this, _value_, _name); }
+bool SerializerJson::value(float32& _value_, const char* _name) { return ValueImpl<float32>(*this, _value_, _name); }
+bool SerializerJson::value(float64& _value_, const char* _name) { return ValueImpl<float64>(*this, _value_, _name); }
+
+bool SerializerJson::value(StringBase& _value_, const char* _name) 
+{ 
+	if (!_name && m_json->getArrayLength() == -1) {
+		setError("Error serializing StringBase; name must be specified if not in an array");
+		return false;
+	}
+	if (getMode() == SerializerJson::Mode_Read) {
+		if (_name) {
+			if (!m_json->find(_name)) {
+				setError("Error serializing StringBase; '%s' not found", _name);
+				return false;
+			}
+		} else {
+			if (!m_json->next()) {
+				return false;
+			}
+		}
+
+		if (m_json->getType() == Json::ValueType_String) {
+			_value_.set(m_json->getValue<const char*>());
+			return true;
+		} else {
+			setError("Error serializing StringBase; '%s' not a string", _name ? _name : "");
+			return false;
+		}
+
+	} else {
+		if (_name) {
+			m_json->setValue<const char*>(_name, (const char*)_value_);
+		} else {
+			m_json->pushValue<const char*>((const char*)_value_);
+		}
+		return true; 
+	}
+}
+
