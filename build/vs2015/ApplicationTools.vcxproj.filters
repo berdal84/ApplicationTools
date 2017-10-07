@@ -38,6 +38,7 @@
     <ClInclude Include="..\..\src\all\apt\PersistentVector.h" />
     <ClInclude Include="..\..\src\all\apt\Pool.h" />
     <ClInclude Include="..\..\src\all\apt\RingBuffer.h" />
+    <ClInclude Include="..\..\src\all\apt\Serializer.h" />
     <ClInclude Include="..\..\src\all\apt\String.h" />
     <ClInclude Include="..\..\src\all\apt\StringHash.h" />
     <ClInclude Include="..\..\src\all\apt\TextParser.h" />
@@ -406,6 +407,9 @@
     <ClInclude Include="..\..\src\all\extern\lodepng.h">
       <Filter>extern</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\all\extern\miniz.h">
+      <Filter>extern</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\all\extern\noise1234.h">
       <Filter>extern</Filter>
     </ClInclude>
@@ -424,7 +428,7 @@
     <ClInclude Include="..\..\src\win\apt\win.h">
       <Filter>win</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\all\apt\Serializer.h" />
+    <ClInclude Include="..\..\src\all\apt\compress.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\all\apt\ArgList.cpp" />
@@ -434,6 +438,7 @@
     <ClCompile Include="..\..\src\all\apt\Ini.cpp" />
     <ClCompile Include="..\..\src\all\apt\Json.cpp" />
     <ClCompile Include="..\..\src\all\apt\MemoryPool.cpp" />
+    <ClCompile Include="..\..\src\all\apt\Serializer.cpp" />
     <ClCompile Include="..\..\src\all\apt\String.cpp" />
     <ClCompile Include="..\..\src\all\apt\StringHash.cpp" />
     <ClCompile Include="..\..\src\all\apt\TextParser.cpp" />
@@ -492,7 +497,7 @@
     <ClCompile Include="..\..\src\win\apt\platform.cpp">
       <Filter>win</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\all\apt\Serializer.cpp" />
+    <ClCompile Include="..\..\src\all\apt\compress.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\all\extern\EASTL\EASTL.natvis">
