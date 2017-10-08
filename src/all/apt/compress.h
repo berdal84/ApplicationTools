@@ -8,8 +8,9 @@ namespace apt {
 
 enum CompressionFlags
 {
-	CompressionFlags_Speed, // faster compression, potentially larger size
-	CompressionFlags_Size,  // slower compression, potentially smaller size
+	CompressionFlags_None = 0,   // don't compress (for APIs with optional compression)
+	CompressionFlags_Speed,      // faster compression, potentially larger size
+	CompressionFlags_Size,       // slower compression, potentially smaller size
 	CompressionFlags_Default = CompressionFlags_Speed
 };
 

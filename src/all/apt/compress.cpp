@@ -10,6 +10,7 @@ void apt::Compress(const void* _in, uint _inSizeBytes, void*& out_, uint& outSiz
 	APT_ASSERT(_in);
 	APT_ASSERT(_inSizeBytes);
 	APT_ASSERT(!out_);
+	APT_ASSERT(_flags != CompressionFlags_None); // the calling code should skip calling Compress in this case
 
 	int tdeflFlags = TDEFL_WRITE_ZLIB_HEADER;
 	if (_flags & CompressionFlags_Speed) {
