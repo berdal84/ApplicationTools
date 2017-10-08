@@ -735,9 +735,9 @@ template <> void Json::pushValue<mat4>(mat4 _val)
 
 // PUBLIC
 
-SerializerJson::SerializerJson(Json* _json_, Mode _mode)
+SerializerJson::SerializerJson(Json& _json_, Mode _mode)
 	: Serializer(_mode) 
-	, m_json(_json_)
+	, m_json(&_json_)
 {
 }
 
@@ -892,3 +892,166 @@ bool SerializerJson::value(StringBase& _value_, const char* _name)
 	}
 }
 
+
+// Base64 encode/decode of binary data, adapted from https://github.com/adamvr/arduino-base64
+static const char kBase64Alphabet[] = 
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		"abcdefghijklmnopqrstuvwxyz"
+		"0123456789+/"
+		;
+static inline void Base64A3ToA4(const unsigned char* _a3, unsigned char* a4_) 
+{
+	a4_[0] = (_a3[0] & 0xfc) >> 2;
+	a4_[1] = ((_a3[0] & 0x03) << 4) + ((_a3[1] & 0xf0) >> 4);
+	a4_[2] = ((_a3[1] & 0x0f) << 2) + ((_a3[2] & 0xc0) >> 6);
+	a4_[3] = (_a3[2] & 0x3f);
+}
+static inline void Base64A4ToA3(const unsigned char* _a4, unsigned char* a3_) {
+	a3_[0] = (_a4[0] << 2) + ((_a4[1] & 0x30) >> 4);
+	a3_[1] = ((_a4[1] & 0xf) << 4) + ((_a4[2] & 0x3c) >> 2);
+	a3_[2] = ((_a4[2] & 0x3) << 6) + _a4[3];
+}
+static inline unsigned char Base64Index(char _c)
+{
+	if (_c >= 'A' && _c <= 'Z') return _c - 'A';
+	if (_c >= 'a' && _c <= 'z') return _c - 71;
+	if (_c >= '0' && _c <= '9') return _c + 4;
+	if (_c == '+') return 62;
+	if (_c == '/') return 63;
+	return -1;
+}
+static void Base64Encode(const char* _in, uint _inSizeBytes, char* out_, uint outSizeBytes_)
+{
+	uint i = 0;
+	uint j = 0;
+	uint k = 0;
+	unsigned char a3[3];
+	unsigned char a4[4];
+	while (_inSizeBytes--) {
+		a3[i++] = *(_in++);
+		if (i == 3) {
+			Base64A3ToA4(a3, a4);
+			for (i = 0; i < 4; i++) {
+				out_[k++] = kBase64Alphabet[a4[i]];
+			}
+			i = 0;
+		}
+	}
+	if (i) {
+		for (j = i; j < 3; j++) {
+			a3[j] = '\0';
+		}
+		Base64A3ToA4(a3, a4);
+		for (j = 0; j < i + 1; j++) {
+			out_[k++] = kBase64Alphabet[a4[j]];
+		}
+		while ((i++ < 3)) {
+			out_[k++] = '=';
+		}
+	}
+	out_[k] = '\0';
+	APT_ASSERT(outSizeBytes_ == k); // overflow
+}
+static void Base64Decode(const char* _in, uint _inSizeBytes, char* out_, uint outSizeBytes_) {
+	uint i = 0;
+	uint j = 0;
+	uint k = 0;
+	unsigned char a3[3];
+	unsigned char a4[4];
+	while (_inSizeBytes--) {
+		if (*_in == '=') {
+			break;
+		}
+		a4[i++] = *(_in++);
+		if (i == 4) {
+			for (i = 0; i < 4; i++) {
+				a4[i] = Base64Index(a4[i]);
+			}
+			Base64A4ToA3(a4, a3);
+			for (i = 0; i < 3; i++) {
+				out_[k++] = a3[i];
+			}
+			i = 0;
+		}
+	}
+
+	if (i) {
+		for (j = i; j < 4; j++) {
+			a4[j] = '\0';
+		}
+		for (j = 0; j < 4; j++) {
+			a4[j] = Base64Index(a4[j]);
+		}
+		Base64A4ToA3(a4, a3);
+		for (j = 0; j < i - 1; j++) {
+			out_[k++] = a3[j];
+		}
+	}
+	APT_ASSERT(outSizeBytes_ == k); // overflow
+}
+static uint Base64EncSizeBytes(uint _sizeBytes) 
+{
+	uint n = _sizeBytes;
+	return (n + 2 - ((n + 2) % 3)) / 3 * 4;
+}
+static uint Base64DecSizeBytes(char* _buf, uint _sizeBytes) 
+{
+	uint padCount = 0;
+	for (uint i = _sizeBytes - 1; _buf[i] == '='; i--) {
+		padCount++;
+	}
+	return ((6 * _sizeBytes) / 8) - padCount;
+}
+
+bool SerializerJson::binary(void*& _data_, uint& _sizeBytes_, const char* _name, CompressionFlags _compressionFlags)
+{
+	if (getMode() == Mode_Write) {
+		APT_ASSERT(_data_);
+		char* data = (char*)_data_;
+		uint sizeBytes = _sizeBytes_;
+		if (_compressionFlags != CompressionFlags_None) {
+			data = nullptr;
+			Compress(_data_, _sizeBytes_, (void*&)data, sizeBytes, _compressionFlags);
+		}
+		String<0> str;
+		str.setLength(Base64EncSizeBytes(sizeBytes) + 1);
+		str[0] = _compressionFlags == CompressionFlags_None ? '0' : '1'; // prepend 0, or 1 if compression
+		Base64Encode(data, sizeBytes, (char*)str + 1, str.getLength() - 1);
+		if (_compressionFlags != CompressionFlags_None) {
+			free(data);
+		}
+		value((StringBase&)str, _name);
+
+	} else {
+		String<0> str;
+		value((StringBase&)str, _name);
+		bool compressed = str[0] == '1' ? true : false;
+		uint binSizeBytes = Base64DecSizeBytes((char*)str + 1, str.getLength() - 1);
+		char* bin = (char*)malloc(binSizeBytes);
+		Base64Decode((char*)str + 1, str.getLength() - 1, bin, binSizeBytes);
+
+		char* ret = bin;
+		uint retSizeBytes = binSizeBytes;
+		if (compressed) {
+			ret = nullptr; // Decompress to allocates the final buffer
+			Decompress(bin, binSizeBytes, (void*&)ret, retSizeBytes);
+		}
+		if (_data_) {
+			if (retSizeBytes != _sizeBytes_) {
+				setError("Error serializing %s, buffer size was %llu (expected %llu)", _sizeBytes_, retSizeBytes);
+				if (compressed) {
+					free(ret);
+				}
+				return false;
+			}
+			memcpy(_data_, ret, retSizeBytes);
+			if (compressed) {
+				free(ret);
+			}
+		} else {
+			_data_ = ret;
+			_sizeBytes_ = retSizeBytes;
+		}
+	}
+	return true;
+}

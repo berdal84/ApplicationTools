@@ -67,7 +67,6 @@ namespace apt {
 ////////////////////////////////////////////////////////////////////////////////
 class Json
 {
-	friend class JsonSerializer; // \todo remove
 	friend class SerializerJson; 
 public:
 	enum ValueType
@@ -151,7 +150,7 @@ private:
 class SerializerJson: public Serializer
 {
 public:
-	SerializerJson(Json* _json_, Mode _mode);
+	SerializerJson(Json& _json_, Mode _mode);
 
 	Json* getJson() { return m_json; }
 
@@ -174,7 +173,7 @@ public:
 	bool value(float64&    _value_, const char* _name = nullptr) override;
 	bool value(StringBase& _value_, const char* _name = nullptr) override;
 	
-	bool binary(void* _data_, uint& _size_, const char* _name = nullptr) override { APT_ASSERT(false); return false; } // \todo
+	bool binary(void*& _data_, uint& _sizeBytes_, const char* _name = nullptr, CompressionFlags _compressionFlags = CompressionFlags_None) override;
 
 private:
 	Json* m_json;

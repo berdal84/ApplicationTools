@@ -3,6 +3,7 @@
 #define apt_Serializer_h
 
 #include <apt/apt.h>
+#include <apt/compress.h>
 #include <apt/types.h>
 #include <apt/math.h>
 #include <apt/String.h>
@@ -69,7 +70,14 @@ public:
 		return value((StringBase&)_value_, _name); 
 	}
 
-	virtual bool binary(void* _data_, uint& _size_, const char* _name = nullptr) = 0;
+	// Directly serialize bytes of binary data with optional compression.
+	// \note When reading, _data_ will be allocated by the function if null, and should subsequently be released via free().
+	virtual bool binary(
+		void*&           _data_, 
+		uint&            _sizeBytes_, 
+		const char*      _name = nullptr, 
+		CompressionFlags _compressionFlags = CompressionFlags_None
+		) = 0;
 
 	// Return tType as a string.
 	template <typename tType>
