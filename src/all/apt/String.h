@@ -57,12 +57,13 @@ public:
 	void toLowerCase();
 
 	// String length (excluding the null terminator).
-	uint getLength() const                         { return m_length; }
+	uint getLength() const                          { return m_length; }
+	void setLength(uint _length);
 
-	void clear()                                   { if (m_buf) { *m_buf = '\0'; } m_length = 0; }
-	bool isEmpty() const                           { return m_length == 0; }
-	bool isLocal() const                           { return m_buf == getLocalBuf(); }
-	uint getCapacity() const                       { return m_capacity; }
+	void clear()                                    { if (m_buf) { *m_buf = '\0'; } m_length = 0; }
+	bool isEmpty() const                            { return m_length == 0; }
+	bool isLocal() const                            { return m_buf == getLocalBuf(); }
+	uint getCapacity() const                        { return m_capacity; }
 	void setCapacity(uint _capacity);
 
 	bool  operator==(const char* _rhs) const;
@@ -75,9 +76,9 @@ public:
 	char  operator[](int _i) const                  { return m_buf[_i]; }
 
 	// Cast to char*/const char* is explicit to avoid conflicts with the operator overloads above.
-	explicit operator const char*() const          { return m_buf; }
-	explicit operator char*()                      { return m_buf; }
-	const char* c_str() const                      { return m_buf; }
+	explicit operator const char*() const           { return m_buf; }
+	explicit operator char*()                       { return m_buf; }
+	const char* c_str() const                       { return m_buf; }
 	
 	friend void swap(StringBase& _a_, StringBase& _b_);
 

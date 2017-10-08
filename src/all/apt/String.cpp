@@ -211,6 +211,21 @@ void StringBase::toUpperCase()
 	}
 }
 
+void StringBase::setLength(uint _length)
+{
+	if (_length > m_capacity) {
+		setCapacity(_length + 1);
+	}
+	m_length = _length;
+}
+void StringBase::setCapacity(uint _capacity)
+{
+	APT_ASSERT(_capacity >= m_capacity); // \todo allow reducing capacity? 
+	if (m_capacity < _capacity) {
+		realloc(_capacity);
+	}
+}
+
 bool StringBase::operator==(const char* _rhs) const
 {
 	return strcmp(m_buf, _rhs) == 0;
@@ -222,13 +237,6 @@ bool StringBase::operator<(const char* _rhs) const
 bool StringBase::operator>(const char* _rhs) const
 {
 	return strcmp(m_buf, _rhs) > 0;
-}
-
-void StringBase::setCapacity(uint _capacity)
-{
-	if (m_capacity < _capacity) {
-		realloc(_capacity);
-	}
 }
 
 void apt::swap(StringBase& _a_, StringBase& _b_)
