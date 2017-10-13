@@ -73,10 +73,13 @@
 
 #define APT_ARRAY_COUNT(_arr) apt::internal::ArrayCount(_arr)
 
+#define APT_ONCE                  for (static bool _done = false; _done ? false : _done = true; )
+
 #define APT_MIN(_a, _b)           apt::internal::Min(_a, _b)
 #define APT_MAX(_a, _b)           apt::internal::Max(_a, _b)
 #define APT_CLAMP(_x, _min, _max) APT_MAX(APT_MIN(_x, _max), _min)
 #define APT_SATURATE(_x)          apt::internal::Saturate(_x)
+
 
 namespace apt {
 
