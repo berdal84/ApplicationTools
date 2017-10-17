@@ -6,6 +6,8 @@
 #include <apt/String.h>
 #include <apt/Time.h>
 
+#include <EASTL/vector.h>
+
 #include <cstring>
 
 #define RAPIDJSON_ASSERT(x) APT_ASSERT(x)
@@ -40,40 +42,39 @@ static Json::ValueType GetValueType(rapidjson::Type _type)
 
 struct Json::Impl
 {
-	static const int kMaxStackDepth = 8;
-
 	rapidjson::Document m_dom;
 
  // current value set after find()
 	rapidjson::Value* m_value;
 
  // value stack for objects/arrays
-	rapidjson::Value* m_stack[kMaxStackDepth];
-	int m_iter[kMaxStackDepth];
-	int m_stackTop;
+	eastl::vector<eastl::pair<rapidjson::Value*, int> > m_stack;
 
-	void push(rapidjson::Value* _val = 0)
+	void push(rapidjson::Value* _val = nullptr)
 	{
-		APT_ASSERT(m_stackTop < kMaxStackDepth);
-		APT_ASSERT(top() != _val); // probably a mistake, called push() twice?
-		m_stack[++m_stackTop] = _val ? _val : m_value;
-		m_iter[m_stackTop] = 0;
+		APT_ASSERT(m_stack.empty() || top() != _val); // probably a mistake, called push() twice?
+		m_stack.push_back(eastl::make_pair(_val ? _val : m_value, 0));
 	}
 	void pop()
 	{
-		--m_stackTop; 
+		APT_ASSERT(!m_stack.empty());
+		m_stack.pop_back();
 	}
 	rapidjson::Value* top() 
 	{
-		return m_stack[m_stackTop]; 
+		APT_ASSERT(!m_stack.empty());
+		return m_stack.back().first;
 	}
 	int& topIter()
 	{
-		return m_iter[m_stackTop];
+		APT_ASSERT(!m_stack.empty());
+		return m_stack.back().second;
 	}
 	
-
-	Impl(): m_stackTop(-1) {}
+	Impl()
+		: m_value(nullptr) 
+	{
+	}
 };
 
 
