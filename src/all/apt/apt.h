@@ -2,7 +2,7 @@
 #ifndef apt_h
 #define apt_h
 
-#define APT_VERSION "1.04"
+#define APT_VERSION "0.04"
 
 // Compiler
 #if defined(__GNUC__)
