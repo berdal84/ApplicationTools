@@ -306,6 +306,82 @@ inline tType BitfieldExtract(tType _base, int _offset, int _count)
 }
 
 
+namespace internal {
+	union iee754_f32
+	{
+		struct {
+			uint32 m_mantissa : 23;
+			uint32 m_exponent : 8;
+			uint32 m_sign     : 1;
+		} bits;
+		uint32 u;
+		float f;
+	};
+}
+
+// Pack/unpack IEEE754 float with arbitrary precision for sign, exponent and mantissa.
+inline uint32 PackFloat(float _value, int _signBits, int _exponentBits, int _mantissaBits)
+{
+	APT_ASSERT(_signBits + _exponentBits + _mantissaBits <= 32);
+	if (_signBits == 0) {
+		_value = _value < 0.0f ? 0.0f : _value;
+	}
+	internal::iee754_f32 in;
+	in.f = _value;
+	const sint32 maxExponent = (1 << _exponentBits) - 1;
+	const uint32 bias = maxExponent >> 1;
+	const uint32 sign = in.bits.m_sign;
+	uint32 mantissa = in.bits.m_mantissa >> (23 - _mantissaBits);
+	sint32 exponent;
+	switch (in.bits.m_exponent) {
+		case 0x00:
+			exponent = 0;
+			break;
+		case 0xff:
+			exponent = maxExponent;
+			break;
+		default:
+			exponent = in.bits.m_exponent - 127 + bias;
+			if (exponent < 1) {
+				exponent = 1;
+				mantissa = 0;
+			}
+			if (exponent > maxExponent - 1) {
+				exponent = maxExponent - 1;
+				mantissa = (1 << 23) - 1;
+			}
+			break;
+	}
+	uint32 ret = 0;
+	ret = BitfieldInsert(ret, mantissa, 0, _mantissaBits);
+	ret = BitfieldInsert(ret, (uint32)exponent, _mantissaBits, _exponentBits);
+	ret = BitfieldInsert(ret, sign, _mantissaBits + _exponentBits, _signBits);
+	return ret;
+}
+inline float UnpackFloat(uint32 _value, int _signBits, int _exponentBits, int _mantissaBits)
+{
+	internal::iee754_f32 ret;
+	const uint32 maxExponent = (1 << _exponentBits) - 1;
+	const uint32 bias        = maxExponent >> 1;
+	const uint32 mantissa    = BitfieldExtract(_value, 0, _mantissaBits);
+	const uint32 exponent    = BitfieldExtract(_value, _mantissaBits, _exponentBits);
+	const uint32 sign        = BitfieldExtract(_value, _mantissaBits + _exponentBits, _signBits);
+	ret.bits.m_mantissa      = mantissa << (23 - _mantissaBits);
+	ret.bits.m_exponent      = (exponent == 0) ? 0 : (exponent == maxExponent) ? 0xff : exponent - bias + 127;
+	ret.bits.m_sign          = sign;
+	return ret.f;
+}
+
+// Pack/unpack 16-bit float via the generic functions.
+inline uint16 PackFloat16(float _f32)
+{
+	return (uint16)PackFloat(_f32, 1, 5, 10);
+}
+inline float UnpackFloat16(uint16 _f16)
+{
+	return UnpackFloat((uint32)_f16, 1, 5, 10);
+}
+
 } // namespace apt
 
 #ifdef _MSC_VER

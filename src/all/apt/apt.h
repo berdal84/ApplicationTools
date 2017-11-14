@@ -2,7 +2,7 @@
 #ifndef apt_h
 #define apt_h
 
-#define APT_VERSION "0.04"
+#define APT_VERSION "0.05"
 
 // Compiler
 #if defined(__GNUC__)
@@ -199,7 +199,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 // non_instantiable
 // Mixin class, forces a derived class to be non-instantiable. Note that by
-// definitionn a non-instantiable class is also non-copyable.
+// definition a non-instantiable class is also non-copyable.
 // \note The template parameter permits Empty Base Optimization (see
 //   http://en.wikibooks.org/wiki/More_C++_Idioms/Non-copyable_Mixin).
 ////////////////////////////////////////////////////////////////////////////////

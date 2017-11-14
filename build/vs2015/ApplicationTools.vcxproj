@@ -95,7 +95,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\all\apt\ArgList.h" />
-    <ClInclude Include="..\..\src\all\apt\compress.h" />
     <ClInclude Include="..\..\src\all\apt\Factory.h" />
     <ClInclude Include="..\..\src\all\apt\File.h" />
     <ClInclude Include="..\..\src\all\apt\FileSystem.h" />
@@ -112,6 +111,7 @@
     <ClInclude Include="..\..\src\all\apt\TextParser.h" />
     <ClInclude Include="..\..\src\all\apt\Time.h" />
     <ClInclude Include="..\..\src\all\apt\apt.h" />
+    <ClInclude Include="..\..\src\all\apt\compress.h" />
     <ClInclude Include="..\..\src\all\apt\hash.h" />
     <ClInclude Include="..\..\src\all\apt\log.h" />
     <ClInclude Include="..\..\src\all\apt\math.h" />
@@ -236,6 +236,7 @@
     <ClInclude Include="..\..\src\all\extern\EASTL\vector_set.h" />
     <ClInclude Include="..\..\src\all\extern\EASTL\version.h" />
     <ClInclude Include="..\..\src\all\extern\EASTL\weak_ptr.h" />
+    <ClInclude Include="..\..\src\all\extern\linalg\linalg.h" />
     <ClInclude Include="..\..\src\all\extern\lodepng.h" />
     <ClInclude Include="..\..\src\all\extern\miniz.h" />
     <ClInclude Include="..\..\src\all\extern\noise1234.h" />
@@ -247,7 +248,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\all\apt\ArgList.cpp" />
-    <ClCompile Include="..\..\src\all\apt\compress.cpp" />
     <ClCompile Include="..\..\src\all\apt\File.cpp" />
     <ClCompile Include="..\..\src\all\apt\FileSystem.cpp" />
     <ClCompile Include="..\..\src\all\apt\Image.cpp" />
@@ -260,6 +260,7 @@
     <ClCompile Include="..\..\src\all\apt\TextParser.cpp" />
     <ClCompile Include="..\..\src\all\apt\Time.cpp" />
     <ClCompile Include="..\..\src\all\apt\apt.cpp" />
+    <ClCompile Include="..\..\src\all\apt\compress.cpp" />
     <ClCompile Include="..\..\src\all\apt\hash.cpp" />
     <ClCompile Include="..\..\src\all\apt\log.cpp" />
     <ClCompile Include="..\..\src\all\apt\math.cpp" />

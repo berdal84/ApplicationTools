@@ -17,13 +17,14 @@ The project is intended to be compiled as a static lib. A [premake](https://prem
 Embedded dependencies:
 
 - [EASTL](https://github.com/electronicarts/EASTL)
-- [GLM](https://github.com/g-truc/glm)
+- [linalg](https://github.com/john-chapman/linalg)
 - [LodePNG](http://lodev.org/lodepng/)
 - [Miniz](https://github.com/richgel999/miniz)
 - [RapidJSON](http://rapidjson.org/)
 - [stb](https://github.com/nothings/stb)
 
 ## Change Log ##
+- `2017-11-14 (v0.05):` Replaced GLM with linalg.
 - `2017-10-07 (v0.04):` Compression API.
 - `2017-10-03 (v0.03):` New serialization API, replaced JsonSerializer -> SerializerJson.
 - `2017-09-09 (v0.02):` FileSystem::ListFiles/ListDirs take a null-separated list of filter pattern strings.
