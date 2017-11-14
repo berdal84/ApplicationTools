@@ -2,24 +2,64 @@
 
 using namespace apt;
 
-mat4 apt::Translation(const vec3& _translation)
+mat4 apt::TransformationMatrix(const vec3& _translation, const mat3& _rotationScale)
 {
-	return translate(mat4(1.0f), _translation);
+	return mat4(
+		vec4(_rotationScale[0], 0.0f),
+		vec4(_rotationScale[1], 0.0f),
+		vec4(_rotationScale[2], 0.0f),
+		vec4(_translation,      1.0f)
+		);
 }
 
-mat4 apt::Rotation(const vec3& _axis, float _radians)
+mat4 apt::TransformationMatrix(const vec3& _translation, const quat& _rotation, const vec3& _scale)
 {
-	return rotate(mat4(1.0f), _radians, _axis);
+	mat4 ret = rotation_matrix(_rotation);
+	ret[0].x *= _scale.x;
+	ret[1].y *= _scale.y;
+	ret[2].z *= _scale.z;
+	ret[3] = vec4(_translation, 1.0f);
+	return ret;
 }
 
-mat4 apt::Scale(const vec3& _scale)
+mat4 apt::TranslationMatrix(const vec3& _translation)
 {
-	return scale(mat4(1.0f), _scale);
+	return translation_matrix(_translation);
+}
+
+mat4 apt::RotationMatrix(const vec3& _axis, float _radians)
+{
+	//return rotation_matrix(rotation_quat(_axis, _radians));
+ // the following has better precision
+	float c   = cosf(_radians);
+	float s   = sinf(_radians);
+	vec3  rca = (1.0f - c) * _axis;
+	return mat4(
+		vec4(c + rca[0] * _axis[0],              rca[0] * _axis[1] + s * _axis[2],   rca[0] * _axis[2] - s * _axis[1],   0.0f),
+		vec4(rca[1] * _axis[0] - s * _axis[2],   c + rca[1] * _axis[1],              rca[1] * _axis[2] + s * _axis[0],   0.0f),
+		vec4(rca[2] * _axis[0] + s * _axis[1],   rca[2] * _axis[1] - s * _axis[0],   c + rca[2] * _axis[2],              0.0f),
+		vec4(0.0f, 0.0f, 0.0f, 1.0f)
+		);
+}
+
+mat4 apt::RotationMatrix(const quat& _q)
+{
+	return rotation_matrix(_q);
+}
+
+quat apt::RotationQuaternion(const vec3& _axis, float _radians)
+{
+	return rotation_quat(_axis, _radians);
+}
+
+mat4 apt::ScaleMatrix(const vec3& _scale)
+{
+	return scaling_matrix(_scale);
 }
 
 vec3 apt::GetTranslation(const mat4& _m)
 {
-	return vec3(column(_m, 3));
+	return _m[3].xyz();
 }
 
 mat3 apt::GetRotation(const mat4& _m)
@@ -34,9 +74,9 @@ mat3 apt::GetRotation(const mat4& _m)
 vec3 apt::GetScale(const mat4& _m)
 {
 	vec3 ret;
-	ret.x = length(vec3(column(_m, 0)));
-	ret.y = length(vec3(column(_m, 1)));
-	ret.z = length(vec3(column(_m, 2)));
+	ret.x = length(_m[0].xyz());
+	ret.y = length(_m[1].xyz());
+	ret.z = length(_m[2].xyz());
 	return ret;
 }
 
@@ -53,10 +93,10 @@ vec3 apt::ToEulerXYZ(const mat3& _m)
 		ret.z = 0.0f;
 		if (!(_m[0][2] > -1.0f)) {
 			ret.x = ret.z + atan2f(_m[1][0], _m[2][0]);
-			ret.y = half_pi<float>();
+			ret.y = kHalfPi;
 		} else {
 			ret.x = -ret.z + atan2f(-_m[1][0], -_m[2][0]);			
-			ret.y = -half_pi<float>();
+			ret.y = -kHalfPi;
 		}
 	}
 	return ret;
@@ -72,10 +112,22 @@ mat3 apt::FromEulerXYZ(const vec3& _euler)
 	float cz = cosf(_euler.z);
 	float sz = sinf(_euler.z);
 	return mat3(
-		 cy * cz,     cz * sx * sy + cx * sz,   -cx * cz * sy + sx * sz,
-		-cy * sz,     cx * cz - sx * sy * sz,    cz * sx + cx * sy * sz,
-		 sy,          -cy * sx,                  cx * cy
+		vec3( cy * cz,     cz * sx * sy + cx * sz,   -cx * cz * sy + sx * sz),
+		vec3(-cy * sz,     cx * cz - sx * sy * sz,    cz * sx + cx * sy * sz),
+		vec3( sy,         -cy * sx,                   cx * cy)
 		);
+}
+
+mat4 apt::Inverse(const mat4& _m)
+{
+	return inverse(_m);
+}
+
+mat4 apt::AffineInverse(const mat4& _m)
+{
+	mat3 rs = transpose(mat3(_m));
+	vec3 t  = rs * -_m[3].xyz();
+	return TransformationMatrix(t, rs);
 }
 
 mat4 apt::AlignX(const vec3& _axis, const vec3& _up)
@@ -97,10 +149,10 @@ mat4 apt::AlignX(const vec3& _axis, const vec3& _up)
 	z = cross(_axis, y);
 
 	return mat4(
-		_axis.x, _axis.y, _axis.z, 0.0f,
-		y.x,     y.y,     y.z,     0.0f,
-		z.x,     z.y,     z.z,     0.0f,
-		0.0f,    0.0f,    0.0f,    1.0f
+		vec4(_axis.x, _axis.y, _axis.z, 0.0f),
+		vec4(y.x,     y.y,     y.z,     0.0f),
+		vec4(z.x,     z.y,     z.z,     0.0f),
+		vec4(0.0f,    0.0f,    0.0f,    1.0f)
 		);
 }
 
@@ -123,10 +175,10 @@ mat4 apt::AlignY(const vec3& _axis, const vec3& _up)
 	x = cross(z, _axis);
 
 	return mat4(
-		x.x,     x.y,     x.z,     0.0f,
-		_axis.x, _axis.y, _axis.z, 0.0f,
-		z.x,     z.y,     z.z,     0.0f,
-		0.0f,    0.0f,    0.0f,    1.0f
+		vec4(x.x,     x.y,     x.z,     0.0f),
+		vec4(_axis.x, _axis.y, _axis.z, 0.0f),
+		vec4(z.x,     z.y,     z.z,     0.0f),
+		vec4(0.0f,    0.0f,    0.0f,    1.0f)
 		);
 }
 
@@ -149,10 +201,10 @@ mat4 apt::AlignZ(const vec3& _axis, const vec3& _up)
 	x = cross(y, _axis);
 
 	return mat4(
-		x.x,     x.y,     x.z,     0.0f,
-		y.x,     y.y,     y.z,     0.0f,
-		_axis.x, _axis.y, _axis.z, 0.0f,
-		0.0f,    0.0f,    0.0f,    1.0f
+		vec4(x.x,     x.y,     x.z,     0.0f),
+		vec4(y.x,     y.y,     y.z,     0.0f),
+		vec4(_axis.x, _axis.y, _axis.z, 0.0f),
+		vec4(0.0f,    0.0f,    0.0f,    1.0f)
 		);
 }
 	

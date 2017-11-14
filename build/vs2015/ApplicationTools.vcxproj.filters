@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="extern">
@@ -22,6 +22,9 @@
     <Filter Include="extern\EASTL\source">
       <UniqueIdentifier>{A397E59D-0FF9-C2AB-9866-095E04C7F96A}</UniqueIdentifier>
     </Filter>
+    <Filter Include="extern\linalg">
+      <UniqueIdentifier>{015EF73E-6D1E-7375-3659-BCF2A2D8B751}</UniqueIdentifier>
+    </Filter>
     <Filter Include="win">
       <UniqueIdentifier>{13BB880B-7FC4-887C-0840-9F7C7448947C}</UniqueIdentifier>
     </Filter>
@@ -44,6 +47,7 @@
     <ClInclude Include="..\..\src\all\apt\TextParser.h" />
     <ClInclude Include="..\..\src\all\apt\Time.h" />
     <ClInclude Include="..\..\src\all\apt\apt.h" />
+    <ClInclude Include="..\..\src\all\apt\compress.h" />
     <ClInclude Include="..\..\src\all\apt\hash.h" />
     <ClInclude Include="..\..\src\all\apt\log.h" />
     <ClInclude Include="..\..\src\all\apt\math.h" />
@@ -404,6 +408,9 @@
     <ClInclude Include="..\..\src\all\extern\EASTL\weak_ptr.h">
       <Filter>extern\EASTL</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\all\extern\linalg\linalg.h">
+      <Filter>extern\linalg</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\all\extern\lodepng.h">
       <Filter>extern</Filter>
     </ClInclude>
@@ -428,7 +435,6 @@
     <ClInclude Include="..\..\src\win\apt\win.h">
       <Filter>win</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\all\apt\compress.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\all\apt\ArgList.cpp" />
@@ -444,6 +450,7 @@
     <ClCompile Include="..\..\src\all\apt\TextParser.cpp" />
     <ClCompile Include="..\..\src\all\apt\Time.cpp" />
     <ClCompile Include="..\..\src\all\apt\apt.cpp" />
+    <ClCompile Include="..\..\src\all\apt\compress.cpp" />
     <ClCompile Include="..\..\src\all\apt\hash.cpp" />
     <ClCompile Include="..\..\src\all\apt\log.cpp" />
     <ClCompile Include="..\..\src\all\apt\math.cpp" />
@@ -497,7 +504,6 @@
     <ClCompile Include="..\..\src\win\apt\platform.cpp">
       <Filter>win</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\all\apt\compress.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\src\all\extern\EASTL\EASTL.natvis">

@@ -122,6 +122,8 @@ function ApplicationTools_Project(_root, _targetDir)
 			ALL_SRC_DIR    .. "**.hpp",
 			ALL_SRC_DIR    .. "**.c",
 			ALL_SRC_DIR    .. "**.cpp",
+			ALL_EXTERN_DIR .. "**.h",
+			ALL_EXTERN_DIR .. "**.hpp",
 			ALL_EXTERN_DIR .. "**.c",
 			ALL_EXTERN_DIR .. "**.cpp",
 			ALL_EXTERN_DIR .. "**.natvis",

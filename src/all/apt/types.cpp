@@ -1,7 +1,5 @@
 #include <apt/apt.h>
 
-#include <glm/gtc/packing.hpp>
-
 #include <limits>
 
 namespace apt { namespace internal {
@@ -51,19 +49,19 @@ template <> float16 DataType_FloatToFloat(float16 _src)
 }
 template <> float16 DataType_FloatToFloat(float32 _src)
 {
-	return float16(glm::packHalf1x16(_src));
+	return float16(PackFloat16(_src));
 }
 template <> float16 DataType_FloatToFloat(float64 _src)
 {
-	return float16(glm::packHalf1x16((float32)_src));
+	return float16(PackFloat16((float32)_src));
 }
 template <> float32 DataType_FloatToFloat(float16 _src)
 {
-	return glm::unpackHalf1x16(_src);
+	return UnpackFloat16(_src);
 }
 template <> float64 DataType_FloatToFloat(float16 _src)
 {
-	return (float64)glm::unpackHalf1x16(_src);
+	return (float64)UnpackFloat16(_src);
 }
 
 } } // namespace apt::internal

@@ -2,6 +2,8 @@
 
 #include <apt/log.h>
 #include <apt/math.h>
+#include <apt/Time.h>
+
 #include <EASTL/vector.h>
 
 using namespace apt;
