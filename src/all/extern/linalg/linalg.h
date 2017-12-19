@@ -2,6 +2,7 @@
 //	- Added operator* members for matrix-matrix and matrix-vector multiplication.
 //	- Added row-major NxN scalar matrix ctors.
 //	- Added float3x3(const float4x4&) ctor (extract rotation/scale matrix).
+//  - Added templated elementwise ctors for vector types.
 // The fork is maintained here: https://github.com/john-chapman/linalg.
 
 // linalg.h - v2.0 - Single-header public domain linear algebra library
