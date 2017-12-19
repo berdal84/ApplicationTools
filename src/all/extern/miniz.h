@@ -2,6 +2,7 @@
 	- Cut-paste miniz.c at the bottom of miniz.h wrapped inside #ifdef MINIZ_IMPL.
 	- Removed all #pragma once.
 	- Remove 'include miniz.h'
+	- Disabled warning line 3720 (32 bit shift implicitly converted to 64 bits).
 	- Configs are defined below as convenience.
 */
 #define MINIZ_NO_STDIO
@@ -3712,8 +3713,15 @@ tinfl_status tinfl_decompress(tinfl_decompressor *r, const mz_uint8 *pIn_buf_nex
         TINFL_GET_BYTE(1, r->m_zhdr0);
         TINFL_GET_BYTE(2, r->m_zhdr1);
         counter = (((r->m_zhdr0 * 256 + r->m_zhdr1) % 31 != 0) || (r->m_zhdr1 & 32) || ((r->m_zhdr0 & 15) != 8));
+#if defined(_MSC_VER)
+	#pragma warning(push)
+	#pragma warning(disable: 4334) // 32 bit shift implicitly converted to 64 bits
+#endif
         if (!(decomp_flags & TINFL_FLAG_USING_NON_WRAPPING_OUTPUT_BUF))
             counter |= (((1U << (8U + (r->m_zhdr0 >> 4))) > 32768U) || ((out_buf_size_mask + 1) < (size_t)(1U << (8U + (r->m_zhdr0 >> 4)))));
+#if defined(_MSC_VER)
+	#pragma warning(pop)
+#endif
         if (counter)
         {
             TINFL_CR_RETURN_FOREVER(36, TINFL_STATUS_FAILED);
