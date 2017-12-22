@@ -143,8 +143,10 @@ void FileSystem::StripRoot(StringBase& ret_, const char* _path)
 			return;
 		}
 	}
- // no root found, strip the whole path
-	StripPath(ret_, _path);
+ // no root found, strip the whole path if not absolute
+	if (!IsAbsolute(_path)) {
+		StripPath(ret_, _path);
+	}
 }
 
 void FileSystem::StripPath(StringBase& ret_, const char* _path)
