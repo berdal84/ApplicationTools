@@ -3,6 +3,7 @@
 //	- Added row-major NxN scalar matrix ctors.
 //	- Added float3x3(const float4x4&) ctor (extract rotation/scale matrix).
 //  - Added templated elementwise ctors for vector types.
+//  - Added more swizzle member functions for vectors.
 // The fork is maintained here: https://github.com/john-chapman/linalg.
 
 // linalg.h - v2.0 - Single-header public domain linear algebra library
@@ -99,6 +100,8 @@ namespace linalg
         T &                         operator[] (int i)                  { return (&x)[i]; }
         constexpr const vec<T,2> &  xy() const                          { return *reinterpret_cast<const vec<T,2> *>(this); }
         vec<T,2> &                  xy()                                { return *reinterpret_cast<vec<T,2> *>(this); }
+		vec<T,2>                    xz() const                          { return vec<T,2>(x, z); }
+		vec<T,2>                    yz() const                          { return vec<T,2>(y, z); }
     };
     template<class T> struct vec<T,4>
     {
@@ -118,7 +121,9 @@ namespace linalg
         constexpr const vec<T,2> &  xy() const                          { return *reinterpret_cast<const vec<T,2> *>(this); }
         constexpr const vec<T,3> &  xyz() const                         { return *reinterpret_cast<const vec<T,3> *>(this); }
         vec<T,2> &                  xy()                                { return *reinterpret_cast<vec<T,2> *>(this); }                
-        vec<T,3> &                  xyz()                               { return *reinterpret_cast<vec<T,3> *>(this); }
+        vec<T,2>                    xz() const                          { return vec<T,2>(x, z); }
+		vec<T,2>                    yz() const                          { return vec<T,2>(y, z); }
+		vec<T,3> &                  xyz()                               { return *reinterpret_cast<vec<T,3> *>(this); }
     };
 
     // Small, fixed-size matrix type, consisting of exactly M rows and N columns of type T, stored in column-major order.
