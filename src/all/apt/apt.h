@@ -2,7 +2,7 @@
 #ifndef apt_h
 #define apt_h
 
-#define APT_VERSION "0.05"
+#define APT_VERSION "0.06"
 
 // Compiler
 #if defined(__GNUC__)
@@ -168,6 +168,7 @@ class Json;
 class MemoryPool;
 template <typename tType> class PersistentVector;
 template <typename tType> class Pool;
+template <typename PRNG>  class Rand;
 template <typename tType> class RingBuffer;
 class Serializer;
 class SerializerJson;

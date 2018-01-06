@@ -328,8 +328,8 @@ namespace internal {
 			uint32 m_exponent : 8;
 			uint32 m_sign     : 1;
 		} bits;
-		uint32 u;
-		float f;
+		uint32  u;
+		float32 f;
 	};
 }
 
