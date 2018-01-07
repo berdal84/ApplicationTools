@@ -45,7 +45,7 @@ public:
 	tType get();
 		template <> bool get() 
 		{ 
-			return (raw() & 0x1) != 0; // \todo LSB might not be the best choice for all PRNGs
+			return (raw() >> 31) != 0;
 		}
 		template <> float32 get()
 		{
