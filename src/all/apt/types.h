@@ -6,6 +6,7 @@
 	#error apt: include apt/apt.h, not apt/types.h
 #endif
 
+#include <algorithm>
 #include <cfloat>
 #include <cstddef>
 #include <cstdint>
@@ -126,6 +127,47 @@ typedef std::size_t    uint;
 
 namespace internal {
 
+// Type traits
+struct ScalarT {};
+	struct FloatT: public ScalarT {};
+	struct IntT:   public ScalarT {};
+struct CompositeT {};
+	struct MatT:   public CompositeT {};
+	struct VecT:   public CompositeT {};
+
+template <typename tType>
+struct TypeTraits 
+{ 
+	typedef typename tType         Type;
+	typedef typename tType::Family Family; 
+	enum 
+	{ 
+		kCount = tType::kCount // number of elements for composite types, 1 for scalar types
+	}; 
+};
+	template<> struct TypeTraits<sint8>      { typedef IntT   Family; enum { kSize = 1 };  };
+	template<> struct TypeTraits<uint8>      { typedef IntT   Family; enum { kSize = 1 };  };
+	template<> struct TypeTraits<sint16>     { typedef IntT   Family; enum { kSize = 1 };  };
+	template<> struct TypeTraits<uint16>     { typedef IntT   Family; enum { kSize = 1 };  };
+	template<> struct TypeTraits<sint32>     { typedef IntT   Family; enum { kSize = 1 };  };
+	template<> struct TypeTraits<uint32>     { typedef IntT   Family; enum { kSize = 1 };  };
+	template<> struct TypeTraits<sint64>     { typedef IntT   Family; enum { kSize = 1 };  };
+	template<> struct TypeTraits<uint64>     { typedef IntT   Family; enum { kSize = 1 };  };
+	template<> struct TypeTraits<sint8N>     { typedef IntT   Family; enum { kSize = 1 };  };
+	template<> struct TypeTraits<uint8N>     { typedef IntT   Family; enum { kSize = 1 };  };
+	template<> struct TypeTraits<sint16N>    { typedef IntT   Family; enum { kSize = 1 };  };
+	template<> struct TypeTraits<uint16N>    { typedef IntT   Family; enum { kSize = 1 };  };
+	template<> struct TypeTraits<sint32N>    { typedef IntT   Family; enum { kSize = 1 };  };
+	template<> struct TypeTraits<uint32N>    { typedef IntT   Family; enum { kSize = 1 };  };
+	template<> struct TypeTraits<sint64N>    { typedef IntT   Family; enum { kSize = 1 };  };
+	template<> struct TypeTraits<uint64N>    { typedef IntT   Family; enum { kSize = 1 };  };
+	template<> struct TypeTraits<float16>    { typedef IntT   Family; enum { kSize = 1 };  }; // float16 is an int type without floating point operators
+	template<> struct TypeTraits<float32>    { typedef FloatT Family; enum { kSize = 1 };  };
+	template<> struct TypeTraits<float64>    { typedef FloatT Family; enum { kSize = 1 };  };
+#define APT_TRAITS_TYPE(_type)   (typename apt::internal::TypeTraits<_type>::Type)
+#define APT_TRAITS_FAMILY(_type) (typename apt::internal::TypeTraits<_type>::Family())
+#define APT_TRAITS_COUNT(_type)  (typename apt::internal::TypeTraits<_type>::kCount)
+
 // Instantiate _macro for type/datatype pairs
 #define APT_DataType_decl(_macro) \
 	_macro(apt::sint8,   apt::DataType_Sint8  ) \
@@ -184,7 +226,7 @@ inline tDst DataType_FloatToIntN(tSrc _src)
 {
 	APT_ASSERT(DataTypeIsNormalized(APT_DATA_TYPE_TO_ENUM(tDst)));
 	APT_ASSERT(DataTypeIsFloat(APT_DATA_TYPE_TO_ENUM(tSrc)));
-	_src = APT_CLAMP(_src, (tSrc)-1, (tSrc)1);
+	_src = std::max(std::min(_src, (tSrc)-1), (tSrc)1);
 	return _src < 0 ? (tDst)-(_src * APT_DATA_TYPE_MIN(tDst))
 	                : (tDst) (_src * APT_DATA_TYPE_MAX(tDst));
 }

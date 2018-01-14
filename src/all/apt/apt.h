@@ -2,7 +2,7 @@
 #ifndef apt_h
 #define apt_h
 
-#define APT_VERSION "0.06"
+#define APT_VERSION "0.07"
 
 // Compiler
 #if defined(__GNUC__)
@@ -73,13 +73,9 @@
 
 #define APT_ARRAY_COUNT(_arr) apt::internal::ArrayCount(_arr)
 
-#define APT_ONCE                  for (static bool _done = false; _done ? false : _done = true; )
-
-#define APT_MIN(_a, _b)           apt::internal::Min(_a, _b)
-#define APT_MAX(_a, _b)           apt::internal::Max(_a, _b)
-#define APT_CLAMP(_x, _min, _max) APT_MAX(APT_MIN(_x, _max), _min)
-#define APT_SATURATE(_x)          apt::internal::Saturate(_x)
-
+// Execute a code block once, e.g. APT_ONCE { foo; bar; }
+// \note This is not thread safe.
+#define APT_ONCE  for (static bool _done = false; _done ? false : _done = true; )
 
 namespace apt {
 
@@ -111,13 +107,6 @@ const char* StripPath(const char* _path);
 
 template <typename tType, unsigned kCount>
 inline constexpr unsigned ArrayCount(const tType (&)[kCount]) { return kCount; }
-
-template <typename tType>
-inline tType Min(tType a, tType b) { return a < b ? a : b; }
-template <typename tType>
-inline tType Max(tType a, tType b) { return a > b ? a : b; }
-template <typename tType>
-inline tType Saturate(tType x)     { return x < 0 ? 0 : (x > 1 ? 1 : x); }
 
 } } // namespace apt::internal
 

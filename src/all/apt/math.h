@@ -5,9 +5,12 @@
 // \todo ?
 //#define APT_MATH_SIMD
 
+#include <apt/apt.h>
 #include <linalg/linalg.h>
 
 namespace apt {
+	using linalg::identity;
+
 	typedef linalg::aliases::float2   vec2;
 	typedef linalg::aliases::float3   vec3;
 	typedef linalg::aliases::float4   vec4;
@@ -24,8 +27,25 @@ namespace apt {
 	typedef linalg::aliases::float3x3 mat3;
 	typedef linalg::aliases::float4x4 mat4;
 	typedef linalg::aliases::float4   quat;
-
-	using namespace linalg;
+	
+	namespace internal
+	{
+		template<> struct TypeTraits<vec2>      { typedef VecT   Family; enum { kSize = 2 };  };
+		template<> struct TypeTraits<vec3>      { typedef VecT   Family; enum { kSize = 3 };  };
+		template<> struct TypeTraits<vec4>      { typedef VecT   Family; enum { kSize = 4 };  };
+		template<> struct TypeTraits<uvec2>     { typedef VecT   Family; enum { kSize = 2 };  };
+		template<> struct TypeTraits<uvec3>     { typedef VecT   Family; enum { kSize = 3 };  };
+		template<> struct TypeTraits<uvec4>     { typedef VecT   Family; enum { kSize = 4 };  };
+		template<> struct TypeTraits<ivec2>     { typedef VecT   Family; enum { kSize = 2 };  };
+		template<> struct TypeTraits<ivec3>     { typedef VecT   Family; enum { kSize = 3 };  };
+		template<> struct TypeTraits<ivec4>     { typedef VecT   Family; enum { kSize = 4 };  };
+		template<> struct TypeTraits<bvec2>     { typedef VecT   Family; enum { kSize = 2 };  };
+		template<> struct TypeTraits<bvec3>     { typedef VecT   Family; enum { kSize = 3 };  };
+		template<> struct TypeTraits<bvec4>     { typedef VecT   Family; enum { kSize = 4 };  };
+		template<> struct TypeTraits<mat2>      { typedef MatT   Family; enum { kSize = 4 };  };
+		template<> struct TypeTraits<mat3>      { typedef MatT   Family; enum { kSize = 9 };  };
+		template<> struct TypeTraits<mat4>      { typedef MatT   Family; enum { kSize = 16 }; };
+	}
 
 	constexpr float kPi      = 3.14159265359f;
 	constexpr float kTwoPi   = 2.0f * kPi;
@@ -66,50 +86,86 @@ namespace apt {
 	mat4 LookAt(const vec3& _from, const vec3& _to, const vec3& _up = vec3(0.0f, 1.0f, 0.0f));
 
 	// Convert between radians and degrees.
-	inline float Degrees(float _radians)      { return _radians * (180.0f / kPi); }
-	inline float Radians(float _degrees)      { return _degrees * (kPi / 180.0f); }
+	inline float Degrees(float _radians) { return _radians * (180.0f / kPi); }
+	inline float Radians(float _degrees) { return _degrees * (kPi / 180.0f); }
 
+	// Normalize a vector.
+	template <typename tType>
+	inline tType Normalize(const tType& _v)                                     { return linalg::normalize(_v); }
+
+	// Return the length of a vector.
+	template <typename tType>
+	inline float Length(const tType& _v)                                        { return linalg::length(_v); }
+
+	// Return the square length of a vector.
+	template <typename tType>
+	inline float Length2(const tType& _v)                                       { return linalg::length2(_v); }
+	
 	// Return the fractional part of _x (elementwise for vector/matrix types).
 	template <typename tType>
-	inline tType Fract(const tType& _x)       { return linalg::fract(_x); }
-		inline float Fract(float _x)          { return _x - std::floor(_x); }
+	tType Fract(const tType& _x);
 
-	// Return the -1 if _x < 0, else 1 (elementwise for vector/matrix types).
+	// Return -1 if _x < 0, else 1 (elementwise for vector/matrix types).
 	template <typename tType>
-	inline tType Sign(const tType& _x)        { return linalg::copysign(tType(1), _x); }
-		inline float Sign(const float& _x)    { return std::copysign(1.0f, _x); }
+	tType Sign(const tType& _x);
 
-	// \todo Rename, add a templated interface for integral types, plus interface for e.g. random rotations
-	class LCG
-	{
-		static const uint kMultiplier  = 48271u;
-		static const uint kIncrement   = 0u;
-		static const uint kModulus     = 2147483647u;
-		static const uint kDefaultSeed = 1u;
-		
-		uint m_seed;
-		
-	public:
-		LCG(uint _seed = kDefaultSeed)
-			: m_seed(_seed) 
-		{
-		}
-	
-		void  seed(uint _seed)               { m_seed = _seed; }
-		void  discard(uint _count = 1u)      { while (_count > 0) { rand(); --_count; } }
+	// Return the min of _a,_b (elementwise for vector/matrix types).
+	template <typename tType>
+	tType Min(const tType& _a, const tType& _b);
+	#define APT_MIN(_a, _b) apt::Min(_a, _b)
 
-		int   rand()                         { return (int)urand(); }
-		int   rand(int _max)                 { return (int)urand() % _max; }
-		int   rand(int _min, int _max)       { return _min + (int)urand() % (_max - _min); }
+	// Return the max of _a,_b (elementwise for vector/matrix types).
+	template <typename tType>
+	tType Max(const tType& _a, const tType& _b);
+	#define APT_MAX(_a, _b) apt::Max(_a, _b)
 
-		uint  urand()                        { m_seed = (m_seed * kMultiplier + kIncrement) % kModulus; return m_seed; }
-		uint  urand(uint _max)               { return urand() % _max; }
-		uint  urand(uint _min, uint _max)    { return _min + urand() % (_max - _min); }
+	// Return _x clamped in [_min,_max] (elementwise for vector/matrix types).
+	template <typename tType>
+	inline tType Clamp(const tType& _x, const tType& _min, const tType &_max)   { return Max(Min(_x, _max), _min); }
+	#define APT_CLAMP(_x, _min, _max) apt::Clamp(_x, _min, _max)
 
-		float frand()                        { return (float)urand() / (float)0x7fffffffu; }
-		float frand(float _max)              { return frand() * _max; }
-		float frand(float _min, float _max)  { return _min + frand() * (_max - _min); }
-	};
-}
+	// Return _x clamped in [0,1] (elementwise for vector/matrix types).
+	template <typename tType>
+	inline tType Saturate(const tType& _x)                                      { return Clamp(_x, tType(0), tType(1)); }
+	#define APT_SATURATE(_x) apt::Saturate(_x)
+
+
+	namespace internal {
+		template <typename tType>
+		inline tType Fract(const tType& _x, FloatT)                             { return _x - std::floor(_x); }
+		template <typename tType>
+		inline tType Fract(const tType& _x, CompositeT)                         { return linalg::fract(_x); }
+	}
+	template <typename tType>
+	inline tType Fract(const tType& _x)                                         { return internal::Fract(_x, APT_TRAITS_FAMILY(tType)); }
+
+	namespace internal {
+		template <typename tType>
+		inline tType Sign(const tType& _x, FloatT)                              { return std::copysign(tType(1), _x); }
+		template <typename tType>
+		inline tType Sign(const tType& _x, CompositeT)                          { return linalg::copysign(tType(1), _x); }
+	}
+	template <typename tType>
+	inline tType Sign(const tType& _x)                                          { return internal::Sign(_x, APT_TRAITS_FAMILY(tType)); }
+
+	namespace internal {
+		template <typename tType>
+		inline tType Min(const tType& _a, const tType& _b, ScalarT)             { return std::min(_a, _b); }
+		template <typename tType>
+		inline tType Min(const tType& _a, const tType& _b, CompositeT)          { return linalg::min(_a, _b); }
+	}
+	template <typename tType>
+	inline tType Min(const tType& _a, const tType& _b)                          { return internal::Min(_a, _b, APT_TRAITS_FAMILY(tType)); }
+
+	namespace internal {
+		template <typename tType>
+		inline tType Max(const tType& _a, const tType& _b, ScalarT)             { return std::max(_a, _b); }
+		template <typename tType>
+		inline tType Max(const tType& _a, const tType& _b, CompositeT)          { return linalg::max(_a, _b); }
+	}
+	template <typename tType>
+	inline tType Max(const tType& _a, const tType& _b)                          { return internal::Max(_a, _b, APT_TRAITS_FAMILY(tType)); }
+
+} // namespace apt
 
 #endif // frm_math_h

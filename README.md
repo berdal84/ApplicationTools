@@ -3,6 +3,7 @@ Common application tools:
 - Platform/compiler/architecture defines + related macros.
 - Assert macros (+ callback for app-specific behavior).
 - Logging macros (+ callback for app-specific behavior).
+- Math types/functions.
 - Time functions.
 - Hash functions (FNV1a).
 - Compression functions.
@@ -24,6 +25,7 @@ Embedded dependencies:
 - [stb](https://github.com/nothings/stb)
 
 ## Change Log ##
+- `2018-01-14 (v0.07):` Type traits + tag dispatch for math utility functions. Moved `Min`, `Max`, `Clamp`, `Saturate` into math.h.
 - `2018-01-06 (v0.06):` Rand API.
 - `2017-11-14 (v0.05):` Replaced GLM with linalg.
 - `2017-10-07 (v0.04):` Compression API.

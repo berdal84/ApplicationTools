@@ -2,12 +2,14 @@
 // - Handle pitch correctly (programming guide recommends copying a scanline at a time).
 // - Need to test to ensure portability of the DDS stuff (size of BYTE, UINT, DWORD, etc).
 
+#include <apt/math.h>
+#include <apt/types.h>
 #include <apt/File.h>
 
 /******************************************************************************/
-typedef unsigned char BYTE;
-typedef unsigned int  UINT;
-typedef unsigned long DWORD;
+typedef apt::uint8   BYTE;
+typedef apt::uint32  UINT;
+typedef apt::uint32  DWORD;
 #ifndef MAKEFOURCC
     #define MAKEFOURCC(ch0, ch1, ch2, ch3)                              \
                 ((DWORD)(BYTE)(ch0) | ((DWORD)(BYTE)(ch1) << 8) |       \
