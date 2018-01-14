@@ -166,7 +166,7 @@ struct TypeTraits
 	template<> struct TypeTraits<float64>    { typedef FloatT Family; enum { kSize = 1 };  };
 #define APT_TRAITS_TYPE(_type)   (typename apt::internal::TypeTraits<_type>::Type)
 #define APT_TRAITS_FAMILY(_type) (typename apt::internal::TypeTraits<_type>::Family())
-#define APT_TRAITS_COUNT(_type)  (typename apt::internal::TypeTraits<_type>::kCount)
+#define APT_TRAITS_COUNT(_type)  (apt::internal::TypeTraits<_type>::kCount)
 
 // Instantiate _macro for type/datatype pairs
 #define APT_DataType_decl(_macro) \
