@@ -2,6 +2,7 @@
 
 #include <apt/log.h>
 #include <apt/math.h>
+#include <apt/rand.h>
 #include <apt/String.h>
 
 #include <EASTL/vector.h>
@@ -13,12 +14,12 @@ template <uint kCapacity>
 static void VectorTest()
 {
 	eastl::vector<String<kCapacity>> strv;
-	LCG lcg;
+	Rand<> rnd;
 	for (int i = 0; i < 10000; ++i) {
-		int strl = lcg.rand(1, APT_MAX((int)kCapacity * 2, 2));
+		int strl = rnd.get<int>(1, APT_MAX((int)kCapacity * 2, 2));
 		String<kCapacity> str;
 		for (int j = 0; j < strl; ++j) {
-			char c = (char)lcg.rand((int)'A', (int)'Z' + 1);
+			char c = (char)rnd.get<int>((int)'A', (int)'Z' + 1);
 			str.append(&c, 1);
 		}
 		strv.push_back(str);

@@ -30,21 +30,21 @@ namespace apt {
 	
 	namespace internal
 	{
-		template<> struct TypeTraits<vec2>      { typedef VecT   Family; enum { kSize = 2 };  };
-		template<> struct TypeTraits<vec3>      { typedef VecT   Family; enum { kSize = 3 };  };
-		template<> struct TypeTraits<vec4>      { typedef VecT   Family; enum { kSize = 4 };  };
-		template<> struct TypeTraits<uvec2>     { typedef VecT   Family; enum { kSize = 2 };  };
-		template<> struct TypeTraits<uvec3>     { typedef VecT   Family; enum { kSize = 3 };  };
-		template<> struct TypeTraits<uvec4>     { typedef VecT   Family; enum { kSize = 4 };  };
-		template<> struct TypeTraits<ivec2>     { typedef VecT   Family; enum { kSize = 2 };  };
-		template<> struct TypeTraits<ivec3>     { typedef VecT   Family; enum { kSize = 3 };  };
-		template<> struct TypeTraits<ivec4>     { typedef VecT   Family; enum { kSize = 4 };  };
-		template<> struct TypeTraits<bvec2>     { typedef VecT   Family; enum { kSize = 2 };  };
-		template<> struct TypeTraits<bvec3>     { typedef VecT   Family; enum { kSize = 3 };  };
-		template<> struct TypeTraits<bvec4>     { typedef VecT   Family; enum { kSize = 4 };  };
-		template<> struct TypeTraits<mat2>      { typedef MatT   Family; enum { kSize = 4 };  };
-		template<> struct TypeTraits<mat3>      { typedef MatT   Family; enum { kSize = 9 };  };
-		template<> struct TypeTraits<mat4>      { typedef MatT   Family; enum { kSize = 16 }; };
+		template<> struct TypeTraits<vec2>      { typedef VecT   Family; enum { kCount = 2 };  };
+		template<> struct TypeTraits<vec3>      { typedef VecT   Family; enum { kCount = 3 };  };
+		template<> struct TypeTraits<vec4>      { typedef VecT   Family; enum { kCount = 4 };  };
+		template<> struct TypeTraits<uvec2>     { typedef VecT   Family; enum { kCount = 2 };  };
+		template<> struct TypeTraits<uvec3>     { typedef VecT   Family; enum { kCount = 3 };  };
+		template<> struct TypeTraits<uvec4>     { typedef VecT   Family; enum { kCount = 4 };  };
+		template<> struct TypeTraits<ivec2>     { typedef VecT   Family; enum { kCount = 2 };  };
+		template<> struct TypeTraits<ivec3>     { typedef VecT   Family; enum { kCount = 3 };  };
+		template<> struct TypeTraits<ivec4>     { typedef VecT   Family; enum { kCount = 4 };  };
+		template<> struct TypeTraits<bvec2>     { typedef VecT   Family; enum { kCount = 2 };  };
+		template<> struct TypeTraits<bvec3>     { typedef VecT   Family; enum { kCount = 3 };  };
+		template<> struct TypeTraits<bvec4>     { typedef VecT   Family; enum { kCount = 4 };  };
+		template<> struct TypeTraits<mat2>      { typedef MatT   Family; enum { kCount = 4 };  };
+		template<> struct TypeTraits<mat3>      { typedef MatT   Family; enum { kCount = 9 };  };
+		template<> struct TypeTraits<mat4>      { typedef MatT   Family; enum { kCount = 16 }; };
 	}
 
 	constexpr float kPi      = 3.14159265359f;
@@ -95,12 +95,20 @@ namespace apt {
 
 	// Return the length of a vector.
 	template <typename tType>
-	inline float Length(const tType& _v)                                        { return linalg::length(_v); }
+	inline auto Length(const tType& _v)                                         { return linalg::length(_v); }
 
 	// Return the square length of a vector.
 	template <typename tType>
-	inline float Length2(const tType& _v)                                       { return linalg::length2(_v); }
+	inline auto Length2(const tType& _v)                                        { return linalg::length2(_v); }
+
+	// Return the dot product of _a and _b.
+	template <typename tType>
+	inline auto Dot(const tType& _a, const tType& _b)                           { return linalg::dot(_a, _b); }
 	
+	// Return the cross product of _a and _b.
+	template <typename tType>
+	inline auto Cross(const tType& _a, const tType& _b)                         { return linalg::cross(_a, _b); }
+
 	// Return the fractional part of _x (elementwise for vector/matrix types).
 	template <typename tType>
 	tType Fract(const tType& _x);
@@ -121,7 +129,7 @@ namespace apt {
 
 	// Return _x clamped in [_min,_max] (elementwise for vector/matrix types).
 	template <typename tType>
-	inline tType Clamp(const tType& _x, const tType& _min, const tType &_max)   { return Max(Min(_x, _max), _min); }
+	inline tType Clamp(const tType& _x, const tType& _min, const tType& _max)   { return Max(Min(_x, _max), _min); }
 	#define APT_CLAMP(_x, _min, _max) apt::Clamp(_x, _min, _max)
 
 	// Return _x clamped in [0,1] (elementwise for vector/matrix types).

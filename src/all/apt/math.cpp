@@ -14,7 +14,7 @@ mat4 apt::TransformationMatrix(const vec3& _translation, const mat3& _rotationSc
 
 mat4 apt::TransformationMatrix(const vec3& _translation, const quat& _rotation, const vec3& _scale)
 {
-	mat4 ret = rotation_matrix(_rotation);
+	mat4 ret = linalg::rotation_matrix(_rotation);
 	ret[0].x *= _scale.x;
 	ret[1].y *= _scale.y;
 	ret[2].z *= _scale.z;
@@ -24,7 +24,7 @@ mat4 apt::TransformationMatrix(const vec3& _translation, const quat& _rotation, 
 
 mat4 apt::TranslationMatrix(const vec3& _translation)
 {
-	return translation_matrix(_translation);
+	return linalg::translation_matrix(_translation);
 }
 
 mat4 apt::RotationMatrix(const vec3& _axis, float _radians)
@@ -44,17 +44,17 @@ mat4 apt::RotationMatrix(const vec3& _axis, float _radians)
 
 mat4 apt::RotationMatrix(const quat& _q)
 {
-	return rotation_matrix(_q);
+	return linalg::rotation_matrix(_q);
 }
 
 quat apt::RotationQuaternion(const vec3& _axis, float _radians)
 {
-	return rotation_quat(_axis, _radians);
+	return linalg::rotation_quat(_axis, _radians);
 }
 
 mat4 apt::ScaleMatrix(const vec3& _scale)
 {
-	return scaling_matrix(_scale);
+	return linalg::scaling_matrix(_scale);
 }
 
 vec3 apt::GetTranslation(const mat4& _m)
@@ -65,18 +65,18 @@ vec3 apt::GetTranslation(const mat4& _m)
 mat3 apt::GetRotation(const mat4& _m)
 {
 	mat3 ret = mat3(_m);
-	ret[0] = normalize(ret[0]);
-	ret[1] = normalize(ret[1]);
-	ret[2] = normalize(ret[2]);
+	ret[0] = Normalize(ret[0]);
+	ret[1] = Normalize(ret[1]);
+	ret[2] = Normalize(ret[2]);
 	return ret;
 }
 
 vec3 apt::GetScale(const mat4& _m)
 {
 	vec3 ret;
-	ret.x = length(_m[0].xyz());
-	ret.y = length(_m[1].xyz());
-	ret.z = length(_m[2].xyz());
+	ret.x = Length(_m[0].xyz());
+	ret.y = Length(_m[1].xyz());
+	ret.z = Length(_m[2].xyz());
 	return ret;
 }
 
@@ -125,7 +125,7 @@ mat4 apt::Inverse(const mat4& _m)
 
 mat4 apt::AffineInverse(const mat4& _m)
 {
-	mat3 rs = transpose(mat3(_m));
+	mat3 rs = linalg::transpose(mat3(_m));
 	vec3 t  = rs * -_m[3].xyz();
 	return TransformationMatrix(t, rs);
 }
@@ -133,20 +133,20 @@ mat4 apt::AffineInverse(const mat4& _m)
 mat4 apt::AlignX(const vec3& _axis, const vec3& _up)
 {
 	vec3 y, z;
-	y = _up - _axis * dot(_up, _axis);
-	float ylen = length(y);
+	y = _up - _axis * Dot(_up, _axis);
+	float ylen = Length(y);
 	if_unlikely (ylen < FLT_EPSILON) {
 		vec3 k = vec3(1.0f, 0.0f, 0.0f);
-		y = k - _axis * dot(k, _axis);
-		ylen = length(y);
+		y = k - _axis * Dot(k, _axis);
+		ylen = Length(y);
 		if_unlikely (ylen < FLT_EPSILON) {
 			k = vec3(0.0f, 0.0f, 1.0f);
-			y = k - _axis * dot(k, _axis);
-			ylen = length(y);
+			y = k - _axis * Dot(k, _axis);
+			ylen = Length(y);
 		}
 	}
 	y = y / ylen;
-	z = cross(_axis, y);
+	z = Cross(_axis, y);
 
 	return mat4(
 		vec4(_axis.x, _axis.y, _axis.z, 0.0f),
@@ -159,20 +159,20 @@ mat4 apt::AlignX(const vec3& _axis, const vec3& _up)
 mat4 apt::AlignY(const vec3& _axis, const vec3& _up)
 {
 	vec3 x, z;
-	z = _up - _axis * dot(_up, _axis);
-	float zlen = length(z);
+	z = _up - _axis * Dot(_up, _axis);
+	float zlen = Length(z);
 	if_unlikely (zlen < FLT_EPSILON) {
 		vec3 k = vec3(1.0f, 0.0f, 0.0f);
-		z = k - _axis * dot(k, _axis);
-		zlen = length(z);
+		z = k - _axis * Dot(k, _axis);
+		zlen = Length(z);
 		if_unlikely (zlen < FLT_EPSILON) {
 			k = vec3(0.0f, 0.0f, 1.0f);
-			z = k - _axis * dot(k, _axis);
-			zlen = length(z);
+			z = k - _axis * Dot(k, _axis);
+			zlen = Length(z);
 		}
 	}
 	z = z / zlen;
-	x = cross(z, _axis);
+	x = Cross(z, _axis);
 
 	return mat4(
 		vec4(x.x,     x.y,     x.z,     0.0f),
@@ -185,20 +185,20 @@ mat4 apt::AlignY(const vec3& _axis, const vec3& _up)
 mat4 apt::AlignZ(const vec3& _axis, const vec3& _up)
 {
 	vec3 x, y;
-	y = _up - _axis * dot(_up, _axis);
-	float ylen = length(y);
+	y = _up - _axis * Dot(_up, _axis);
+	float ylen = Length(y);
 	if_unlikely (ylen < FLT_EPSILON) {
 		vec3 k = vec3(1.0f, 0.0f, 0.0f);
-		y = k - _axis * dot(k, _axis);
-		ylen = length(y);
+		y = k - _axis * Dot(k, _axis);
+		ylen = Length(y);
 		if_unlikely (ylen < FLT_EPSILON) {
 			k = vec3(0.0f, 0.0f, 1.0f);
-			y = k - _axis * dot(k, _axis);
-			ylen = length(y);
+			y = k - _axis * Dot(k, _axis);
+			ylen = Length(y);
 		}
 	}
 	y = y / ylen;
-	x = cross(y, _axis);
+	x = Cross(y, _axis);
 
 	return mat4(
 		vec4(x.x,     x.y,     x.z,     0.0f),
@@ -210,7 +210,7 @@ mat4 apt::AlignZ(const vec3& _axis, const vec3& _up)
 	
 mat4 apt::LookAt(const vec3& _from, const vec3& _to, const vec3& _up)
 {
-	mat4 ret = AlignZ(normalize(_to - _from), _up);
+	mat4 ret = AlignZ(Normalize(_to - _from), _up);
 	ret[3] = vec4(_from, 1.0f);
 	return ret;
 }
