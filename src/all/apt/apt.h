@@ -110,7 +110,7 @@ inline constexpr unsigned ArrayCount(const tType (&)[kCount]) { return kCount; }
 
 } } // namespace apt::internal
 
-#define APT_UNUSED(x) do { (void)sizeof(x); } while(0)
+#define APT_UNUSED(x) do { (void)sizeof(x); } while (0)
 #ifdef APT_DEBUG
 	#ifdef APT_COMPILER_MSVC
 		#define APT_BREAK() __debugbreak()
@@ -146,7 +146,6 @@ inline constexpr unsigned ArrayCount(const tType (&)[kCount]) { return kCount; }
 namespace apt {
 
 // Forward declarations
-
 class ArgList;
 template <typename tType> class Factory;
 class File;
@@ -160,9 +159,9 @@ template <typename tType> class Pool;
 template <typename PRNG>  class Rand;
 template <typename tType> class RingBuffer;
 class Serializer;
-class SerializerJson;
-template <uint kCapacity> class String;
+	class SerializerJson;
 class StringBase;
+	template <uint kCapacity> class String;
 class StringHash;
 class TextParser;
 class Timestamp;

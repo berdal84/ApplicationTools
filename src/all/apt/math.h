@@ -2,9 +2,6 @@
 #ifndef apt_math_h
 #define apt_math_h
 
-// \todo ?
-//#define APT_MATH_SIMD
-
 #include <apt/apt.h>
 #include <linalg/linalg.h>
 
