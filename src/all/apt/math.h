@@ -53,7 +53,7 @@ namespace apt {
 
 namespace apt {
 
-	// Transformation matrix helpers.
+	// Transformation helpers.
 	mat4 TransformationMatrix(const vec3& _translation, const mat3& _rotationScale);
 	mat4 TransformationMatrix(const vec3& _translation, const quat& _rotation, const vec3& _scale = vec3(1.0f));
 	mat4 TranslationMatrix(const vec3& _translation);
@@ -61,18 +61,17 @@ namespace apt {
 	mat4 RotationMatrix(const quat& _q);
 	quat RotationQuaternion(const vec3& _axis, float _radians);
 	mat4 ScaleMatrix(const vec3& _scale);
+
+	// Extract translation/rotation/scale from _m.
 	vec3 GetTranslation(const mat4& _m);
 	mat3 GetRotation(const mat4& _m);
 	vec3 GetScale(const mat4& _m);
-	vec3 ToEulerXYZ(const mat3& _m);
-	mat3 FromEulerXYZ(const vec3& _euler);
-	mat4 Inverse(const mat4& _m);
-	mat4 AffineInverse(const mat4& _m);
 
-	inline vec3 TransformPosition(const mat4& _m, const vec3& _p)  { return mul(_m, vec4(_p, 1.0f)).xyz(); }
-	inline vec2 TransformPosition(const mat3& _m, const vec2& _p)  { return mul(_m, vec3(_p, 1.0f)).xy();  }
-	inline vec3 TransformDirection(const mat4& _m, const vec3& _p) { return mul(_m, vec4(_p, 0.0f)).xyz(); }
-	inline vec2 TransformDirection(const mat3& _m, const vec2& _p) { return mul(_m, vec3(_p, 0.0f)).xy();  }
+	// Transform a position or direction by homogeneous matrix _m.
+	inline vec3 TransformPosition(const mat4& _m, const vec3& _p)               { return mul(_m, vec4(_p, 1.0f)).xyz(); }
+	inline vec2 TransformPosition(const mat3& _m, const vec2& _p)               { return mul(_m, vec3(_p, 1.0f)).xy();  }
+	inline vec3 TransformDirection(const mat4& _m, const vec3& _d)              { return mul(_m, vec4(_d, 0.0f)).xyz(); }
+	inline vec2 TransformDirection(const mat3& _m, const vec2& _d)              { return mul(_m, vec3(_d, 0.0f)).xy();  }
 
 	// Get an orthonormal bases with X/Y/Z aligned with _axis.
 	mat4 AlignX(const vec3& _axis, const vec3& _up = vec3(0.0f, 1.0f, 0.0f));
@@ -83,8 +82,18 @@ namespace apt {
 	mat4 LookAt(const vec3& _from, const vec3& _to, const vec3& _up = vec3(0.0f, 1.0f, 0.0f));
 
 	// Convert between radians and degrees.
-	inline float Degrees(float _radians) { return _radians * (180.0f / kPi); }
-	inline float Radians(float _degrees) { return _degrees * (kPi / 180.0f); }
+	inline float Degrees(float _radians)                                        { return _radians * (180.0f / kPi); }
+	inline float Radians(float _degrees)                                        { return _degrees * (kPi / 180.0f); }
+
+	// Convert between mat3 and Euler angles (XYZ order).
+	vec3 ToEulerXYZ(const mat3& _m);
+	mat3 FromEulerXYZ(const vec3& _euler);
+
+	// Return the inverse of _m.
+	mat4 Inverse(const mat4& _m);
+
+	// Return the inverse of _m for an affine matrix.
+	mat4 AffineInverse(const mat4& _m);
 
 	// Normalize a vector.
 	template <typename tType>
@@ -113,6 +122,22 @@ namespace apt {
 	// Return -1 if _x < 0, else 1 (elementwise for vector/matrix types).
 	template <typename tType>
 	tType Sign(const tType& _x);
+
+	// Return the absolute value for _x (elementwise for vector/matrix types).
+	template <typename tType>
+	tType Abs(const tType& _x);
+
+	// Return the largest integer value <= _x (elementwise for vector/matrix types).
+	template <typename tType>
+	tType Floor(const tType& _x);
+
+	// Return the smallest integer value >= _x (elementwise for vector/matrix types).
+	template <typename tType>
+	tType Ceil(const tType& _x);
+
+	// Return the nearest integer to _x, rounding away from zero in halfway cases (elementwise for vector/matrix types).
+	template <typename tType>
+	tType Round(const tType& _x);
 
 	// Return the min of _a,_b (elementwise for vector/matrix types).
 	template <typename tType>
@@ -152,6 +177,42 @@ namespace apt {
 	}
 	template <typename tType>
 	inline tType Sign(const tType& _x)                                          { return internal::Sign(_x, APT_TRAITS_FAMILY(tType)); }
+
+	namespace internal {
+		template <typename tType>
+		inline tType Abs(const tType& _x, ScalarT)                              { return std::abs(_x); }
+		template <typename tType>
+		inline tType Abs(const tType& _x, CompositeT)                           { return linalg::abs(_x); }
+	}
+	template <typename tType>
+	inline tType Abs(const tType& _x)                                           { return internal::Abs(_x, APT_TRAITS_FAMILY(tType)); }
+
+	namespace internal {
+		template <typename tType>
+		inline tType Floor(const tType& _x, ScalarT)                            { return std::floor(_x); }
+		template <typename tType>
+		inline tType Floor(const tType& _x, CompositeT)                         { return linalg::floor(_x); }
+	}
+	template <typename tType>
+	inline tType Floor(const tType& _x)                                         { return internal::Floor(_x, APT_TRAITS_FAMILY(tType)); }
+
+	namespace internal {
+		template <typename tType>
+		inline tType Ceil(const tType& _x, ScalarT)                             { return std::ceil(_x); }
+		template <typename tType>
+		inline tType Ceil(const tType& _x, CompositeT)                          { return linalg::ceil(_x); }
+	}
+	template <typename tType>
+	inline tType Ceil(const tType& _x)                                          { return internal::Ceil(_x, APT_TRAITS_FAMILY(tType)); }
+
+	namespace internal {
+		template <typename tType>
+		inline tType Round(const tType& _x, ScalarT)                            { return std::round(_x); }
+		template <typename tType>
+		inline tType Round(const tType& _x, CompositeT)                         { return linalg::round(_x); }
+	}
+	template <typename tType>
+	inline tType Round(const tType& _x)                                         { return internal::Round(_x, APT_TRAITS_FAMILY(tType)); }
 
 	namespace internal {
 		template <typename tType>

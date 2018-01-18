@@ -120,7 +120,7 @@ mat3 apt::FromEulerXYZ(const vec3& _euler)
 
 mat4 apt::Inverse(const mat4& _m)
 {
-	return inverse(_m);
+	return linalg::inverse(_m);
 }
 
 mat4 apt::AffineInverse(const mat4& _m)
