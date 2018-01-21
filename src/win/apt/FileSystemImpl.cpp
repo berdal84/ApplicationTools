@@ -124,9 +124,11 @@ DateTime FileSystem::GetTimeModified(const char* _path, RootType _rootHint)
 
 void FileSystem::MakeRelative(StringBase& ret_, const char* _path, RootType _root)
 {
- // construct the full root
 	TCHAR root[MAX_PATH] = {};
-	{
+	if (IsAbsolute((const char*)s_roots[_root])) {
+		APT_PLATFORM_VERIFY(GetFullPathName((const char*)s_roots[_root], MAX_PATH, root, NULL));
+	} else {
+	 // root is relative to the exe
 		TCHAR tmp[MAX_PATH] = {};
 		APT_PLATFORM_VERIFY(GetModuleFileName(0, tmp, MAX_PATH));
 		APT_PLATFORM_VERIFY(GetFullPathName(tmp, MAX_PATH, root, NULL)); // required to resolve a relative path (e.g. when launching from the ide)
@@ -134,13 +136,15 @@ void FileSystem::MakeRelative(StringBase& ret_, const char* _path, RootType _roo
 		++pathEnd;
 		strcpy(pathEnd, (const char*)s_roots[_root]);
 	}
+
  // construct the full path
 	TCHAR path[MAX_PATH] = {};
 	APT_PLATFORM_VERIFY(GetFullPathName(_path, MAX_PATH, path, NULL));
 
 	char tmpbuf[MAX_PATH];
 	char* tmp = tmpbuf;
-	APT_ASSERT(PathRelativePathTo(tmp, root, FILE_ATTRIBUTE_DIRECTORY, path, PathIsDirectory(path) ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL));
+ // PathRelativePathTo will fail if tmp and root don't share a common prefix
+	APT_VERIFY(PathRelativePathTo(tmp, root, FILE_ATTRIBUTE_DIRECTORY, path, PathIsDirectory(path) ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL));
 	if (strncmp(tmp, ".\\", 2) == 0) { // remove "./" from the path start - not strictly necessary but it makes nicer looking relative paths for the most common case
 		tmp += 2;
 	}	
