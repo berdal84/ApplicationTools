@@ -86,6 +86,25 @@ GetFileDateTime_End:
 #endif
 }
 
+static void GetAppPath(TCHAR ret_[MAX_PATH], const char* _append = nullptr)
+{
+	TCHAR tmp[MAX_PATH];
+
+	APT_PLATFORM_VERIFY(GetModuleFileName(0, tmp, MAX_PATH));
+	APT_PLATFORM_VERIFY(GetFullPathName(tmp, MAX_PATH, ret_, NULL)); // GetModuleFileName can return a relative path (e.g. when launching from the ide)
+
+	if (_append) {
+		APT_PLATFORM_VERIFY(GetFullPathName(_append, MAX_PATH, tmp, NULL));
+		char* pathEnd = strrchr(ret_, (int)'\\');
+		++pathEnd;
+		strcpy(pathEnd, _append);
+	} else {
+		char* pathEnd = strrchr(ret_, (int)'\\');
+		++pathEnd;
+		*pathEnd = '\0';
+	}
+}
+
 // PUBLIC
 
 bool FileSystem::Delete(const char* _path)
@@ -128,13 +147,7 @@ void FileSystem::MakeRelative(StringBase& ret_, const char* _path, RootType _roo
 	if (IsAbsolute((const char*)s_roots[_root])) {
 		APT_PLATFORM_VERIFY(GetFullPathName((const char*)s_roots[_root], MAX_PATH, root, NULL));
 	} else {
-	 // root is relative to the exe
-		TCHAR tmp[MAX_PATH] = {};
-		APT_PLATFORM_VERIFY(GetModuleFileName(0, tmp, MAX_PATH));
-		APT_PLATFORM_VERIFY(GetFullPathName(tmp, MAX_PATH, root, NULL)); // required to resolve a relative path (e.g. when launching from the ide)
-		char* pathEnd = strrchr(root, (int)'\\');
-		++pathEnd;
-		strcpy(pathEnd, (const char*)s_roots[_root]);
+		GetAppPath(root, (const char*)s_roots[_root]);
 	}
 
  // construct the full path
@@ -155,6 +168,34 @@ void FileSystem::MakeRelative(StringBase& ret_, const char* _path, RootType _roo
 bool FileSystem::IsAbsolute(const char* _path)
 {
 	return PathIsRelative(_path) == FALSE;
+}
+
+void FileSystem::StripRoot(StringBase& ret_, const char* _path)
+{
+	TCHAR path[MAX_PATH] = {};
+	APT_PLATFORM_VERIFY(GetFullPathName(_path, MAX_PATH, path, NULL));
+
+	for (int r = 0; r < RootType_Count; ++r) {
+		if (s_rootLengths[r] == 0) {
+			continue;
+		}
+		TCHAR root[MAX_PATH];
+		if (IsAbsolute((const char*)s_roots[r])) {
+			APT_PLATFORM_VERIFY(GetFullPathName((const char*)s_roots[r], MAX_PATH, root, NULL));
+		} else {
+			GetAppPath(root, (const char*)s_roots[r]);
+		}
+		const char* rootBeg = strstr(path, root);
+		if (rootBeg != nullptr) {
+			ret_.set(path + strlen(root) + 1);
+			ret_.replace('\\', s_separator);
+			return;
+		}
+	}
+ // no root found, strip the whole path if not absolute
+	if (!IsAbsolute(_path)) {
+		StripPath(ret_, _path);
+	}
 }
 
 bool FileSystem::PlatformSelect(PathStr& ret_, const char* _filters)

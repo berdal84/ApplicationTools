@@ -26,7 +26,7 @@ bool FileSystem::Read(File& file_, const char* _path, RootType _rootHint)
 	PathStr fullPath;
 	if (!FindExisting(fullPath, _path ? _path : file_.getPath(), _rootHint)) {
 		APT_LOG_ERR("Error loading '%s':\n\tFile not found", _path);
-		APT_ASSERT(false);
+		//APT_ASSERT(false);
 		return false;
 	}
 	return File::Read(file_, (const char*)fullPath);
@@ -129,24 +129,6 @@ void FileSystem::MakePath(StringBase& ret_, const char* _path, RootType _root)
 		}
 	}
 	ret_.set(_path);
-}
-
-void FileSystem::StripRoot(StringBase& ret_, const char* _path)
-{
-	for (int r = 0; r < RootType_Count; ++r) {
-		if (s_rootLengths[r] == 0) {
-			continue;
-		}
-		const char* rootBeg = strstr(_path, (const char*)s_roots[r]);
-		if (rootBeg != nullptr) {
-			ret_.set(rootBeg + s_rootLengths[r] + 1);
-			return;
-		}
-	}
- // no root found, strip the whole path if not absolute
-	if (!IsAbsolute(_path)) {
-		StripPath(ret_, _path);
-	}
 }
 
 void FileSystem::StripPath(StringBase& ret_, const char* _path)
