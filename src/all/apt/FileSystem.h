@@ -35,16 +35,17 @@ public:
 	static void        SetRoot(RootType _type, const char* _path);
 
 
-	// Read a file into memory. Each root is searched, beginning at _rootHint. If _path is nullptr, the 
-	// path from file_ is used. Return false if an error occurred, in which case file_ remains unchanged. 
-	// On success, any resources already associated with file_ are released. _rootHint is ignored if _path is absolute.
+	// Read a file into memory. Each root is searched, beginning at _rootHint. If _path is nullptr,
+	// file_.getPath() is used. Return false if an error occurred, in which case file_ remains unchanged. 
+	// On success, any resources already associated with file_ are released. 
+	// _rootHint is ignored if _path is absolute.
 	static bool        Read(File& file_, const char* _path = nullptr, RootType _rootHint = RootType_Default);
 
 	// As Read() but first checks if the file exists. Return false if the file does not exist or if an error occurred.
 	static bool        ReadIfExists(File& file_, const char* _path = nullptr, RootType _rootHint = RootType_Default);
 
-	// Write _file's data to _path. If _path is 0, the path from _file is used. Return false 
-	// if an error occurred, in which case any existing file at _path may or may not have been overwritten.
+	// Write _file's data to _path. If _path is 0, _file.getPath() is used. Return false if an error 
+	// occurred, in which case any existing file at _path may or may not have been overwritten.
 	// _root is ignored if _path is absolute.
 	static bool        Write(const File& _file, const char* _path = nullptr, RootType _root = RootType_Default);
 
@@ -58,7 +59,8 @@ public:
 	static DateTime    GetTimeCreated(const char* _path, RootType _rootHint = RootType_Default);
 	static DateTime    GetTimeModified(const char* _path, RootType _rootHint = RootType_Default);
 
-	// Match _str against _pattern with the following wildcard characters: '?' matches a single character, '*' matches zero or more characters.
+	// Match _str against _pattern with wildcard characters: 
+	// '?' matches a single character, '*' matches zero or more characters.
 	static bool        Matches(const char* _pattern, const char* _str);
 	// Call Matches() for each of a set of null-separated patterns e.g. "*.txt\0*.png\0".
 	static bool        MatchesMulti(const char* _patternList, const char* _str);
@@ -73,7 +75,7 @@ public:
 	// Return true if _path is absolute.
 	static bool        IsAbsolute(const char* _path);
 
-	// Strip path from _path up to and including any root directory. It is safe for _path to point to the string buffer in ret_.
+	// Strip any root from _path, or the whole path if _path is absolute.. It is safe for _path to point to the string buffer in ret_.
 	static void        StripRoot(StringBase& ret_, const char* _path);
 	static void        StripRoot(StringBase& _ret_) { StripRoot(_ret_, (const char*)_ret_); }
 	// Strip path from _path. It is safe for _path to point to the string buffer in ret_.
