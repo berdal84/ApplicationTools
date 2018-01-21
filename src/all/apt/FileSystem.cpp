@@ -103,15 +103,12 @@ bool FileSystem::Matches(const char* _pattern, const char* _str)
     return true;
 }
 
-bool FileSystem::MatchesMulti(const char* _patternList, const char* _str)
+bool FileSystem::MatchesMulti(std::initializer_list<const char*> _patternList, const char* _str)
 {
-	while (*_patternList) {
-		if (Matches(_patternList, _str)) {
+	for (auto& pattern : _patternList) {
+		if (Matches(pattern, _str)) {
 			return true;
 		}
-		_patternList = strchr(_patternList, 0);
-		APT_ASSERT(_patternList);
-		++_patternList;
 	}
 	return false;
 }

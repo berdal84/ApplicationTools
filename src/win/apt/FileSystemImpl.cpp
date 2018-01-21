@@ -16,16 +16,13 @@
 
 using namespace apt;
 
-// Windows expects a list of string pairs to pass to GetOpenFileName().
-static void BuildFilterString(const char* _filters, StringBase& ret_)
+// Windows expects a list of string pairs to pass to GetOpenFileName() (display name, filter).
+static void BuildFilterString(std::initializer_list<const char*> _filterList, StringBase& ret_)
 {
-	TextParser tp = _filters;
-	while (*tp != '\0') {
-		ret_.appendf("%s#%s#", (const char*)tp, (const char*)tp);
-		tp.advanceToNext('\0');
-		tp.advance();
+	for (auto& filter : _filterList) {
+		ret_.appendf("%s?%s?", filter, filter);
 	}
-	ret_.replace('#', '\0'); // \hack
+	ret_.replace('?', '\0'); // \hack
 }
 
 static DateTime FileTimeToDateTime(const FILETIME& _fileTime)
@@ -141,6 +138,24 @@ DateTime FileSystem::GetTimeModified(const char* _path, RootType _rootHint)
 	return modified;
 }
 
+bool FileSystem::CreateDir(const char* _path)
+{
+	TextParser tp(_path);
+	while (tp.advanceToNext("\\/") != 0) {
+		String<64> mkdir;
+		mkdir.set(_path, tp.getCharCount());
+		if (CreateDirectory((const char*)mkdir, NULL) == 0) {
+			DWORD err = GetLastError();
+			if (err != ERROR_ALREADY_EXISTS) {
+				APT_LOG_ERR("CreateDirectory(%s): %s", _path, GetPlatformErrorString(err));
+				return false;
+			}
+		}
+		tp.advance(); // skip the delimiter
+	}
+	return true;
+}
+
 void FileSystem::MakeRelative(StringBase& ret_, const char* _path, RootType _root)
 {
 	TCHAR root[MAX_PATH] = {};
@@ -198,14 +213,14 @@ void FileSystem::StripRoot(StringBase& ret_, const char* _path)
 	}
 }
 
-bool FileSystem::PlatformSelect(PathStr& ret_, const char* _filters)
+bool FileSystem::PlatformSelect(PathStr& ret_, std::initializer_list<const char*> _filterList)
 {
 	static DWORD       s_filterIndex = 0;
 	static const DWORD kMaxOutputLength = MAX_PATH;
 	static char        s_output[kMaxOutputLength];
 
 	PathStr filters;
-	BuildFilterString(_filters, filters);
+	BuildFilterString(_filterList, filters);
 
 	OPENFILENAMEA ofn   = {};
 	ofn.lStructSize     = sizeof(ofn);
@@ -232,14 +247,14 @@ bool FileSystem::PlatformSelect(PathStr& ret_, const char* _filters)
 	return false;
 }
 
-int FileSystem::PlatformSelectMulti(PathStr retList_[], int _maxResults, const char* _filters)
+int FileSystem::PlatformSelectMulti(PathStr retList_[], int _maxResults, std::initializer_list<const char*> _filterList)
 {
 	static DWORD       s_filterIndex = 0;
 	static const DWORD kMaxOutputLength = 1024 * 4;
 	static char        s_output[kMaxOutputLength];
 
 	PathStr filters;
-	BuildFilterString(_filters, filters);
+	BuildFilterString(_filterList, filters);
 
 	OPENFILENAMEA ofn   = {};
 	ofn.lStructSize     = sizeof(ofn);
@@ -278,7 +293,7 @@ int FileSystem::PlatformSelectMulti(PathStr retList_[], int _maxResults, const c
 	return 0;
 }
 
-int FileSystem::ListFiles(PathStr retList_[], int _maxResults, const char* _path, const char* _filters, bool _recursive)
+int FileSystem::ListFiles(PathStr retList_[], int _maxResults, const char* _path, std::initializer_list<const char*> _filterList, bool _recursive)
 {
 	eastl::vector<PathStr> dirs;
 	dirs.push_back(_path);
@@ -308,7 +323,7 @@ int FileSystem::ListFiles(PathStr retList_[], int _maxResults, const char* _path
 						dirs.back().appendf("\\%s", ffd.cFileName);
 					}
 				} else {
-					if (MatchesMulti(_filters, (const char*)ffd.cFileName)) {
+					if (MatchesMulti(_filterList, (const char*)ffd.cFileName)) {
 						if (ret < _maxResults) {
 							retList_[ret].setf("%s\\%s", (const char*)root, ffd.cFileName);
 						}
@@ -330,7 +345,7 @@ int FileSystem::ListFiles(PathStr retList_[], int _maxResults, const char* _path
 	return ret;
 }
 
-int FileSystem::ListDirs(PathStr retList_[], int _maxResults, const char* _path, const char* _filters, bool _recursive)
+int FileSystem::ListDirs(PathStr retList_[], int _maxResults, const char* _path, std::initializer_list<const char*> _filterList, bool _recursive)
 {
 	eastl::vector<PathStr> dirs;
 	dirs.push_back(_path);
@@ -362,7 +377,7 @@ int FileSystem::ListDirs(PathStr retList_[], int _maxResults, const char* _path,
 						dirs.push_back(root);
 						dirs.back().appendf("\\%s", ffd.cFileName);
 					}
-					if (MatchesMulti(_filters, (const char*)ffd.cFileName)) {
+					if (MatchesMulti(_filterList, (const char*)ffd.cFileName)) {
 						if (ret < _maxResults) {
 							retList_[ret].setf("%s\\%s", (const char*)root, ffd.cFileName);
 						}
@@ -381,24 +396,6 @@ int FileSystem::ListDirs(PathStr retList_[], int _maxResults, const char* _path,
     }
 
 	return ret;
-}
-
-bool FileSystem::CreateDir(const char* _path)
-{
-	TextParser tp(_path);
-	while (tp.advanceToNext("\\/") != 0) {
-		String<64> mkdir;
-		mkdir.set(_path, tp.getCharCount());
-		if (CreateDirectory((const char*)mkdir, NULL) == 0) {
-			DWORD err = GetLastError();
-			if (err != ERROR_ALREADY_EXISTS) {
-				APT_LOG_ERR("CreateDirectory(%s): %s", _path, GetPlatformErrorString(err));
-				return false;
-			}
-		}
-		tp.advance(); // skip the delimiter
-	}
-	return true;
 }
 
 // PROTECTED

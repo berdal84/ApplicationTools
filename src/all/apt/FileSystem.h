@@ -7,6 +7,8 @@
 #include <apt/String.h>
 #include <apt/Time.h>
 
+#include <initializer_list>
+
 namespace apt {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -34,6 +36,7 @@ public:
 	static const char* GetRoot(RootType _type);
 	static void        SetRoot(RootType _type, const char* _path);
 
+ // File operations
 
 	// Read a file into memory. Each root is searched, beginning at _rootHint. If _path is nullptr,
 	// file_.getPath() is used. Return false if an error occurred, in which case file_ remains unchanged. 
@@ -59,14 +62,20 @@ public:
 	static DateTime    GetTimeCreated(const char* _path, RootType _rootHint = RootType_Default);
 	static DateTime    GetTimeModified(const char* _path, RootType _rootHint = RootType_Default);
 
-	// Match _str against _pattern with wildcard characters: 
-	// '?' matches a single character, '*' matches zero or more characters.
-	static bool        Matches(const char* _pattern, const char* _str);
-	// Call Matches() for each of a set of null-separated patterns e.g. "*.txt\0*.png\0".
-	static bool        MatchesMulti(const char* _patternList, const char* _str);
+	// Create the directory specified by _path, plus all parent directories if they do not exist. Return false if an error occurred.
+	// \note If _path contains only directory names, it must end in a path separator (e.g. "dir0/dir1/").
+	static bool        CreateDir(const char* _path);
+
+ // Path manipulation
 
 	// Concatenates _path + s_separator + s_root[_root]. If _path is absolute the root is ignored.
 	static void        MakePath(StringBase& ret_, const char* _path, RootType _root);
+
+	// Match _str against _pattern with wildcard characters: 
+	// '?' matches a single character, '*' matches zero or more characters.
+	static bool        Matches(const char* _pattern, const char* _str);
+	// Call Matches() for each of a list of patterns e.g. { "*.txt", "*.png" }.	
+	static bool        MatchesMulti(std::initializer_list<const char*> _patternList, const char* _str);
 
 	// Make _path relative to _root. It is safe for _path to point to the string buffer in ret_.
 	static void        MakeRelative(StringBase& ret_, const char* _path, RootType _root = RootType_Root);
@@ -100,20 +109,16 @@ public:
 	// Return ptr to the character following the last occurrence of '\' or '/' in _path.
 	static const char* FindFileNameAndExtension(const char* _path);
 	
-	// Select a file/files via the platform UI. _filters is a null-separated list of filter strings.
-	static bool        PlatformSelect(PathStr& ret_, const char* _filters = "*\0");
-	static int         PlatformSelectMulti(PathStr retList_[], int _maxResults, const char* _filters = "*\0");
+	// Select a file/files via the platform UI.
+	static bool        PlatformSelect(PathStr& ret_, std::initializer_list<const char*> _filterList = { "*" });
+	static int         PlatformSelectMulti(PathStr retList_[], int _maxResults, std::initializer_list<const char*> _filterList = { "*" });
 
-	// List up to _maxResults files in _path, with optional recursion. _filters is a null-separated list of filter strings.
+	// List up to _maxResults files in _path, with optional recursion.
 	// Return the number of files which would be found if not limited by _maxResults.
-	static int         ListFiles(PathStr retList_[], int _maxResults, const char* _path, const char* _filters = "*\0", bool _recursive = false);
+	static int         ListFiles(PathStr retList_[], int _maxResults, const char* _path, std::initializer_list<const char*> _filterList = { "*" }, bool _recursive = false);
 	// List up to _maxResults dirs in _path, with optional recursion. _filters is a null-separated list of filter strings.
 	// Return the number of dirs which would be found if not limited by _maxResults.
-	static int         ListDirs(PathStr retList_[], int _maxResults, const char* _path, const char* _filters = "*\0", bool _recursive = false);
-
-	// Create the directory specified by _path, plus all parent directories if they do not exist. Return false if an error occurred.
-	// \note If _path contains only directory names, it must end in a path separator (e.g. "dir0/dir1/").
-	static bool        CreateDir(const char* _path);
+	static int         ListDirs(PathStr retList_[], int _maxResults, const char* _path, std::initializer_list<const char*> _filterList= { "*" }, bool _recursive = false);
 
 private:
 	static PathStr    s_roots[RootType_Count];
