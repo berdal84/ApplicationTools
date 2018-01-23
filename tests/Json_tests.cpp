@@ -68,3 +68,44 @@ TEST_CASE("Binary", "[SerializerJson]")
 	REQUIRE(memcmp(data, kSrcData, dataSize) == 0);
 }
 
+TEST_CASE("Enum", "[SerializerJson]")
+{
+	enum Fruit 
+	{
+		Fruit_Apples,
+		Fruit_Pears,
+
+		Fruit_Count
+	};
+	const char* FruitStr[Fruit_Count + 1] =
+	{
+		"Fruit_Apples",
+		"Fruit_Pears",
+
+		"Fruit_Count"
+	};
+	
+	
+	Json json;
+	SerializerJson jsWrite(json, SerializerJson::Mode_Write);
+
+	Fruit apples = Fruit_Apples;
+	Fruit pears  = Fruit_Pears;
+	Fruit count  = Fruit_Count;
+	((Serializer&)jsWrite).beginArray("fruits");
+		SerializeEnum(jsWrite, apples, FruitStr);
+		SerializeEnum(jsWrite, pears,  FruitStr);
+		SerializeEnum(jsWrite, count,  FruitStr);
+	jsWrite.endArray();
+
+	SerializerJson jsRead(json, SerializerJson::Mode_Read);
+	((Serializer&)jsRead).beginArray("fruits");
+		SerializeEnum(jsWrite, apples, FruitStr);
+		SerializeEnum(jsWrite, pears,  FruitStr);
+		SerializeEnum(jsWrite, count,  FruitStr);
+	jsWrite.endArray();
+
+	REQUIRE(apples == Fruit_Apples);
+	REQUIRE(pears  == Fruit_Pears);
+	REQUIRE(count  == Fruit_Count);
+}

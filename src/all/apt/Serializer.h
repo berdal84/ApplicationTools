@@ -4,8 +4,8 @@
 
 #include <apt/apt.h>
 #include <apt/compress.h>
-#include <apt/types.h>
 #include <apt/math.h>
+#include <apt/types.h>
 #include <apt/String.h>
 
 namespace apt {
@@ -122,6 +122,32 @@ template <uint kCapacity>
 bool Serialize(Serializer& _serializer_, String<kCapacity>& _value_, const char* _name = nullptr)
 {
 	return Serialize(_serializer_, (StringBase&)_value_, _name); 
+}
+
+// Helper for the common case of serializing an enum to/from a const char*.
+template <typename tType, int kCount>
+bool SerializeEnum(Serializer& _serializer_, tType& _value_, const char* (&_strList)[kCount], const char* _name = nullptr)
+{
+	String<32> tmp;
+	if (_serializer_.getMode() == Serializer::Mode_Write) {
+		APT_ASSERT((int)_value_ < kCount);
+		tmp = _strList[(int)_value_];
+	}
+	bool ret = Serialize(_serializer_, (StringBase&)tmp, _name);
+	if (ret && _serializer_.getMode() == Serializer::Mode_Read) {
+		int i = 0;
+		for (; i < kCount; ++i) {
+			if (tmp == _strList[i]) {
+				_value_ = (tType)i;
+				break;
+			}
+		}
+		if (i == kCount) {
+			_serializer_.setError("Error serializing enum; '%s' not valid", (const char*)tmp);
+			ret = false;
+		}
+	}
+	return ret;
 }
 
 } // namespace apt
