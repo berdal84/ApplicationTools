@@ -5,6 +5,68 @@
 
 using namespace apt;
 
+template <typename tType>
+static void _ValueAccessTest(const char* _name, Json& _json_)
+{
+	_json_.setValue(_name, tType(1));
+	REQUIRE(_json_.getValue<tType>(_name) == tType(1));
+}
+#define ValueAccessTest(t) _ValueAccessTest<t>(#t, json)
+
+template <typename tType>
+static void _ArrayAccessTest(const char* _name, Json& _json_)
+{
+	static const float kArrayValues[] = { 3, 5, 7, 1, 9 };
+	_json_.beginArray(_name);
+		for (auto v : kArrayValues) {
+			_json_.pushValue(tType(v));
+		}
+	_json_.endArray();
+
+	_json_.beginArray(_name);
+	{
+		int n = APT_ARRAY_COUNT(kArrayValues);
+		REQUIRE(_json_.getArrayLength() == n);
+		for (int i = 0; i < n; ++i) {
+			auto v = _json_.getValue<tType>(i);
+			REQUIRE(_json_.getValue<tType>(i) == tType(kArrayValues[i]));
+		}
+	}
+	_json_.endArray();
+}
+#define ArrayAccessTest(t) _ArrayAccessTest<t>(#t, json)
+
+// instantiate _macro for all types
+#define TestTypes(_macro) \
+	_macro(sint8);   \
+	_macro(uint8);   \
+	_macro(sint16);  \
+	_macro(uint16);  \
+	_macro(sint32);  \
+	_macro(uint32);  \
+	_macro(sint64);  \
+	_macro(uint64);  \
+	_macro(float32); \
+	_macro(float64); \
+	_macro(vec2);    \
+	_macro(vec3);    \
+	_macro(vec4);    \
+	_macro(mat2);    \
+	_macro(mat3);    \
+	_macro(mat4)
+
+TEST_CASE("ValueAccess", "[Json]")
+{
+	Json json;
+	TestTypes(ValueAccessTest);
+}
+
+TEST_CASE("ArrayAccess", "[Json]")
+{
+	Json json;
+	TestTypes(ArrayAccessTest);
+}
+
 TEST_CASE("ArrayOfArray", "[SerializerJson]")
 {
 	Json json;
@@ -26,7 +88,7 @@ TEST_CASE("ArrayOfArray", "[SerializerJson]")
 	{	SerializerJson js(json, SerializerJson::Mode_Read);
 		uint in = 4;
 		js.beginArray(in, "ArrayOfArrays");
-		REQUIRE(in== 4);
+		REQUIRE(in == 4);
 		for (int i = 0; i < in; ++i) {
 			uint jn = 3;
 			js.beginArray(jn);

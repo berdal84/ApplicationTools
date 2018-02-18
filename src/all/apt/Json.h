@@ -14,19 +14,24 @@ namespace apt {
 // 
 //  Json json("json.json") // use Json::Read() if you need to check the return code
 //  
-//  if (json.find("Value")) {                    // find a value in the DOM root
-//     if (json.getType() == Json::ValueType_Number) {    // check it's the right type
-//        int v = json.getValue<int>();          // retrieve/store the value
+//  if (json.find("Value")) {                          // find a value in the DOM root
+//     if (json.getType() == Json::ValueType_Number) { // check it's the right type
+//        int v = json.getValue<int>();                // retrieve/store the value
 //     }
 //  }
 //  
 //  if (json.find("Array")) {
 //     if (json.enterArray()) {
-//        while (json.next()) {                      // get the next value while one exists
+//        while (json.next()) {                               // get the next value while one exists
 //           if (json.getType() == Json::ValueType_Number) {  // check it's the right type
-//              int v = json.getValue<int>();        // retrieve/store the value
+//              int v = json.getValue<int>();                 // retrieve/store the value
 //           }
 //        }
+//        int n = json.getArrayLength();
+//        for (int i = 0; i < n; ++i) {
+//           int v = json.getValue<int>(i);  // alternatively access array elements directly
+//        }
+//
 //        json.leaveArray(); // must leave the array before proceeding
 //     }
 //  }
@@ -48,6 +53,13 @@ namespace apt {
 //     for (int i = 0; i < 4; ++i) {
 //        json.pushValue(i);
 //    }
+//  json.endArray();
+//
+//  json.beginArray("Array"); // arrays can be modified
+//     int n = json.getArrayLength();
+//     for (int i = 0; i < n; ++i) {
+//        json.setValue(i, 0);
+//     }
 //  json.endArray();
 //  
 //  json.beginArray("ArrayOfArrays");
@@ -99,10 +111,23 @@ public:
 	// Get the type of the current value.
 	ValueType getType() const;
 
-	// Get the current value. tType is expected to match the type of the current value exactly (i.e. getValue<int>() must be called only if the value type is ValueType_Number).
-	// \note Ptr returned by getValue<const char*> is only valid during the lifetime of the Json object.
+	// Get the current value. tType must match the type of the current value (i.e. getValue<int>() must be called only if the value type is ValueType_Number).
+	// _i permits array access (when in an array). 0 <= _i < getArrayLength().
+	// Note that the ptr returned by getValue<const char*> is only valid during the lifetime of the Json object.
 	template <typename tType>
-	tType getValue() const;
+	tType getValue(int _i = -1) const;
+
+	// Get a named value. Equivalent to find(_name) followed by getValue(_i).
+	template <typename tType>
+	tType getValue(const char* _name, int _i = -1) { APT_VERIFY(find(_name)); return getValue<tType>(_i); }
+		
+	// Create and set a named value. If the object already exists this modifies the type and value of the existing object.
+	template <typename tType>
+	void setValue(const char* _name, tType _value);
+
+    // Set the _ith element of an array. 0 <= _i < getArrayLength().
+	template <typename tType>
+	void setValue(int _i, tType _value);
 
 	// Enter the current object (call immediately after find() or next()). Return false if the current value is not an object.
 	bool enterObject();
@@ -114,7 +139,7 @@ public:
 	// Leave the current array.
 	void leaveArray();
 
-	// Return length of the current array (or -1 if not in an array).
+	// Return number of elements in the current array (or -1 if not in an array).
 	int getArrayLength() const;
 
 	// Create and enter an object. If the object already exists this has the same effect as a call to find() followed by
@@ -123,17 +148,13 @@ public:
 	// Leave the current object.
 	void endObject() { leaveObject(); }
 	
-	// Create and set a named value. If the object already exists this modifies the type and value of the existing object.
-	template <typename tType>
-	void setValue(const char* _name, tType _value);
-
 	// Create and enter an array. If the array already exists this has the effect as a call to find() followed by a 
 	// call to enterArray(). If _name is nullptr the array is expected to be an array member.
 	void beginArray(const char* _name = nullptr);
 	// Leave the current array.
 	void endArray() { leaveArray(); }
 
-	// Create and set an array member.
+	// Push _value into the current array.
 	template <typename tType>
 	void pushValue(tType _value);
 	
