@@ -56,6 +56,7 @@ namespace apt {
 	// Transformation helpers.
 	mat4 TransformationMatrix(const vec3& _translation, const mat3& _rotationScale);
 	mat4 TransformationMatrix(const vec3& _translation, const quat& _rotation, const vec3& _scale = vec3(1.0f));
+	mat3 TransformationMatrix(const vec2& _translation, const mat2& _rotationScale);
 	mat4 TranslationMatrix(const vec3& _translation);
 	mat4 RotationMatrix(const vec3& _axis, float _radians);
 	mat4 RotationMatrix(const quat& _q);
@@ -64,7 +65,9 @@ namespace apt {
 
 	// Extract translation/rotation/scale from _m.
 	vec3 GetTranslation(const mat4& _m);
+	vec2 GetTranslation(const mat3& _m);
 	mat3 GetRotation(const mat4& _m);
+	mat2 GetRotation(const mat3& _m);
 	vec3 GetScale(const mat4& _m);
 
 	// Transform a position or direction by homogeneous matrix _m.
@@ -89,11 +92,19 @@ namespace apt {
 	vec3 ToEulerXYZ(const mat3& _m);
 	mat3 FromEulerXYZ(const vec3& _euler);
 
+	// Return the transpose of _m.
+	mat4 Transpose(const mat4& _m);
+	mat3 Transpose(const mat3& _m);
+	mat2 Transpose(const mat2& _m);
+
 	// Return the inverse of _m.
 	mat4 Inverse(const mat4& _m);
+	mat3 Inverse(const mat3& _m);
+	mat2 Inverse(const mat2& _m);
 
 	// Return the inverse of _m for an affine matrix.
 	mat4 AffineInverse(const mat4& _m);
+	mat3 AffineInverse(const mat3& _m);
 
 	// Normalize a vector.
 	template <typename tType>

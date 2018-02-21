@@ -22,6 +22,15 @@ mat4 apt::TransformationMatrix(const vec3& _translation, const quat& _rotation, 
 	return ret;
 }
 
+mat3 apt::TransformationMatrix(const vec2& _translation, const mat2& _rotationScale)
+{
+	return mat3(
+		vec3(_rotationScale[0], 0.0f),
+		vec3(_rotationScale[1], 0.0f),
+		vec3(_translation,      1.0f)
+		);
+}
+
 mat4 apt::TranslationMatrix(const vec3& _translation)
 {
 	return linalg::translation_matrix(_translation);
@@ -62,12 +71,25 @@ vec3 apt::GetTranslation(const mat4& _m)
 	return _m[3].xyz();
 }
 
+vec2 apt::GetTranslation(const mat3& _m)
+{
+	return _m[2].xy();
+}
+
 mat3 apt::GetRotation(const mat4& _m)
 {
 	mat3 ret = mat3(_m);
 	ret[0] = Normalize(ret[0]);
 	ret[1] = Normalize(ret[1]);
 	ret[2] = Normalize(ret[2]);
+	return ret;
+}
+
+mat2 apt::GetRotation(const mat3& _m)
+{
+	mat2 ret = mat2(_m);
+	ret[0] = Normalize(ret[0]);
+	ret[1] = Normalize(ret[1]);
 	return ret;
 }
 
@@ -118,15 +140,43 @@ mat3 apt::FromEulerXYZ(const vec3& _euler)
 		);
 }
 
+mat4 apt::Transpose(const mat4& _m)
+{
+	return linalg::transpose(_m);
+}
+mat3 apt::Transpose(const mat3& _m)
+{
+	return linalg::transpose(_m);
+}
+mat2 apt::Transpose(const mat2& _m)
+{
+	return linalg::transpose(_m);
+}
+
 mat4 apt::Inverse(const mat4& _m)
 {
 	return linalg::inverse(_m);
 }
+mat3 apt::Inverse(const mat3& _m)
+{
+	return linalg::inverse(_m);
+}
+mat2 apt::Inverse(const mat2& _m)
+{
+	return linalg::inverse(_m);
+}
+
 
 mat4 apt::AffineInverse(const mat4& _m)
 {
-	mat3 rs = linalg::transpose(mat3(_m));
+	mat3 rs = Transpose(mat3(_m));
 	vec3 t  = rs * -_m[3].xyz();
+	return TransformationMatrix(t, rs);
+}
+mat3 apt::AffineInverse(const mat3& _m)
+{
+	mat2 rs = Transpose(mat2(_m));
+	vec2 t  = rs * -_m[2].xy();
 	return TransformationMatrix(t, rs);
 }
 
