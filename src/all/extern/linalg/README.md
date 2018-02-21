@@ -2,11 +2,13 @@ This is a fork of linalg v2.0, with the following modifications:
 
 - Added operator* members for matrix-matrix and matrix-vector multiplication.
 - Added row-major NxN scalar matrix ctors.
-- Added float3x3(const float4x4&) ctor (extract rotation/scale matrix).
+- Added float3x3(const float4x4&) ctor (extract rotation/scale matrix) + eqivalent for float2x2(const float3x3&).
+- Added templated elementwise ctors for vector types.
+- Added more swizzle member functions for vectors.
 
 The fork is maintained [here](https://github.com/john-chapman/linalg).
 
-* * *	
+* * *
 
 # linalg.h
 
@@ -18,7 +20,7 @@ Platform | Build Status |
 Visual Studio 2013 and 2015 | [AppVeyor](http://ci.appveyor.com/): [![Build status](http://ci.appveyor.com/api/projects/status/l4bfv5omodkajuc9?svg=true)](https://ci.appveyor.com/project/sgorsten/linalg) |
 GCC 4.9 and Clang 3.7 | [Travis CI](http://travis-ci.org): [![Build status](http://travis-ci.org/sgorsten/linalg.svg?branch=master)](https://travis-ci.org/sgorsten/linalg) |
 
-[linalg.h](/linalg.h) is a [single header](http://github.com/nothings/stb/blob/master/docs/other_libs.md) [public domain](http://unlicense.org/) [linear algebra](http://en.wikipedia.org/wiki/Linear_algebra) library for [C++11](http://en.cppreference.com/w/). 
+[linalg.h](/linalg.h) is a [single header](http://github.com/nothings/stb/blob/master/docs/other_libs.md) [public domain](http://unlicense.org/) [linear algebra](http://en.wikipedia.org/wiki/Linear_algebra) library for [C++11](http://en.cppreference.com/w/).
 
 It is inspired by the syntax of popular shader languages and intended to serve as a lightweight (less than 400 total lines of code) alternative to projects such as [GLM](http://glm.g-truc.net/0.9.7/) or [Eigen](http://eigen.tuxfamily.org/) in domains such as computer graphics, computational geometry, and physical simulation. It aims to be correct, complete, easy to use, readable, and quick to compile.
 

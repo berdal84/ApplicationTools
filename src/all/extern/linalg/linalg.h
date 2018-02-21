@@ -1,7 +1,7 @@
 // This is a fork of linalg v2.0, with the following modifications:
 //	- Added operator* members for matrix-matrix and matrix-vector multiplication.
 //	- Added row-major NxN scalar matrix ctors.
-//	- Added float3x3(const float4x4&) ctor (extract rotation/scale matrix).
+//	- Added float3x3(const float4x4&) ctor (extract rotation/scale matrix) + eqivalent for float2x2(const float3x3&).
 //  - Added templated elementwise ctors for vector types.
 //  - Added more swizzle member functions for vectors.
 // The fork is maintained here: https://github.com/john-chapman/linalg.
@@ -151,7 +151,13 @@ namespace linalg
 		{
 		}
 
-		V operator*(const V & v) const                    { return mul(*this, v); }
+		// Construct from the upper-left 2x2 of a 3x3 matrix.
+		constexpr explicit mat(const mat<T,3,3> & m)
+			: mat(V(&m.x.x), V(&m.y.x))
+		{
+		}
+
+		V operator*(const V & v) const                   { return mul(*this, v); }
 		mat<T,M,2> operator*(const mat<T,M,2> & m) const { return mul(*this, m); }
     };
     template<class T, int M> struct mat<T,M,3>
