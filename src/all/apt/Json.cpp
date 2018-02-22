@@ -370,7 +370,7 @@ int Json::getArrayLength() const
 	return -1;
 }
 
-bool Json::beginObject(const char* _name)
+void Json::beginObject(const char* _name)
 {
 	if (_name && find(_name)) {
 	  // object already existed, check the type
@@ -395,10 +395,10 @@ bool Json::beginObject(const char* _name)
 			m_impl->m_value = &(m_impl->top()->MemberEnd() - 1)->value;
 		}
 	}
-	return enterObject();
+	APT_VERIFY(enterObject());
 }
 
-bool Json::beginArray(const char* _name)
+void Json::beginArray(const char* _name)
 {
 	if (_name && find(_name)) {
 	  // object already existed, check the type
@@ -423,7 +423,7 @@ bool Json::beginArray(const char* _name)
 			m_impl->m_value = &(m_impl->top()->MemberEnd() - 1)->value;
 		}
 	}
-	return enterArray();
+	APT_VERIFY(enterArray());
 }
 
 

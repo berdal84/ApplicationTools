@@ -145,13 +145,13 @@ public:
 
 	// Create and enter an object. If the object already exists this has the same effect as a call to find() followed by
 	// a call to enterObject(). If _name is nullptr the object is expected to be an array member.
-	bool beginObject(const char* _name = nullptr);
+	void beginObject(const char* _name = nullptr);
 	// Leave the current object.
 	void endObject() { leaveObject(); }
 	
 	// Create and enter an array. If the array already exists this has the effect as a call to find() followed by a 
 	// call to enterArray(). If _name is nullptr the array is expected to be an array member.
-	bool beginArray(const char* _name = nullptr);
+	void beginArray(const char* _name = nullptr);
 	// Leave the current array.
 	void endArray() { leaveArray(); }
 
