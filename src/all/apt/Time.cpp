@@ -44,8 +44,8 @@ namespace {
 		int        m_level;
 		Timestamp  m_interval;
 	};
-	APT_THREAD_LOCAL eastl::vector<AutoTimer_StackEntry> s_AutoTimerStack;
-	APT_THREAD_LOCAL int s_AutoTimerStackTop;
+	thread_local eastl::vector<AutoTimer_StackEntry> s_AutoTimerStack;
+	thread_local int s_AutoTimerStackTop;
 }
 
 AutoTimer::AutoTimer(const char* _fmt, ...)

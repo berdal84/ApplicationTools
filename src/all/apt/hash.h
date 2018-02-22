@@ -6,8 +6,8 @@
 
 namespace apt { namespace internal {
 
-extern const uint32 kFnv1aBase32;
-extern const uint64 kFnv1aBase64;
+constexpr uint32 kFnv1aBase32 = 0x811C9DC5u;
+constexpr uint64 kFnv1aBase64 = 0xCBF29CE484222325ull;
 
 uint16 Hash16(const uint8* _buf, uint _bufSize);
 uint16 Hash16(const uint8* _buf, uint _bufSize, uint16 _base);

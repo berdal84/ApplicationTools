@@ -4,10 +4,8 @@
 
 using namespace apt;
 
-const uint32 internal::kFnv1aBase32  = 0x811C9DC5u;
-const uint64 internal::kFnv1aBase64  = 0xCBF29CE484222325ull;
-static const uint32 kFnv1aPrime32    = 0x01000193u;
-static const uint64 kFnv1aPrime64    = 0x100000001B3ull;
+constexpr uint32 kFnv1aPrime32 = 0x01000193u;
+constexpr uint64 kFnv1aPrime64 = 0x100000001B3ull;
 
 uint16 internal::Hash16(const uint8* _buf, uint _bufSize)
 {

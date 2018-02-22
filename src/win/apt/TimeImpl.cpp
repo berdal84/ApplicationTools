@@ -115,17 +115,17 @@ const char* apt::DateTime::asString(const char* _format) const
 		for (int i = 0; _format[i] != 0; ++i) {
 			if (_format[i] == '%') {
 				switch (_format[++i]) {
-				case 'Y': s_buf.appendf("%.4d", st.wYear);         break;
-				case 'm': s_buf.appendf("%.2d", st.wMonth);        break;
-				case 'd': s_buf.appendf("%.2d", st.wDay);          break;
-				case 'H': s_buf.appendf("%.2d", st.wHour);         break;
-				case 'M': s_buf.appendf("%.2d", st.wMinute);       break;
-				case 'S': s_buf.appendf("%.2d", st.wSecond);       break;
-				case 's': s_buf.appendf("%.2d", st.wMilliseconds); break;
-				default:
-					if (_format[i] != 0) {
-						s_buf.append(&_format[i], 1);
-					}
+					case 'Y': s_buf.appendf("%.4d", st.wYear);         break;
+					case 'm': s_buf.appendf("%.2d", st.wMonth);        break;
+					case 'd': s_buf.appendf("%.2d", st.wDay);          break;
+					case 'H': s_buf.appendf("%.2d", st.wHour);         break;
+					case 'M': s_buf.appendf("%.2d", st.wMinute);       break;
+					case 'S': s_buf.appendf("%.2d", st.wSecond);       break;
+					case 's': s_buf.appendf("%.2d", st.wMilliseconds); break;
+					default:
+						if (_format[i] != 0) {
+							s_buf.append(&_format[i], 1);
+						}
 				};
 			} else {
 				s_buf.append(&_format[i], 1);

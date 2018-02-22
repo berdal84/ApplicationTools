@@ -17,7 +17,7 @@ class Pool: public MemoryPool
 {
 public:
 	Pool(uint _blockSize)
-		: MemoryPool(sizeof(tType), APT_ALIGNOF(tType), _blockSize)
+		: MemoryPool(sizeof(tType), alignof(tType), _blockSize)
 	{
 	}
 

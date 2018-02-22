@@ -5,7 +5,7 @@
 const char* apt::GetPlatformErrorString(uint64 _err)
 {
 	const int kMessageMax = 1024;
-	APT_THREAD_LOCAL static char buf[kMessageMax];
+	thread_local static char buf[kMessageMax];
 	buf[0] = '\0';
 	APT_VERIFY(
 		FormatMessage(

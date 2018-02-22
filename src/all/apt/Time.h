@@ -5,7 +5,6 @@
 #include <apt/apt.h>
 #include <apt/static_initializer.h>
 
-
 namespace apt {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -59,8 +58,7 @@ public:
 	double asMicroseconds() const;
 	
 	// Return a string with an appropriate units e.g. "2.43s", "17.2ms", "400us".
-	// \note Returns a ptr to a local static buffer - for normal use this should 
-	//    be fine, just print the string and don't keep the ptr.
+	// Note that return value is a ptr to a local static buffer - for normal use this should be fine, just print the string and don't keep the ptr.
 	const char*     asString() const;
 
 	const Timestamp operator- (const Timestamp& rhs) const  { return m_raw -  rhs.m_raw; }
@@ -113,8 +111,7 @@ public:
 	//    %S       | Zero-padded second in [00,59]
 	//    %Y       | Year
 	// E.g. ISO 8601 format would be "%Y-%m-%dT%H:%M:%SZ".
-	// \note Returns a ptr to a local static buffer - for normal use this should 
-	//    be fine, just print the string and don't keep the ptr.
+	// Note that return value is a ptr to a local static buffer - for normal use this should be fine, just print the string and don't keep the ptr.
 	const char*    asString(const char* _format = nullptr) const;
 
 	const DateTime operator- (const DateTime& rhs) const  { return m_raw -  rhs.m_raw; }

@@ -1,14 +1,11 @@
 #include <apt/apt.h>
+
 #include <apt/log.h>
+#include <apt/String.h>
 
-#ifdef APT_COMPILER_MSVC
-	#pragma warning(disable: 4996) // vsnprintf
-#endif
 #include <cstdarg> // va_list, va_start, va_end
-#include <cstdio>  // vsnprintf
 
-static const int kAssertMsgMax = 1024; // max size for message buffer in assert()
-static apt::AssertCallback* g_AssertCallback = &apt::DefaultAssertCallback;
+static thread_local apt::AssertCallback* g_AssertCallback = &apt::DefaultAssertCallback;
 
 void apt::SetAssertCallback(AssertCallback* _callback) 
 {
@@ -27,17 +24,17 @@ apt::AssertBehavior apt::DefaultAssertCallback(const char* _e, const char* _msg,
 
 apt::AssertBehavior apt::internal::AssertAndCallback(const char* _e, const char* _file, int _line, const char* _msg, ...) 
 {
-	char buf[kAssertMsgMax];
-	buf[0] = '\0';
+	thread_local String<1024> msg = "";
+
 	if (_msg != 0) {
 		va_list args;
 		va_start(args, _msg);
-		APT_VERIFY(vsnprintf(buf, kAssertMsgMax, _msg, args) > 0);
+		msg.setfv(_msg, args);
 		va_end(args);
 	}
 
 	if (g_AssertCallback) {
-		return g_AssertCallback(_e, buf, apt::internal::StripPath(_file), _line);
+		return g_AssertCallback(_e, (const char*)msg, apt::internal::StripPath(_file), _line);
 	}
 	return AssertBehavior_Break;
 }

@@ -7,15 +7,14 @@
 
 using namespace apt;
 
-static const int kLogMsgMax = 1024; // max size for message buffer in DispatchLogCallback()
-static LogCallback* g_logCallback= nullptr;
+static thread_local LogCallback* g_logCallback;
 
 static void DispatchLogCallback(const char* _fmt, va_list _args, LogType _type)
 {
 	if (g_logCallback) {
-		String<kLogMsgMax> buf;
-		buf.setfv(_fmt, _args);
-		g_logCallback((const char*)buf, _type);
+		String<1024> msg;
+		msg.setfv(_fmt, _args);
+		g_logCallback((const char*)msg, _type);
 	}
 }
 

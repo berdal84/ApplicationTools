@@ -30,7 +30,7 @@ namespace internal {
 		template<> struct APT_ALIGN(32)  aligned_base<32>  {};
 		template<> struct APT_ALIGN(64)  aligned_base<64>  {};
 		template<> struct APT_ALIGN(128) aligned_base<128> {};
-} // namespace internal
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // aligned
@@ -41,18 +41,18 @@ namespace internal {
 //    class Foo: public aligned<Foo, 16>
 //    { // ...
 //
-// \note Alignment can only be increased. If the deriving class has a higher
-//    natural alignment than kAlignment, the higher alignment is used.
+// Alignment can only be increased. If the deriving class has a higher natural 
+// alignment than kAlignment, the higher alignment is used.
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType, uint kAlignment>
 struct aligned: private internal::aligned_base<kAlignment>
 {
 	aligned()                                           { APT_ASSERT((uint)this % kAlignment == 0); }
 
-	// \note malloc_aligned is called with APT_ALIGNOF(tType) which will be the min of the natural alignment of tType and kAlignment
-	void* operator new(std::size_t _size)               { return malloc_aligned(_size, APT_ALIGNOF(tType)); }
+	// malloc_aligned is called with alignof(tType) which will be the min of the natural alignment of tType and kAlignment
+	void* operator new(std::size_t _size)               { return malloc_aligned(_size, alignof(tType)); }
 	void  operator delete(void* _ptr)                   { free_aligned(_ptr); }
-	void* operator new[](std::size_t _size)             { return malloc_aligned(_size, APT_ALIGNOF(tType)); }
+	void* operator new[](std::size_t _size)             { return malloc_aligned(_size, alignof(tType)); }
 	void  operator delete[](void* _ptr)                 { free_aligned(_ptr); }
 	void* operator new(std::size_t _size, void* _ptr)   { APT_ASSERT((uint)_ptr % kAlignment == 0); return _ptr; }
 	void  operator delete(void*, void*)                 { ; } // dummy, matches placement new
@@ -66,11 +66,11 @@ struct aligned: private internal::aligned_base<kAlignment>
 // new.
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType, uint kCount>
-class storage: private aligned< storage<tType, kCount>, APT_ALIGNOF(tType) >
+class storage: private aligned< storage<tType, kCount>, alignof(tType) >
 {
 	char m_buf[sizeof(tType) * kCount];
 public:
-	storage(): aligned< storage<tType, kCount>, APT_ALIGNOF(tType) >() {}
+	storage(): aligned< storage<tType, kCount>, alignof(tType) >() {}
 	operator tType*() { return (tType*)m_buf; }
 };
 

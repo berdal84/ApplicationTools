@@ -13,10 +13,8 @@
 
 namespace apt {
 
-/// Format a system error code as a string.
-/// \note This returns a ptr to an internal static char buffer. The buffer is
-///	   thread-local but calling code **must** copy the returned string immediately
-///	   and not store the returned ptr.
+// Format a system error code as a string.
+// Note the return value is a ptr to an internal static char buffer. The buffer is thread_local but calling code **must** copy the returned string immediately and not store the returned ptr.
 const char* GetPlatformErrorString(uint64 _err);
 
 } // namespace apt

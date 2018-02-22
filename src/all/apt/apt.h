@@ -2,7 +2,7 @@
 #ifndef apt_h
 #define apt_h
 
-#define APT_VERSION "0.09"
+#define APT_VERSION "0.10"
 
 // Compiler
 #if defined(__GNUC__)
@@ -27,31 +27,10 @@
 	#error apt: Architecture not defined
 #endif
 
-
-
-#if defined(APT_COMPILER_GNU)
-	#define APT_ALIGN(a) __attribute__((aligned(a)))
-#elif defined(APT_COMPILER_MSVC)
-	#define APT_ALIGN(a) __declspec(align(a))
-#else
-	#define APT_ALIGN(a) alignas(a)
-#endif
-
-#if defined(APT_COMPILER_GNU)
-	#define APT_ALIGNOF(t) __alignof__(t)
-#elif defined(APT_COMPILER_MSVC)
-	#define APT_ALIGNOF(t) __alignof(t)
-#else
-	#define APT_ALIGNOF(t) alignof(t)
-#endif
-
-#if defined(APT_COMPILER_GNU)
-	#define APT_THREAD_LOCAL __thread
-#elif defined(APT_COMPILER_MSVC)
-	#define APT_THREAD_LOCAL __declspec(thread)
-#else
-	#define APT_THREAD_LOCAL thread_local
-#endif
+// \deprecated - prefer to use the C++11 versions directly
+#define APT_ALIGN(x)     alignas(x)
+#define APT_ALIGNOF(x)   alignof(x)
+#define APT_THREAD_LOCAL thread_local
 
 #if defined(APT_COMPILER_GNU)
 	#define if_likely(e)   if ( __builtin_expect(!!(e), 1) )
@@ -74,7 +53,7 @@
 #define APT_ARRAY_COUNT(_arr) apt::internal::ArrayCount(_arr)
 
 // Execute a code block once, e.g. APT_ONCE { foo; bar; }
-// \note This is not thread safe.
+// This is not thread safe.
 #define APT_ONCE  for (static bool _done = false; _done ? false : _done = true; )
 
 namespace apt {
@@ -170,7 +149,7 @@ class DateTime;
 ////////////////////////////////////////////////////////////////////////////////
 // non_copyable
 // Mixin class, forces a derived class to be non-copyable.
-// \note The template parameter permits Empty Base Optimization (see
+// The template parameter permits Empty Base Optimization (see
 //   http://en.wikibooks.org/wiki/More_C++_Idioms/Non-copyable_Mixin).
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType>
@@ -189,7 +168,7 @@ private:
 // non_instantiable
 // Mixin class, forces a derived class to be non-instantiable. Note that by
 // definition a non-instantiable class is also non-copyable.
-// \note The template parameter permits Empty Base Optimization (see
+// The template parameter permits Empty Base Optimization (see
 //   http://en.wikibooks.org/wiki/More_C++_Idioms/Non-copyable_Mixin).
 ////////////////////////////////////////////////////////////////////////////////
 template <typename tType>

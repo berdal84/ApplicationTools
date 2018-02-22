@@ -11,8 +11,9 @@ namespace apt {
 // Common text parsing operations; advance a string ptr with character
 // classification, check if a region of the string contains characters, keep
 // a count of line endings, etc. Wraps cctype and cstring.
-// \note Only line feed '\n' are counted as line endings; carriage return '\r'
-//   are treated as whitespace only.
+//
+// Only line feed '\n' are counted as line endings; carriage return '\r' are 
+// treated as whitespace only.
 ////////////////////////////////////////////////////////////////////////////////
 class TextParser
 {

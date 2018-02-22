@@ -8,9 +8,9 @@ namespace apt {
 
 ////////////////////////////////////////////////////////////////////////////////
 // MemoryPool
-// See Pool.h for a more user-friendly, templated version of this.
-// Provides (de)allocations of objects with O(1) complexity given a fixed 
-// object size/alignment.
+// See Pool.h for a more user-friendly, templated version of this class.
+// Provides (de)allocations of objects with O(1) complexity given a fixed object 
+// size/alignment.
 // Usage:	
 //
 //    MemoryPool mp(sizeof(Foo), APT_ALIGNOF(Foo), 128);
@@ -18,8 +18,8 @@ namespace apt {
 //    f->~Foo(); // explicit dtor call
 //    mp.free(f);
 //
-// \note Any allocated objects should be released via free() before the
-//    MemoryPool is destroyed.
+// Any allocated objects should be released via free() before the MemoryPool is 
+// destroyed.
 ////////////////////////////////////////////////////////////////////////////////
 class MemoryPool: private non_copyable<MemoryPool>
 {
