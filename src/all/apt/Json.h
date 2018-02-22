@@ -73,9 +73,10 @@ namespace apt {
 //
 //  Json::Write(json, "json.json");
 //
-// \note String ptrs passed as the _name argument for setValue() are assumed to
-//   have a lifetime at least as long as the Json object. String ptrs passed to
-//   the _val argument are copied internally.
+// Notes:
+// - String ptrs passed as the _name argument for setValue() are assumed to have 
+//   a lifetime at least as long as the Json object. String ptrs passed as the 
+//   _value argument are copied internally.
 ////////////////////////////////////////////////////////////////////////////////
 class Json
 {
@@ -144,13 +145,13 @@ public:
 
 	// Create and enter an object. If the object already exists this has the same effect as a call to find() followed by
 	// a call to enterObject(). If _name is nullptr the object is expected to be an array member.
-	void beginObject(const char* _name = nullptr);
+	bool beginObject(const char* _name = nullptr);
 	// Leave the current object.
 	void endObject() { leaveObject(); }
 	
 	// Create and enter an array. If the array already exists this has the effect as a call to find() followed by a 
 	// call to enterArray(). If _name is nullptr the array is expected to be an array member.
-	void beginArray(const char* _name = nullptr);
+	bool beginArray(const char* _name = nullptr);
 	// Leave the current array.
 	void endArray() { leaveArray(); }
 
@@ -158,7 +159,6 @@ public:
 	template <typename tType>
 	void pushValue(tType _value);
 	
-
 private:
 	struct Impl;
 	Impl* m_impl;
@@ -199,7 +199,6 @@ public:
 private:
 	Json* m_json;
 
-	// 
 	int string(const char* _value_, const char* _name);
 
 }; // class SerializerJson

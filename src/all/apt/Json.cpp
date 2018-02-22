@@ -370,12 +370,11 @@ int Json::getArrayLength() const
 	return -1;
 }
 
-void Json::beginObject(const char* _name)
+bool Json::beginObject(const char* _name)
 {
 	if (_name && find(_name)) {
 	  // object already existed, check the type
 		APT_ASSERT(GetValueType(m_impl->m_value->GetType()) == ValueType_Object);
-		return;
 	} else {
 		if (GetValueType(m_impl->top()->GetType()) == ValueType_Array) {
 			if (_name) {
@@ -396,10 +395,10 @@ void Json::beginObject(const char* _name)
 			m_impl->m_value = &(m_impl->top()->MemberEnd() - 1)->value;
 		}
 	}
-	APT_VERIFY(enterObject());
+	return enterObject();
 }
 
-void Json::beginArray(const char* _name)
+bool Json::beginArray(const char* _name)
 {
 	if (_name && find(_name)) {
 	  // object already existed, check the type
@@ -424,7 +423,7 @@ void Json::beginArray(const char* _name)
 			m_impl->m_value = &(m_impl->top()->MemberEnd() - 1)->value;
 		}
 	}
-	APT_VERIFY(enterArray());
+	return enterArray();
 }
 
 
