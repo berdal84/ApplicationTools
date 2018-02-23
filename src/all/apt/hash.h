@@ -1,6 +1,4 @@
 #pragma once
-#ifndef apt_hash_h
-#define apt_hash_h
 
 #include <apt/apt.h>
 
@@ -55,5 +53,3 @@ tType HashString(const char* _str);
 	template <> inline uint64 HashString<uint64>(const char* _str) { return internal::HashString64(_str); }
 
 } // namespace apt
-
-#endif // apt_hash_h

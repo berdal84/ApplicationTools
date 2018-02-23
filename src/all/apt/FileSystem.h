@@ -1,6 +1,4 @@
 #pragma once
-#ifndef apt_FileSystem_h
-#define apt_FileSystem_h
 
 #include <apt/apt.h>
 #include <apt/File.h>
@@ -131,5 +129,3 @@ private:
 };
 
 } // namespace apt
-
-#endif // apt_FileSystem_h

@@ -1,6 +1,4 @@
 #pragma once
-#ifndef apt_TextParser_h
-#define apt_TextParser_h
 
 #include <apt/apt.h>
 
@@ -78,5 +76,3 @@ private:
 };
 
 } // namespace apt
-
-#endif // apt_TextParser_h

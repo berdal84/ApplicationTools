@@ -1,6 +1,4 @@
 #pragma once
-#ifndef apt_Ini_h
-#define apt_Ini_h
 
 #include <apt/apt.h>
 #include <apt/String.h>
@@ -138,5 +136,3 @@ private:
 };
 
 } // namespace apt
-
-#endif // apt_Ini_h

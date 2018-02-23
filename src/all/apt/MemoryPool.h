@@ -1,6 +1,4 @@
 #pragma once
-#ifndef apt_MemoryPool_h
-#define apt_MemoryPool_h
 
 #include <apt/apt.h>
 
@@ -53,5 +51,3 @@ private:
 };
 
 } // namespace apt
-
-#endif // apt_MemoryPool_h

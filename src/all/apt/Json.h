@@ -1,6 +1,4 @@
 #pragma once
-#ifndef apt_Json_h
-#define apt_Json_h
 
 #include <apt/apt.h>
 #include <apt/FileSystem.h>
@@ -205,5 +203,3 @@ private:
 
 
 } // namespace apt
-
-#endif // apt_Json_h

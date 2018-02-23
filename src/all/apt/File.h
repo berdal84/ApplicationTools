@@ -1,6 +1,4 @@
 #pragma once
-#ifndef apt_File_h
-#define apt_File_h
 
 #include <apt/apt.h>
 #include <apt/String.h>
@@ -67,5 +65,3 @@ private:
 };
 
 } // namespace apt
-
-#endif // apt_File_h

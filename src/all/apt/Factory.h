@@ -1,6 +1,4 @@
 #pragma once
-#ifndef apt_Factory_h
-#define apt_Factory_h
 
 #include <apt/apt.h>
 #include <apt/StringHash.h>
@@ -176,5 +174,3 @@ private:
 	static apt::Factory<_baseClass>::ClassRefDefault<_subClass> s_ ## _subClass(#_subClass)
 
 } // namespace apt
-
-#endif // apt_Factory_h

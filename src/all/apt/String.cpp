@@ -20,17 +20,17 @@ uint StringBase::set(const char* _src, uint _count)
 	if (!_src) {
 		return m_length;
 	}
-	uint len = _count;
-	if (len == 0) {
-		len = strlen(_src);
+	uint srclen = _count;
+	if (srclen == 0) {
+		srclen = strlen(_src);
 	}
-	if (m_capacity < len + 1) {
-		alloc(len + 1);
+	if (m_capacity < srclen + 1) {
+		alloc(srclen + 1);
 	}
-	strncpy(m_buf, _src, len);
-	m_buf[len] = '\0';
-	m_length = len;
-	return len;
+	strncpy(m_buf, _src, srclen);
+	m_buf[srclen] = '\0';
+	m_length = srclen;
+	return srclen;
 }
 
 uint StringBase::setf(const char* _fmt, ...)
@@ -50,14 +50,14 @@ uint StringBase::setfv(const char* _fmt, va_list _args)
 #ifdef APT_COMPILER_MSVC
  // vsnprintf returns -1 on overflow, requires 2 passes
 	int len = vsnprintf(0, 0, _fmt, args);
-	APT_ASSERT(len >= 0);
+	APT_STRICT_ASSERT(len >= 0);
 	if (m_capacity < (uint)len + 1) {
 		alloc(len + 1);
 	}
 	APT_VERIFY(vsnprintf(m_buf, m_capacity, _fmt, args) >= 0);
 #else
 	int len = vsnprintf(m_buf, m_capacity, _fmt, args);
-	APT_ASSERT(len >= 0);
+	APT_STRICT_ASSERT(len >= 0);
 	if (m_capacity < len + 1) {
 		alloc(len + 1);
 		APT_VERIFY(vsnprintf(m_buf, m_capacity, _fmt, args) >= 0);
@@ -69,6 +69,9 @@ uint StringBase::setfv(const char* _fmt, va_list _args)
 
 uint StringBase::append(const char* _src, uint _count)
 {
+	if (!_src) {
+		return m_length;
+	}
 	uint srclen = _count;
 	if (srclen == 0) {
 		srclen = strlen(_src);

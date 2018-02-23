@@ -1,10 +1,4 @@
 #pragma once
-#ifndef apt_types_h
-#define apt_types_h
-
-#ifndef apt_h
-	#error apt: include apt/apt.h, not apt/types.h
-#endif
 
 #include <algorithm>
 #include <cfloat>
@@ -443,5 +437,3 @@ inline float UnpackFloat16(uint16 _f16)
 #ifdef _MSC_VER
 	#pragma warning(pop)
 #endif
-
-#endif // apt_types_h

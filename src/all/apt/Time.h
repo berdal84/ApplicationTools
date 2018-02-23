@@ -1,6 +1,4 @@
 #pragma once
-#ifndef apt_time_h
-#define apt_time_h
 
 #include <apt/apt.h>
 #include <apt/static_initializer.h>
@@ -157,5 +155,3 @@ public:
 #endif
 
 } // namespace apt
-
-#endif // apt_Time_h

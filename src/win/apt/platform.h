@@ -1,9 +1,8 @@
 #pragma once
-#ifndef apt_platform_h
-#define apt_platform_h
 
 #include <apt/apt.h>
-#ifndef APT_PLATFORM_WIN
+
+#if !(APT_PLATFORM_WIN)
 	#error apt: APT_PLATFORM_WIN was not defined, probably the build system was configured incorrectly
 #endif
 
@@ -18,5 +17,3 @@ namespace apt {
 const char* GetPlatformErrorString(uint64 _err);
 
 } // namespace apt
-
-#endif // apt_platform_h

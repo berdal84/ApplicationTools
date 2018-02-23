@@ -1,6 +1,4 @@
 #pragma once
-#ifndef apt_Serializer_h
-#define apt_Serializer_h
 
 #include <apt/apt.h>
 #include <apt/compress.h>
@@ -151,5 +149,3 @@ bool SerializeEnum(Serializer& _serializer_, tType& _value_, const char* (&_strL
 }
 
 } // namespace apt
-
-#endif // apt_Serializer_h

@@ -1,6 +1,4 @@
 #pragma once
-#ifndef apt_Image_h
-#define apt_Image_h
 
 #include <apt/apt.h>
 #include <apt/types.h>
@@ -19,9 +17,10 @@ namespace apt {
 // a single cubemap has an array count of 1, however access to the faces via
 // getRawImage() should be as array*6+face.
 //
-// \todo Read*() functions and setRawData() should correctly release the 
+// \todo
+// - Read*() functions and setRawData() should correctly release the 
 //   existing image first (or only if the load succeeded).
-// \todo 1/2/3d sample functions (need sample/wrap enums).
+// - 1/2/3D sample functions (need sample/wrap enums).
 ////////////////////////////////////////////////////////////////////////////////
 class Image
 {
@@ -222,5 +221,3 @@ private:
 };
 
 } // namespace apt
-
-#endif // apt_Image_h

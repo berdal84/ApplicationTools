@@ -1,38 +1,15 @@
 #pragma once
-#ifndef apt_h
-#define apt_h
 
 #define APT_VERSION "0.10"
 
-// Compiler
-#if defined(__GNUC__)
-	#define APT_COMPILER_GNU
-#elif defined(_MSC_VER)
-	#define APT_COMPILER_MSVC
-#else
-	#error apt: Compiler not defined
-#endif
-
-// Platform 
-#if defined(_WIN32) || defined(_WIN64)
-	#define APT_PLATFORM_WIN
-#else
-	#error apt: Platform not defined
-#endif
-
-// Architecture
-#if defined(_M_X64) || defined(__x86_64)
-	#define APT_DCACHE_LINE_SIZE 64
-#else
-	#error apt: Architecture not defined
-#endif
+#include <apt/config.h>
 
 // \deprecated - prefer to use the C++11 versions directly
 #define APT_ALIGN(x)     alignas(x)
 #define APT_ALIGNOF(x)   alignof(x)
 #define APT_THREAD_LOCAL thread_local
 
-#if defined(APT_COMPILER_GNU)
+#if APT_COMPILER_GNU
 	#define if_likely(e)   if ( __builtin_expect(!!(e), 1) )
 	#define if_unlikely(e) if ( __builtin_expect(!!(e), 0) )
 //#elif defined(APT_COMPILER_MSVC)
@@ -64,8 +41,8 @@ enum AssertBehavior
 	AssertBehavior_Continue
 };
 
-// Typedef for assert callbacks. See DefaultAssertCallback for a description of the function arguments.
-typedef AssertBehavior (AssertCallback)(const char* _e, const char* _msg, const char* _file, int _line);
+// Typedef for assert callbacks.
+typedef AssertBehavior (AssertCallback)(const char* _expr, const char* _msg, const char* _file, int _line);
 
 // Return the current assert callback. Default is DefaultAssertCallback.
 AssertCallback* GetAssertCallback();
@@ -74,14 +51,14 @@ AssertCallback* GetAssertCallback();
 void SetAssertCallback(AssertCallback* _callback);
 
 // Default assert callback, print message via APT_LOG_ERR(). Always returns AssertBehavior_Break.
-AssertBehavior DefaultAssertCallback(const char* _e, const char* _msg,  const char* _file,  int _line);
+AssertBehavior DefaultAssertCallback(const char* _expr, const char* _msg,  const char* _file,  int _line);
 
 } // namespace apt
 
 
 namespace apt { namespace internal {
 
-AssertBehavior AssertAndCallback(const char* _e, const char* _file, int _line, const char* _msg, ...);
+AssertBehavior AssertAndCallback(const char* _expr, const char* _file, int _line, const char* _msg, ...);
 const char* StripPath(const char* _path);
 
 template <typename tType, unsigned kCount>
@@ -89,9 +66,9 @@ inline constexpr unsigned ArrayCount(const tType (&)[kCount]) { return kCount; }
 
 } } // namespace apt::internal
 
-#define APT_UNUSED(x) do { (void)sizeof(x); } while (0)
-#ifdef APT_DEBUG
-	#ifdef APT_COMPILER_MSVC
+#define APT_UNUSED(x) do { (void)sizeof(x); } while(0)
+#if APT_ENABLE_ASSERT
+	#if APT_COMPILER_MSVC
 		#define APT_BREAK() __debugbreak()
 	#else
 		#include <cstdlib>
@@ -116,7 +93,13 @@ inline constexpr unsigned ArrayCount(const tType (&)[kCount]) { return kCount; }
 	#define APT_VERIFY_MSG(e, msg, ...)   do { (void)(e); APT_UNUSED(msg); } while(0)
 	#define APT_VERIFY(e)                 (void)(e)
 
-#endif // APT_DEBUG
+#endif // APT_ENABLE_ASSERT
+
+#if APT_ENABLE_STRICT_ASSERT
+	#define APT_STRICT_ASSERT(e) APT_ASSERT(e)
+#else
+	#define APT_STRICT_ASSERT(e) do { APT_UNUSED(e); } while(0)
+#endif
 
 #define APT_STATIC_ASSERT(e) { (void)sizeof(char[(e) ? 1 : -1]); }
 
@@ -163,7 +146,6 @@ private:
 	non_copyable& operator=(const non_copyable&);
 };
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // non_instantiable
 // Mixin class, forces a derived class to be non-instantiable. Note that by
@@ -179,5 +161,3 @@ private:
 };
 
 } // namespace apt
-
-#endif // apt_h

@@ -1,6 +1,4 @@
 #pragma once
-#ifndef apt_Pool_h
-#define apt_Pool_h
 
 #include <apt/MemoryPool.h>
 
@@ -51,5 +49,3 @@ public:
 }; // class Pool
 
 } // namespace apt
-
-#endif // apt_Pool_h

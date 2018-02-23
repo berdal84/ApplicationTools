@@ -1,6 +1,4 @@
 #pragma once
-#ifndef apt_RingBuffer_h
-#define apt_RingBuffer_h
 
 #include <apt/apt.h>
 #include <apt/memory.h>
@@ -133,5 +131,3 @@ private:
 };
 
 } // namespace apt
-
-#endif // apt_RingBuffer_h

@@ -16,13 +16,13 @@ apt::AssertCallback* apt::GetAssertCallback() {
 	return g_AssertCallback;
 }
 
-apt::AssertBehavior apt::DefaultAssertCallback(const char* _e, const char* _msg, const char* _file, int _line) 
+apt::AssertBehavior apt::DefaultAssertCallback(const char* _expr, const char* _msg, const char* _file, int _line) 
 {
-	APT_LOG_ERR("APT_ASSERT (%s, line %d)\n\t'%s' %s", _file, _line, _e ? _e : "", _msg ? _msg : "");
+	APT_LOG_ERR("APT_ASSERT (%s, line %d)\n\t'%s' %s", _file, _line, _expr ? _expr : "", _msg ? _msg : "");
 	return AssertBehavior_Break;
 }
 
-apt::AssertBehavior apt::internal::AssertAndCallback(const char* _e, const char* _file, int _line, const char* _msg, ...) 
+apt::AssertBehavior apt::internal::AssertAndCallback(const char* _expr, const char* _file, int _line, const char* _msg, ...) 
 {
 	thread_local String<1024> msg = "";
 
@@ -34,7 +34,7 @@ apt::AssertBehavior apt::internal::AssertAndCallback(const char* _e, const char*
 	}
 
 	if (g_AssertCallback) {
-		return g_AssertCallback(_e, (const char*)msg, apt::internal::StripPath(_file), _line);
+		return g_AssertCallback(_expr, (const char*)msg, apt::internal::StripPath(_file), _line);
 	}
 	return AssertBehavior_Break;
 }

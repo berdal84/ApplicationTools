@@ -1,6 +1,4 @@
 #pragma once
-#ifndef apt_memory_h
-#define apt_memory_h
 
 #include <apt/apt.h>
 
@@ -22,14 +20,14 @@ void free_aligned(void* _p);
 
 namespace internal {
 	template <uint kAlignment> struct aligned_base;
-		template<> struct APT_ALIGN(1)   aligned_base<1>   {};
-		template<> struct APT_ALIGN(2)   aligned_base<2>   {};
-		template<> struct APT_ALIGN(4)   aligned_base<4>   {};
-		template<> struct APT_ALIGN(8)   aligned_base<8>   {};
-		template<> struct APT_ALIGN(16)  aligned_base<16>  {};
-		template<> struct APT_ALIGN(32)  aligned_base<32>  {};
-		template<> struct APT_ALIGN(64)  aligned_base<64>  {};
-		template<> struct APT_ALIGN(128) aligned_base<128> {};
+		template<> struct alignas(1)   aligned_base<1>   {};
+		template<> struct alignas(2)   aligned_base<2>   {};
+		template<> struct alignas(4)   aligned_base<4>   {};
+		template<> struct alignas(8)   aligned_base<8>   {};
+		template<> struct alignas(16)  aligned_base<16>  {};
+		template<> struct alignas(32)  aligned_base<32>  {};
+		template<> struct alignas(64)  aligned_base<64>  {};
+		template<> struct alignas(128) aligned_base<128> {};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -47,14 +45,14 @@ namespace internal {
 template <typename tType, uint kAlignment>
 struct aligned: private internal::aligned_base<kAlignment>
 {
-	aligned()                                           { APT_ASSERT((uint)this % kAlignment == 0); }
+	aligned()                                           { APT_STRICT_ASSERT((uint)this % kAlignment == 0); }
 
 	// malloc_aligned is called with alignof(tType) which will be the min of the natural alignment of tType and kAlignment
 	void* operator new(std::size_t _size)               { return malloc_aligned(_size, alignof(tType)); }
 	void  operator delete(void* _ptr)                   { free_aligned(_ptr); }
 	void* operator new[](std::size_t _size)             { return malloc_aligned(_size, alignof(tType)); }
 	void  operator delete[](void* _ptr)                 { free_aligned(_ptr); }
-	void* operator new(std::size_t _size, void* _ptr)   { APT_ASSERT((uint)_ptr % kAlignment == 0); return _ptr; }
+	void* operator new(std::size_t _size, void* _ptr)   { APT_STRICT_ASSERT((uint)_ptr % kAlignment == 0); return _ptr; }
 	void  operator delete(void*, void*)                 { ; } // dummy, matches placement new
 
 };
@@ -75,5 +73,3 @@ public:
 };
 
 } // namespace apt
-
-#endif // apt_memory_h

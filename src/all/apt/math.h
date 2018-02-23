@@ -1,6 +1,4 @@
 #pragma once
-#ifndef apt_math_h
-#define apt_math_h
 
 #include <apt/apt.h>
 #include <linalg/linalg.h>
@@ -244,5 +242,3 @@ namespace apt {
 	inline tType Max(const tType& _a, const tType& _b)                          { return internal::Max(_a, _b, APT_TRAITS_FAMILY(tType)); }
 
 } // namespace apt
-
-#endif // frm_math_h

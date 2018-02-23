@@ -439,6 +439,7 @@
       <Filter>win</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\all\apt\rand.h" />
+    <ClInclude Include="..\..\src\all\apt\config.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\all\apt\ArgList.cpp" />

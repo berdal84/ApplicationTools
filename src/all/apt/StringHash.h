@@ -1,6 +1,4 @@
 #pragma once
-#ifndef apt_StringHash_h
-#define apt_StringHash_h
 
 #include <apt/apt.h>
 
@@ -44,5 +42,3 @@ inline bool operator==(StringHash::HashType _lhs, const StringHash& _rhs) { retu
 inline bool operator!=(StringHash::HashType _lhs, const StringHash& _rhs) { return _lhs != _rhs.getHash(); }
 
 } // namespace apt
-
-#endif // apt_StringHash_h

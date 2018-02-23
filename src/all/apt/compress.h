@@ -1,6 +1,4 @@
 #pragma once
-#ifndef apt_compress_h
-#define apt_compress_h
 
 #include <apt/apt.h>
 
@@ -23,5 +21,3 @@ void Compress(const void* _in, uint _inSizeBytes, void*& out_, uint& outSizeByte
 void Decompress(const void* _in, uint _inSizeBytes, void*& out_, uint& outSizeBytes_);
 
 } // namespace apt
-
-#endif // apt_compress_h

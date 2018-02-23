@@ -28,6 +28,9 @@ const char* Arg::Value::asString() const
 
 static bool IsArgName(const char* _cmp, const char* _argNames)
 {
+	APT_STRICT_ASSERT(_cmp);
+	APT_STRICT_ASSERT(_argNames);
+
 	if (_cmp[0] == '-' && !isdigit(_cmp[1])) {
 	 // '-' indicates a new arg unless the following digit is a number (in which case it's a negative value)
 		return true;
@@ -37,7 +40,7 @@ static bool IsArgName(const char* _cmp, const char* _argNames)
 			return true;
 		}
 		_argNames = strchr(_argNames, 0);
-		APT_ASSERT(_argNames);
+		APT_STRICT_ASSERT(_argNames);
 		++_argNames;
 	}
 	return false;
@@ -45,6 +48,8 @@ static bool IsArgName(const char* _cmp, const char* _argNames)
 
 ArgList::ArgList(int _argc, char* _argv[], const char* _argNames)
 {
+	APT_STRICT_ASSERT(_argv || _argc == 0);
+
 	int currentArg = -1;
 	for (int i = 1; i < _argc; ++i) {
 		if (IsArgName(_argv[i], _argNames)) {
@@ -69,9 +74,11 @@ ArgList::ArgList(int _argc, char* _argv[], const char* _argNames)
 
 const Arg* ArgList::find(const char* _name) const
 {
-	for (auto arg = m_args.begin(); arg != m_args.end(); ++arg) {
-		if (strcmp(_name, arg->getName()) == 0) {
-			return (Arg*)&(*arg);
+	APT_STRICT_ASSERT(_name);
+
+	for (auto& arg : m_args) {
+		if (strcmp(_name, arg.getName()) == 0) {
+			return &arg;
 		}
 	}
 	return nullptr;
