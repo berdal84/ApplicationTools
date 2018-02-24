@@ -1,11 +1,10 @@
---APT_LOG_CALLBACK_ONLY = true
 dofile "ApplicationTools_premake.lua"
 
 workspace "ApplicationTools"
 	location(_ACTION)
 	configurations { "Debug", "Release" }
 	platforms { "Win64" }
-	flags { "C++11", "StaticRuntime" }
+	flags { "StaticRuntime" }
 	filter { "platforms:Win64" }
 		system "windows"
 		architecture "x86_64"
@@ -14,7 +13,10 @@ workspace "ApplicationTools"
 	group "libs"
 		ApplicationTools_Project(
 			"../",    -- _root
-			"../lib"  -- _targetDir
+			"../lib", -- _targetDir
+			{
+				--APT_LOG_CALLBACK_ONLY = 1,
+			}
 			)
 	group ""
 	

@@ -19,9 +19,8 @@
 
 	Usage #2: Local Project File
 	----------------------------
-	To customize the project, specify config options (see the list below), then call dofile() at the top of your premake script:
+	To customize the project, call dofile() at the top of your premake script:
 
-		APT_LOG_CALLBACK_ONLY = true
 		dofile("extern/ApplicationTools/build/ApplicationTools_premake.lua")
 
 	Then call ApplicationTools_Project() inside your workspace declaration:
@@ -29,22 +28,24 @@
 		workspace "MyWorkspace"
 			ApplicationTools_Project(
 				"extern/ApplicationTools", -- lib root
-				"build/lib"                -- build output location
+				"build/lib",               -- build output location
+				{                          -- config map
+					APT_LOG_CALLBAG_ONLY = 1,
+				}
 				)
 
+	See config.h for the list of valid config defines.
+	
 	Finally, for each project which needs to link ApplicationTools:
 
 		project "MyProject"
 			ApplicationTools_Link()
 
 	This option provides the most flexibility, but don't forget to rebuild your project files after updating.
-
-	Config Options
-	--------------
-	APT_LOG_CALLBACK_ONLY   - Disable APT_LOG* writing to stdout/stderr (default: false).
 --]]
 
 local APT_UUID        = "6ADD11F4-56D6-3046-7F08-16CB6B601052"
+
 local SRC_DIR         = "/src/"
 local ALL_SRC_DIR     = SRC_DIR .. "all/"
 local ALL_EXTERN_DIR  = ALL_SRC_DIR .. "extern/"
@@ -88,15 +89,17 @@ local function ApplicationTools_Globals()
 	filter {}
 end
 
-function ApplicationTools_Project(_root, _targetDir)
-	_root = _root or ""
+function ApplicationTools_Project(_root, _targetDir, _config)
+	_root      = _root or ""
 	_targetDir = _targetDir or "../lib"
+	_config    = _config or {}
 
 	ApplicationTools_SetPaths(_root)
 
 	project "ApplicationTools"
 		kind "StaticLib"
 		language "C++"
+		cppdialect "C++11"
 		targetdir(_targetDir)
 		uuid(APT_UUID)
 
@@ -143,7 +146,11 @@ function ApplicationTools_Project(_root, _targetDir)
 				})
 		filter {}
 
-		if (APT_LOG_CALLBACK_ONLY or false) then defines { "APT_LOG_CALLBACK_ONLY" } end
+		for k,v in pairs(_config) do
+			if v then
+				defines { tostring(k) .. "=" .. tostring(v) }
+			end
+		end
 
 	ApplicationTools_Globals()
 end
