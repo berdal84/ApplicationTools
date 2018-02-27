@@ -103,17 +103,6 @@ function ApplicationTools_Project(_root, _targetDir, _config)
 		targetdir(_targetDir)
 		uuid(APT_UUID)
 
-		filter { "configurations:debug" }
-			targetsuffix "_debug"
-			symbols "On"
-			optimize "Off"
-		filter {}
-
-		filter { "configurations:release" }
-			symbols "Off"
-			optimize "Full"
-		filter {}
-
 		vpaths({
 			["*"]        = ALL_SRC_DIR .. "apt/**",
 			["extern/*"] = ALL_EXTERN_DIR .. "**",
