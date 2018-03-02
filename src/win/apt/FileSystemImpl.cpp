@@ -90,7 +90,7 @@ static void GetAppPath(TCHAR ret_[MAX_PATH], const char* _append = nullptr)
 	APT_PLATFORM_VERIFY(GetModuleFileName(0, tmp, MAX_PATH));
 	APT_PLATFORM_VERIFY(GetFullPathName(tmp, MAX_PATH, ret_, NULL)); // GetModuleFileName can return a relative path (e.g. when launching from the ide)
 
-	if (_append) {
+	if (_append && *_append != '\0') {
 		APT_PLATFORM_VERIFY(GetFullPathName(_append, MAX_PATH, tmp, NULL));
 		char* pathEnd = strrchr(ret_, (int)'\\');
 		++pathEnd;
