@@ -69,7 +69,7 @@ GetFileDateTime_End:
 	const char* err = nullptr;
 	WIN32_FILE_ATTRIBUTE_DATA attr;
 	if (GetFileAttributesEx(_fullPath, GetFileExInfoStandard, &attr) == 0) {
-		err = GetPlatformErrorString(GetLastError());
+		err = (const char*)GetPlatformErrorString(GetLastError());
 		goto GetFileDateTime_End;
 	}
 	created_ = FileTimeToDateTime(attr.ftCreationTime);

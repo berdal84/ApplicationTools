@@ -52,13 +52,13 @@ bool File::Read(File& file_, const char* _path)
 		NULL
 		);
 	if (h == INVALID_HANDLE_VALUE) {
-		err = GetPlatformErrorString(GetLastError());
+		err = (const char*)GetPlatformErrorString(GetLastError());
 		goto File_Read_end;
 	}
 
 	LARGE_INTEGER li;
 	if (!GetFileSizeEx(h, &li)) {
-		err = GetPlatformErrorString(GetLastError());
+		err = (const char*)GetPlatformErrorString(GetLastError());
 		goto File_Read_end;
 	}
 	DWORD dataSize = (DWORD)li.QuadPart; // ReadFile can only read DWORD bytes
@@ -67,7 +67,7 @@ bool File::Read(File& file_, const char* _path)
 	APT_ASSERT(data);
 	DWORD bytesRead;
 	if (!ReadFile(h, data, dataSize, &bytesRead, 0)) {
-		err = GetPlatformErrorString(GetLastError());
+		err = (const char*)GetPlatformErrorString(GetLastError());
 		goto File_Read_end;
 	}
 	data[dataSize] = data[dataSize + 1] = 0;
@@ -129,14 +129,14 @@ bool File::Write(const File& _file, const char* _path)
 				return false;
 			}
 		} else {
-			errstr = GetPlatformErrorString(err);
+			errstr = (const char*)GetPlatformErrorString(err);
 			goto File_Write_end;
 		}
 	}
 
 	DWORD bytesWritten;
 	if (!WriteFile(h, _file.getData(), (DWORD)_file.getDataSize(), &bytesWritten, NULL)) {
-		errstr = GetPlatformErrorString(GetLastError());
+		errstr = (const char*)GetPlatformErrorString(GetLastError());
 		goto File_Write_end;
 	}
 	APT_ASSERT(bytesWritten == _file.getDataSize());
