@@ -478,6 +478,7 @@ namespace {
 			}
 			if (!duplicate) {
 				watch->m_prevAction = eastl::make_pair(PathStr(fileName), action);
+				watch->m_prevAction.first.replace('\\', '/');
 				watch->m_dispatchQueue.push_back(watch->m_prevAction);
 			}
 			
@@ -559,14 +560,27 @@ void FileSystem::EndNotifications(const char* _dir)
 
 void FileSystem::DispatchNotifications(const char* _dir)
 {
-	SleepEx(0, TRUE);
-
+ // clear 'prevAction' - identical consecutive actions *between* calls to DispatchNotifications are allowed
 	if (_dir) {
 		auto it = s_WatchMap.find(StringHash(_dir));
 		if (it == s_WatchMap.end()) {
 			APT_ASSERT(false);
 			return;
 		}
+		it->second->m_prevAction.second = FileAction_Count;
+
+	} else {
+		for (auto& it : s_WatchMap) {
+			it.second->m_prevAction.second = FileAction_Count;
+		}
+	}
+
+ // let the kernel call the completion routine and fill the dispatch queues
+	SleepEx(0, TRUE);
+
+ // dispatch
+	if (_dir) {
+		auto it = s_WatchMap.find(StringHash(_dir));
 		Watch& watch = *it->second;
 		for (auto& file : watch.m_dispatchQueue) {
 			watch.m_dispatchCallback(file.first.c_str(), file.second);
