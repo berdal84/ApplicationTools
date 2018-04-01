@@ -530,7 +530,7 @@ void FileSystem::BeginNotifications(const char* _dir, FileActionCallback* _callb
 	APT_PLATFORM_ASSERT(watch->m_hDir != INVALID_HANDLE_VALUE);
 
 	s_WatchMap[dirHash] = watch;
-	watch->m_buf = (BYTE*)malloc_aligned(watch->m_bufSize, sizeof(DWORD));
+	watch->m_buf = (BYTE*)APT_MALLOC_ALIGNED(watch->m_bufSize, sizeof(DWORD));
 	watch->m_filter = 0
 			| FILE_NOTIFY_CHANGE_CREATION
 			| FILE_NOTIFY_CHANGE_SIZE
@@ -554,7 +554,7 @@ void FileSystem::EndNotifications(const char* _dir)
 	APT_PLATFORM_VERIFY(CancelIo(watch->m_hDir));
 	SleepEx(0, TRUE); // flush any pending calls to the completion routine
 	APT_PLATFORM_VERIFY(CloseHandle(watch->m_hDir));
-	free_aligned(watch->m_buf);
+	APT_FREE_ALIGNED(watch->m_buf);
 	s_WatchPool.free(watch);
 }
 

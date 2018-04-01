@@ -46,7 +46,7 @@ const char* apt::GetPlatformInfoString()
 		if (sz == 0) {
 			goto osver_failure;
 		}
-		verinf = malloc(sz);
+		verinf = APT_MALLOC(sz);
 		if (!GetFileVersionInfo("kernel32.dll", (DWORD)0, sz, verinf)) {
 			goto osver_failure;
 		}
@@ -58,7 +58,7 @@ const char* apt::GetPlatformInfoString()
 	osver_failure:
 		ret.appendf("Windows %u.%u.%u", HIWORD(osinf->dwProductVersionMS), LOWORD(osinf->dwProductVersionMS), HIWORD(osinf->dwProductVersionLS));
 	osver_end:
-		free(verinf);
+		APT_FREE(verinf);
 		
 	#endif
 	
