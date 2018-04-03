@@ -21,7 +21,7 @@ class FileSystem
 public:
 	enum RootType_
 	{
-		RootType_Root,         // By default, the working directory of the executable.
+		RootType_Root,         // Default is the working directory of the executable.
 		RootType_Common,       // Shared path for common files.
 		RootType_Application,  // Application-specific files.
 
@@ -36,18 +36,16 @@ public:
 
  // File operations
 
-	// Read a file into memory. Each root is searched, beginning at _rootHint. If _path is nullptr,
-	// file_.getPath() is used. Return false if an error occurred, in which case file_ remains unchanged. 
-	// On success, any resources already associated with file_ are released. 
-	// _rootHint is ignored if _path is absolute.
+	// Read a file into memory. Each root is searched, beginning at _rootHint. If _path is nullptr, file_.getPath() is used.
+	// Return false if an error occurred, in which case file_ remains unchanged. On success, any resources already associated 
+	// with file_ are released. _rootHint is ignored if _path is absolute.
 	static bool        Read(File& file_, const char* _path = nullptr, RootType _rootHint = RootType_Default);
 
 	// As Read() but first checks if the file exists. Return false if the file does not exist or if an error occurred.
 	static bool        ReadIfExists(File& file_, const char* _path = nullptr, RootType _rootHint = RootType_Default);
 
-	// Write _file's data to _path. If _path is 0, _file.getPath() is used. Return false if an error 
-	// occurred, in which case any existing file at _path may or may not have been overwritten.
-	// _root is ignored if _path is absolute.
+	// Write _file's data to _path. If _path is 0, _file.getPath() is used. Return false if an error occurred, in which case 
+	// any existing file at _path may or may not have been overwritten. _root is ignored if _path is absolute.
 	static bool        Write(const File& _file, const char* _path = nullptr, RootType _root = RootType_Default);
 
 	// Return true if _path exists. Each root is searched, beginning at _rootHint.
@@ -61,16 +59,15 @@ public:
 	static DateTime    GetTimeModified(const char* _path, RootType _rootHint = RootType_Default);
 
 	// Create the directory specified by _path, plus all parent directories if they do not exist. Return false if an error occurred.
-	// \note If _path contains only directory names, it must end in a path separator (e.g. "dir0/dir1/").
+	// If _path contains only directory names, it must end in a path separator (e.g. "dir0/dir1/").
 	static bool        CreateDir(const char* _path);
 
  // Path manipulation
 
-	// Concatenates _path + s_separator + s_root[_root]. If _path is absolute the root is ignored.
+	// Concatenate _path + s_separator + s_root[_root]. _root is ignored if _path is absolute.
 	static PathStr     MakePath(const char* _path, RootType _root);
 
-	// Match _str against _pattern with wildcard characters: 
-	// '?' matches a single character, '*' matches zero or more characters.
+	// Match _str against _pattern with wildcard characters: '?' matches a single character, '*' matches zero or more characters.
 	static bool        Matches(const char* _pattern, const char* _str);
 	// Call Matches() for each of a list of patterns e.g. { "*.txt", "*.png" }.	
 	static bool        MatchesMulti(std::initializer_list<const char*> _patternList, const char* _str);
@@ -89,7 +86,7 @@ public:
 	static PathStr     GetPath(const char* _path);
 	// Extract file name from _path (remove path + extension).
 	static PathStr     GetFileName(const char* _path);
-	// Extract extension from _path (remove path + file name). It is safe for _path to point to the string buffer in ret_.
+	// Extract extension from _path (remove path + file name).
 	static PathStr     GetExtension(const char* _path) { return PathStr(FindExtension(_path)); }
 
 	// Return ptr to the character following the last occurrence of '.' in _path.
@@ -105,11 +102,9 @@ public:
 
  // Inspection
 
-	// List up to _maxResults files in _path, with optional recursion.
-	// Return the number of files which would be found if not limited by _maxResults.
+	// List up to _maxResults files in _path, with optional recursion. Return the number of files which would be found if not limited by _maxResults.
 	static int         ListFiles(PathStr retList_[], int _maxResults, const char* _path, std::initializer_list<const char*> _filterList = { "*" }, bool _recursive = false);
-	// List up to _maxResults dirs in _path, with optional recursion. _filters is a null-separated list of filter strings.
-	// Return the number of dirs which would be found if not limited by _maxResults.
+	// List up to _maxResults dirs in _path, with optional recursion. _filters is a null-separated list of filter strings. Return the number of dirs which would be found if not limited by _maxResults.
 	static int         ListDirs(PathStr retList_[], int _maxResults, const char* _path, std::initializer_list<const char*> _filterList= { "*" }, bool _recursive = false);
 
 
