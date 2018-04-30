@@ -124,7 +124,7 @@ bool File::Write(const File& _file, const char* _path)
  	HANDLE h = CreateFile(
 		_path,
 		GENERIC_WRITE,
-		0, // no sharing during write
+		FILE_SHARE_READ,
 		NULL,
 		CREATE_ALWAYS,
 		FILE_ATTRIBUTE_NORMAL,
