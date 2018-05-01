@@ -37,6 +37,7 @@ namespace apt {
 // \todo Implement linearize/delinearize.
 // \todo Split index management into a separate class, specialize for uint16,
 //   uint32, uint64 (can optimize Index <-> Cartesian conversions).
+// \todo Assert index max is large enough for the number of nodes.
 ///////////////////////////////////////////////////////////////////////////////
 template <typename tIndex, typename tNode>
 class Quadtree
@@ -132,7 +133,6 @@ inline typename APT_QUADTREE_CLASS_DECL::Index APT_QUADTREE_CLASS_DECL::GetFirst
 	return childOffset + ((_parentIndex - parentOffset) << 2);
 }
 
-
 APT_QUADTREE_TEMPLATE_DECL 
 inline typename APT_QUADTREE_CLASS_DECL::Index APT_QUADTREE_CLASS_DECL::GetParentIndex(Index _childIndex, int _childLevel)
 {
@@ -203,7 +203,7 @@ inline APT_QUADTREE_CLASS_DECL::Quadtree(int _levelCount, Node _init)
 {
 	APT_STATIC_ASSERT(!DataTypeIsSigned(APT_DATA_TYPE_TO_ENUM(Index))); // use an unsigned type
 
-	m_nodes = (Node*)APT_MALLOC(sizeof(Node) * GetTotalNodeCount(_levelCount));
+	m_nodes = (Node*)APT_MALLOC_ALIGNED(sizeof(Node) * GetTotalNodeCount(_levelCount), alignof(Node));
 	for (Index i = 0, n = GetTotalNodeCount(_levelCount); i < n; ++i) {
 		m_nodes[i] = _init;
 	}
@@ -212,7 +212,7 @@ inline APT_QUADTREE_CLASS_DECL::Quadtree(int _levelCount, Node _init)
 APT_QUADTREE_TEMPLATE_DECL 
 inline APT_QUADTREE_CLASS_DECL::~Quadtree()
 {
-	APT_FREE(m_nodes);
+	APT_FREE_ALIGNED(m_nodes);
 }
 
 APT_QUADTREE_TEMPLATE_DECL 
