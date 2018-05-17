@@ -83,6 +83,11 @@ Timestamp Time::GetApplicationElapsed()
 	return GetTimestamp() - *s_appInit;
 }
 
+void Time::Sleep(sint64 _ms)
+{
+	::Sleep((DWORD)_ms);
+}
+
 void Time::Init()
 {
 	LARGE_INTEGER f;

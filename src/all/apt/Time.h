@@ -24,6 +24,9 @@ public:
 	// Interval since the application began.
 	static Timestamp GetApplicationElapsed();
 
+	// 
+	static void      Sleep(sint64 _ms);
+
 	static void Init();
 	static void Shutdown();
 };
