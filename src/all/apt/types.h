@@ -110,7 +110,7 @@ typedef internal::DataTypeBase<std::int64_t,  DataType_Sint64N> sint64N;
 typedef internal::DataTypeBase<std::uint64_t, DataType_Uint64N> uint64N;
 
 // Sized floating point types.
-// \note float16 is a storage type only and has no arithmetic operators.
+// Note that float16 is a storage type only and has no arithmetic operators.
 typedef internal::DataTypeBase<std::uint16_t, DataType_Float16> float16;
 typedef float                                                   float32;
 typedef double                                                  float64;
@@ -270,18 +270,19 @@ inline tDst DataType_IntNToIntN(tSrc _src)
 } // namespace internal
 
 // Convert from tSrc -> tDst.
-// \todo Conversion to/from float16 is not currently handled, use internal::DataType_FloatToFloat.
 template <typename tDst, typename tSrc>
 inline tDst DataTypeConvert(tSrc _src)
 {
 	if (APT_DATA_TYPE_TO_ENUM(tSrc) == APT_DATA_TYPE_TO_ENUM(tDst)) {
 		return _src;
 	}
-	/*if (APT_DATA_TYPE_TO_ENUM(tSrc) == DataType_Float16) {
-		return DataTypeConvert<tDst>(internal::DataType_FloatToFloat<float32>(_src));
+	if (APT_DATA_TYPE_TO_ENUM(tSrc) == DataType_Float16) {
+		//return DataTypeConvert<tDst>(internal::DataType_FloatToFloat<float32>(_src));
+		APT_ASSERT(false); return (tDst)0;
 	} else if (APT_DATA_TYPE_TO_ENUM(tDst) == DataType_Float16) {
-		return internal::DataType_FloatToFloat<float16>(DataTypeConvert<float32>(_src));
-	} else*/ if (DataTypeIsNormalized(APT_DATA_TYPE_TO_ENUM(tSrc)) && DataTypeIsNormalized(APT_DATA_TYPE_TO_ENUM(tDst))) {
+		//return internal::DataType_FloatToFloat<float16>(DataTypeConvert<float32>(_src));
+		APT_ASSERT(false); return (tDst)0;
+	} else if (DataTypeIsNormalized(APT_DATA_TYPE_TO_ENUM(tSrc)) && DataTypeIsNormalized(APT_DATA_TYPE_TO_ENUM(tDst))) {
 		return internal::DataType_IntNToIntN<tDst, tSrc>(_src);
 	} else if (DataTypeIsFloat(APT_DATA_TYPE_TO_ENUM(tSrc)) && DataTypeIsNormalized(APT_DATA_TYPE_TO_ENUM(tDst))) {
 		return internal::DataType_FloatToIntN<tDst, tSrc>(_src);

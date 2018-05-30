@@ -74,7 +74,8 @@ void DataTypeConvert(DataType _srcType, DataType _dstType, const void* _src, voi
 	if (_srcType == _dstType) {
 		memcpy(dst_, _src, DataTypeSizeBytes(_srcType) * _count);
 
-	}  else {
+	} else {
+	 // \hack need special cases for the Float32 <-> Float16 conversions as DataTypeConvert cannot handle them
 		#define DataType_case_decl(_srcType, _srcEnum) \
 			case _srcEnum: \
 				switch (_dstType) { \
@@ -94,8 +95,14 @@ void DataTypeConvert(DataType _srcType, DataType _dstType, const void* _src, voi
 					case DataType_Uint32N: *((uint32N*)dst_) = DataTypeConvert<uint32N, _srcType>(*((const _srcType*)_src)); break; \
 					case DataType_Sint64N: *((sint64N*)dst_) = DataTypeConvert<sint64N, _srcType>(*((const _srcType*)_src)); break; \
 					case DataType_Uint64N: *((uint64N*)dst_) = DataTypeConvert<uint64N, _srcType>(*((const _srcType*)_src)); break; \
-					case DataType_Float16: *((float16*)dst_) = DataTypeConvert<float16, _srcType>(*((const _srcType*)_src)); break; \
-					case DataType_Float32: *((float32*)dst_) = DataTypeConvert<float32, _srcType>(*((const _srcType*)_src)); break; \
+				case DataType_Float16: \
+					*((float16*)dst_) = internal::DataType_FloatToFloat<float16, float32>(DataTypeConvert<float32, _srcType>(*((const _srcType*)_src))); break; \
+				case DataType_Float32: \
+					if (_srcEnum == DataType_Float16) { \
+						*((float32*)dst_) = internal::DataType_FloatToFloat<float32, float16>(*((const _srcType*)_src)); break; \
+					} else { \
+						*((float32*)dst_) = DataTypeConvert<float32, _srcType>(*((const _srcType*)_src)); \
+					} break; \
 					case DataType_Float64: *((float64*)dst_) = DataTypeConvert<float64, _srcType>(*((const _srcType*)_src)); break; \
 				}; \
 				break;			
