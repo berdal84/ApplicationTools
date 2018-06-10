@@ -1,9 +1,16 @@
 #include <apt/TextParser.h>
 
 #include <cctype>
+#include <cstdlib>
 #include <cstring>
 
 using namespace apt;
+
+TextParser::TextParser(const char* _str)
+	: m_start(_str)
+	, m_pos(_str)
+{
+}
 
 bool TextParser::isWhitespace() const
 {
@@ -144,6 +151,16 @@ char TextParser::containsAny(const char* _beg, const char* _list)
 bool TextParser::matches(const char *_beg, const char* _str)
 {
 	return strncmp(_beg, _str, m_pos - _beg) == 0;
+}
+
+bool TextParser::find(const char* _str)
+{
+	const char* ret = strstr(m_pos, _str);
+	if (!ret) {
+		return false;
+	}
+	m_pos = ret;
+	return true;
 }
 
 int TextParser::getLineCount(const char* _pos) const

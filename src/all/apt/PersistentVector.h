@@ -1,8 +1,6 @@
 #pragma once
-#ifndef apt_PersistentVector_h
-#define apt_PersistentVector_h
 
-#include <apt/def.h>
+#include <apt/apt.h>
 #include <apt/memory.h>
 
 #include <algorithm>   // std::copy
@@ -533,5 +531,3 @@ private:
 	
 
 } // namespace apt
-
-#endif // apt_PersistentVector_h

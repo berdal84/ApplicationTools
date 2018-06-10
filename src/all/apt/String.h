@@ -1,8 +1,6 @@
 #pragma once
-#ifndef apt_String_h
-#define apt_String_h
 
-#include <apt/def.h>
+#include <apt/apt.h>
 
 #include <cstdarg> // va_list
 
@@ -13,7 +11,7 @@ namespace apt {
 // Base for string class with an optional local buffer. If/when the local 
 // buffer overflows it is replaced with a heap-allocated buffer. Once the 
 // buffer is heap-allocated it never returns to using the local buffer.
-// All `const char*` interfaces expect null-terminated strings.
+// All const char* interfaces expect null-terminated strings.
 ////////////////////////////////////////////////////////////////////////////////
 class StringBase
 {
@@ -22,9 +20,9 @@ public:
 	// _src is found  before _count characters have been copied, the result is padded with zeros 
 	// until _count characters have been written (like strncpy). Unlike strncpy, an implicit null 
 	// char is appended to the end of the result. 
-	// Return the new length of the string, excluding the null terminator.
+	// Return the new length of the string (excluding the null terminator).
 	uint set(const char* _src, uint _count = 0);
-	// Set formatted content. Return the new length of the string, excluding the null terminator.
+	// Set formatted content. Return the new length of the string (excluding the null terminator).
 	uint setf(const char* _fmt, ...);
 	uint setfv(const char* _fmt, va_list _args);
 
@@ -32,51 +30,64 @@ public:
 	// _src is found  before _count characters have been appended, the result is padded with zeros 
 	// until _count characters have been  written (like strncpy). Unlike strncpy, an implicit null 
 	// char is appended to the end of the result. 
-	// Return the new length of the string, excluding the null terminator.
+	// Return the new length of the string (excluding the null terminator).
 	uint append(const char* _src, uint _count = 0);
-	// Append formatted content. Return the new length of the string, excluding the null terminator.
+	// Append formatted content. Return the new length of the string (excluding the null terminator).
 	uint appendf(const char* _fmt, ...);
 	uint appendfv(const char* _fmt, va_list _args);
 
-	// Find the first (or last) occurence of any character in _list (null-terminated). 
-	// If no match is found return null.
+	// Find the first (or last) occurence of any character in _list (null terminated). If no match is found return 0.
 	const char* findFirst(const char* _list) const;
 	const char* findLast(const char* _list) const;
 
-	// Find the first occurence of the substring _str, return null if not found.
+	// Find the first occurence of the substring _str. If not found return 0.
 	const char* find(const char* _str) const;
 
-	// Replace all instanced of _find with _replace.
-	void replace(char _find, char _replace);
+	// Replace all instances of _find with _replace. Return the number of instances replaced.
+	uint replace(char _find, char _replace); // single char (faster, in-place)
+	uint replace(const char* _find, const char* _replace); // substring
+	uint replacef(const char* _find, const char* _fmt, ...);
+	uint replacefv(const char* _find, const char* _fmt, va_list _args);
 
 	// Convert to upper/lower case.
 	void toUpperCase();
 	void toLowerCase();
 
-	// String length, excluding the terminating null.
-	// \note String length is not stored internally, hence getLength() is not a constant time operation.
-	uint getLength() const;
+	// String length (excluding the null terminator).
+	uint getLength() const                          { return m_length; }
+	void setLength(uint _length);
 
-	void clear()                                { *m_buf = '\0'; }
-	bool isEmpty() const                        { return *m_buf == '\0'; }
-	bool isLocal() const                        { return m_buf == getLocalBuf(); }
-	uint getCapacity() const                    { return m_capacity; }
+	void clear()                                    { if (m_buf) { *m_buf = '\0'; } m_length = 0; }
+	bool isEmpty() const                            { return m_length == 0; }
+	bool isLocal() const                            { return m_buf == getLocalBuf(); }
+	uint getCapacity() const                        { return m_capacity; }
 	void setCapacity(uint _capacity);
 
-	bool operator==(const char* _rhs) const;
-	operator const char*() const                { return m_buf; }
-	operator char*()                            { return m_buf; }
+	bool  operator==(const char* _rhs) const;
+	bool  operator==(const StringBase& _rhs) const  { return this->operator==((const char*)_rhs); }
+	bool  operator<(const char* _rhs) const;
+	bool  operator<(const StringBase& _rhs) const   { return this->operator<((const char*)_rhs); }
+	bool  operator>(const char* _rhs) const;
+	bool  operator>(const StringBase& _rhs) const   { return this->operator>((const char*)_rhs); }
+	char& operator[](int _i)                        { return m_buf[_i]; }
+	char  operator[](int _i) const                  { return m_buf[_i]; }
+
+	// Cast to char*/const char* is explicit to avoid conflicts with the operator overloads above.
+	explicit operator const char*() const           { return m_buf; }
+	explicit operator char*()                       { return m_buf; }
+	const char* c_str() const                       { return m_buf; }
+	const char* begin() const                       { return m_buf; }
+	const char* end() const                         { return begin() + m_length; }
 	
 	friend void swap(StringBase& _a_, StringBase& _b_);
 
 protected:
-	
 	// String always heap-allocated.
 	StringBase();
 	// String has a local buffer of _localBufferSize chars.
 	StringBase(uint _localBufferSize);
-	// Move ctor. If _rhs is local it *must* have the same capacity as this (because the local buffer 
-	// size isn't stored). This is enforced by the deriving String class move ctors.
+	// Move ctor. If _rhs_ is local it *must* have the same capacity as this (because the local buffer 
+	// capacity isn't stored). This is enforced by the deriving String class move ctors.
 	StringBase(StringBase&& _rhs_);
 	// Move assignment. As move ctor.
 	StringBase& operator=(StringBase&& _rhs_);
@@ -88,6 +99,7 @@ protected:
 
 private:
 	char* m_buf;       // Ptr to local buffer, or heap allocated.
+	uint  m_length;    // String length (excluding the null terminator).
 	uint  m_capacity;  // Local buffer/allocated size.
 
 	// Resize m_buf to _capacity, discard contents.
@@ -96,7 +108,7 @@ private:
 	// Resize m_buf to _capaicty, maintain contents.
 	void realloc(uint _capacity);
 
-}; // class String
+};
 
 
 template <uint kCapacity>
@@ -106,8 +118,8 @@ class String: public StringBase
 
 public:
 	String():                              StringBase(kCapacity)           {}
-	String(const String<kCapacity>& _rhs): StringBase(kCapacity)           { set(_rhs); }
-	String<kCapacity>& operator=(const String<kCapacity>& _rhs)            { if (&_rhs != this) set(_rhs); return *this; }
+	String(const String<kCapacity>& _rhs): StringBase(kCapacity)           { set((const char*)_rhs); }
+	String<kCapacity>& operator=(const String<kCapacity>& _rhs)            { if (&_rhs != this) set((const char*)_rhs); return *this; }
 	String(String<kCapacity>&& _rhs):      StringBase((StringBase&&)_rhs)  {}
 	String<kCapacity>& operator=(String<kCapacity>&& _rhs)                 { StringBase::operator=((StringBase&&)_rhs); return *this; }
 	String(const char* _fmt, ...):         StringBase(kCapacity)
@@ -126,10 +138,10 @@ class String<0>: public StringBase
 {
 public:
 	String():                      StringBase()                   {}
-	String(const String<0>& _rhs): StringBase()                   { set(_rhs); }
-	String<0>& operator=(const String<0>& _rhs)                   { if (&_rhs != this) set(_rhs); return *this; }
+	String(const String<0>& _rhs): StringBase()                   { set((const char*)_rhs); }
+	String<0>& operator=(const String<0>& _rhs)                   { if (&_rhs != this) set((const char*)_rhs); return *this; }
 	String(String<0>&& _rhs):      StringBase((StringBase&&)_rhs) {}
-	String<0>& operator=(String<0>&& _rhs)                        { (String<0>)StringBase::operator=((StringBase&&)_rhs); return *this; }
+	String<0>& operator=(String<0>&& _rhs)                        { StringBase::operator=((StringBase&&)_rhs); return *this; }
 	String(const char* _fmt, ...): StringBase()
 	{
 		if (_fmt) {
@@ -142,5 +154,3 @@ public:
 };
 
 } // namespace apt
-
-#endif // apt_String_h

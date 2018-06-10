@@ -55,11 +55,14 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>APT_DEBUG;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>EA_COMPILER_NO_EXCEPTIONS;APT_DEBUG;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\src\all;..\..\src\all\extern;..\..\src\win;..\..\src\win\extern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalOptions>/EHsc %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -70,7 +73,7 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>EA_COMPILER_NO_EXCEPTIONS;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_HAS_EXCEPTIONS=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..\src\all;..\..\src\all\extern;..\..\src\win;..\..\src\win\extern;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
       <Optimization>Full</Optimization>
@@ -79,6 +82,9 @@
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalOptions>/EHsc %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -98,16 +104,21 @@
     <ClInclude Include="..\..\src\all\apt\MemoryPool.h" />
     <ClInclude Include="..\..\src\all\apt\PersistentVector.h" />
     <ClInclude Include="..\..\src\all\apt\Pool.h" />
+    <ClInclude Include="..\..\src\all\apt\Quadtree.h" />
     <ClInclude Include="..\..\src\all\apt\RingBuffer.h" />
+    <ClInclude Include="..\..\src\all\apt\Serializer.h" />
     <ClInclude Include="..\..\src\all\apt\String.h" />
     <ClInclude Include="..\..\src\all\apt\StringHash.h" />
     <ClInclude Include="..\..\src\all\apt\TextParser.h" />
     <ClInclude Include="..\..\src\all\apt\Time.h" />
-    <ClInclude Include="..\..\src\all\apt\def.h" />
+    <ClInclude Include="..\..\src\all\apt\apt.h" />
+    <ClInclude Include="..\..\src\all\apt\compress.h" />
+    <ClInclude Include="..\..\src\all\apt\config.h" />
     <ClInclude Include="..\..\src\all\apt\hash.h" />
     <ClInclude Include="..\..\src\all\apt\log.h" />
     <ClInclude Include="..\..\src\all\apt\math.h" />
     <ClInclude Include="..\..\src\all\apt\memory.h" />
+    <ClInclude Include="..\..\src\all\apt\rand.h" />
     <ClInclude Include="..\..\src\all\apt\static_initializer.h" />
     <ClInclude Include="..\..\src\all\apt\types.h" />
     <ClInclude Include="..\..\src\all\extern\EABase\config\eacompiler.h" />
@@ -117,6 +128,7 @@
     <ClInclude Include="..\..\src\all\extern\EABase\eahave.h" />
     <ClInclude Include="..\..\src\all\extern\EABase\earesult.h" />
     <ClInclude Include="..\..\src\all\extern\EABase\eastdarg.h" />
+    <ClInclude Include="..\..\src\all\extern\EABase\eaunits.h" />
     <ClInclude Include="..\..\src\all\extern\EABase\nullptr.h" />
     <ClInclude Include="..\..\src\all\extern\EABase\version.h" />
     <ClInclude Include="..\..\src\all\extern\EASTL\algorithm.h" />
@@ -228,9 +240,13 @@
     <ClInclude Include="..\..\src\all\extern\EASTL\vector_set.h" />
     <ClInclude Include="..\..\src\all\extern\EASTL\version.h" />
     <ClInclude Include="..\..\src\all\extern\EASTL\weak_ptr.h" />
+    <ClInclude Include="..\..\src\all\extern\linalg\linalg.h" />
     <ClInclude Include="..\..\src\all\extern\lodepng.h" />
+    <ClInclude Include="..\..\src\all\extern\miniz.h" />
+    <ClInclude Include="..\..\src\all\extern\noise1234.h" />
     <ClInclude Include="..\..\src\all\extern\stb_image.h" />
     <ClInclude Include="..\..\src\all\extern\stb_image_write.h" />
+    <ClInclude Include="..\..\src\all\extern\tinyexr.h" />
     <ClInclude Include="..\..\src\win\apt\platform.h" />
     <ClInclude Include="..\..\src\win\apt\win.h" />
   </ItemGroup>
@@ -242,15 +258,18 @@
     <ClCompile Include="..\..\src\all\apt\Ini.cpp" />
     <ClCompile Include="..\..\src\all\apt\Json.cpp" />
     <ClCompile Include="..\..\src\all\apt\MemoryPool.cpp" />
+    <ClCompile Include="..\..\src\all\apt\Serializer.cpp" />
     <ClCompile Include="..\..\src\all\apt\String.cpp" />
     <ClCompile Include="..\..\src\all\apt\StringHash.cpp" />
     <ClCompile Include="..\..\src\all\apt\TextParser.cpp" />
     <ClCompile Include="..\..\src\all\apt\Time.cpp" />
-    <ClCompile Include="..\..\src\all\apt\def.cpp" />
+    <ClCompile Include="..\..\src\all\apt\apt.cpp" />
+    <ClCompile Include="..\..\src\all\apt\compress.cpp" />
     <ClCompile Include="..\..\src\all\apt\hash.cpp" />
     <ClCompile Include="..\..\src\all\apt\log.cpp" />
     <ClCompile Include="..\..\src\all\apt\math.cpp" />
     <ClCompile Include="..\..\src\all\apt\memory.cpp" />
+    <ClCompile Include="..\..\src\all\apt\rand.cpp" />
     <ClCompile Include="..\..\src\all\apt\types.cpp" />
     <ClCompile Include="..\..\src\all\extern\EASTL\source\allocator_eastl.cpp" />
     <ClCompile Include="..\..\src\all\extern\EASTL\source\assert.cpp" />
@@ -263,6 +282,7 @@
     <ClCompile Include="..\..\src\all\extern\EASTL\source\thread_support.cpp" />
     <ClCompile Include="..\..\src\all\extern\dds.cpp" />
     <ClCompile Include="..\..\src\all\extern\lodepng.cpp" />
+    <ClCompile Include="..\..\src\all\extern\noise1234.cpp" />
     <ClCompile Include="..\..\src\win\apt\FileImpl.cpp" />
     <ClCompile Include="..\..\src\win\apt\FileSystemImpl.cpp" />
     <ClCompile Include="..\..\src\win\apt\TimeImpl.cpp" />

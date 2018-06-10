@@ -1,6 +1,4 @@
 #pragma once
-#ifndef apt_Pool_h
-#define apt_Pool_h
 
 #include <apt/MemoryPool.h>
 
@@ -17,7 +15,7 @@ class Pool: public MemoryPool
 {
 public:
 	Pool(uint _blockSize)
-		: MemoryPool(sizeof(tType), APT_ALIGNOF(tType), _blockSize)
+		: MemoryPool(sizeof(tType), alignof(tType), _blockSize)
 	{
 	}
 
@@ -51,5 +49,3 @@ public:
 }; // class Pool
 
 } // namespace apt
-
-#endif // apt_Pool_h

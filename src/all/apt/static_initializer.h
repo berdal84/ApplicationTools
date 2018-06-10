@@ -1,6 +1,4 @@
 #pragma once
-#ifndef apt_static_initializer_h
-#define apt_static_initializer_h
 
 namespace apt {
 
@@ -23,12 +21,12 @@ namespace apt {
 //    void Foo::Shutdown() { /* do shutdown here */ }
 //    APT_DEFINE_STATIC_INIT(Foo);
 //
-// \note Init() should not construct any non-trivial static objects as the
-//   order of initialization relative to static_initializer cannot be
-//   guaranteed. This means that static objects initialized during Init()
-//   may subsequently be default-initialized, overwriting the value set by
-//   Init(). To get around this, use heap allocation or the storage class 
-//   (memory.h):
+// Init() should not construct any non-trivial static objects as the
+// order of initialization relative to static_initializer cannot be
+// guaranteed. This means that static objects initialized during Init()
+// may subsequently be default-initialized, overwriting the value set by
+// Init(). To get around this, use heap allocation or the storage class 
+// (memory.h):
 //
 //   #inclide <apt/memory.h>
 //   static storage<Bar, 1> s_bar;
@@ -68,5 +66,3 @@ private:
 #define APT_DEFINE_STATIC_INIT(_type)  int apt::static_initializer<_type>::s_initCounter; apt::static_initializer<_type>::Callback* apt::static_initializer<_type>::s_onShutdown
 
 } // namespace apt
-
-#endif // apt_static_initializer_h

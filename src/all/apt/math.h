@@ -1,78 +1,79 @@
 #pragma once
-#ifndef apt_math_h
-#define apt_math_h
 
-#ifdef APT_DEBUG
-	//#define GLM_MESSAGES
-#endif
+#include <apt/apt.h>
+#include <linalg/linalg.h>
 
-// \todo 
-//#define APT_MATH_SIMD
+namespace apt {
+	using linalg::identity;
 
-// \hack glm typedefs sized ints with the same names as apt; to get around the ensuing conflict we #define them with glm_ prefixes, 
-// then #undef them again below
-#define aligned glm_hack_aligned
-#define int8    glm_hack_int8
-#define int16   glm_hack_int16
-#define int32   glm_hack_int32
-#define int64   glm_hack_int64
-#define uint8   glm_hack_uint8
-#define uint16  glm_hack_uint16
-#define uint32  glm_hack_uint32
-#define uint64  glm_hack_uint64
-#define uint    glm_hack_uint
-#define float32 glm_hack_float32
-#define float64 glm_hack_float64
+	typedef linalg::aliases::float2   vec2;
+	typedef linalg::aliases::float3   vec3;
+	typedef linalg::aliases::float4   vec4;
+	typedef linalg::aliases::uint2    uvec2;
+	typedef linalg::aliases::uint3    uvec3;
+	typedef linalg::aliases::uint4    uvec4;
+	typedef linalg::aliases::int2     ivec2;
+	typedef linalg::aliases::int3     ivec3;
+	typedef linalg::aliases::int4     ivec4;
+	typedef linalg::aliases::bool2    bvec2;
+	typedef linalg::aliases::bool3    bvec3;
+	typedef linalg::aliases::bool4    bvec4;
+	typedef linalg::aliases::float2x2 mat2;
+	typedef linalg::aliases::float3x3 mat3;
+	typedef linalg::aliases::float4x4 mat4;
+	typedef linalg::aliases::float4   quat;
+	
+	namespace internal
+	{
+		template<> struct TypeTraits<vec2>      { typedef VecT   Family; enum { kCount = 2 };  };
+		template<> struct TypeTraits<vec3>      { typedef VecT   Family; enum { kCount = 3 };  };
+		template<> struct TypeTraits<vec4>      { typedef VecT   Family; enum { kCount = 4 };  };
+		template<> struct TypeTraits<uvec2>     { typedef VecT   Family; enum { kCount = 2 };  };
+		template<> struct TypeTraits<uvec3>     { typedef VecT   Family; enum { kCount = 3 };  };
+		template<> struct TypeTraits<uvec4>     { typedef VecT   Family; enum { kCount = 4 };  };
+		template<> struct TypeTraits<ivec2>     { typedef VecT   Family; enum { kCount = 2 };  };
+		template<> struct TypeTraits<ivec3>     { typedef VecT   Family; enum { kCount = 3 };  };
+		template<> struct TypeTraits<ivec4>     { typedef VecT   Family; enum { kCount = 4 };  };
+		template<> struct TypeTraits<bvec2>     { typedef VecT   Family; enum { kCount = 2 };  };
+		template<> struct TypeTraits<bvec3>     { typedef VecT   Family; enum { kCount = 3 };  };
+		template<> struct TypeTraits<bvec4>     { typedef VecT   Family; enum { kCount = 4 };  };
+		template<> struct TypeTraits<mat2>      { typedef MatT   Family; enum { kCount = 4 };  };
+		template<> struct TypeTraits<mat3>      { typedef MatT   Family; enum { kCount = 9 };  };
+		template<> struct TypeTraits<mat4>      { typedef MatT   Family; enum { kCount = 16 }; };
+	}
 
-#define GLM_FORCE_SIZE_FUNC
-#define GLM_FORCE_NO_CTOR_INIT
-#define GLM_FORCE_EXPLICIT_CTOR
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_access.hpp>
-#include <glm/gtc/matrix_inverse.hpp>
-#include <glm/gtc/matrix_transform.hpp>
+	constexpr float kPi      = 3.14159265359f;
+	constexpr float kTwoPi   = 2.0f * kPi;
+	constexpr float kHalfPi  = 0.5f * kPi;
+}
 
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtc/quaternion.hpp>
-
-#define GLM_GTX_norm
-#include <glm/gtx/norm.hpp>
-
-#ifdef APT_MATH_SIMD
-	#include <glm/gtx/simd_vec4.hpp>
-	#include <glm/gtx/simd_mat4.hpp>
-#endif
-
-#undef aligned
-#undef int8
-#undef int16
-#undef int32
-#undef int64
-#undef uint8
-#undef uint16
-#undef uint32
-#undef uint64
-#undef uint
-#undef float16
-#undef float32
-#undef float64
-
-#include <apt/def.h>
+#include <apt/apt.h>
 
 namespace apt {
 
-	using namespace glm; // import glm
+	// Transformation helpers.
+	mat4 TransformationMatrix(const vec3& _translation, const mat3& _rotationScale);
+	mat4 TransformationMatrix(const vec3& _translation, const quat& _rotation, const vec3& _scale = vec3(1.0f));
+	mat3 TransformationMatrix(const vec2& _translation, const mat2& _rotationScale);
+	mat4 TranslationMatrix(const vec3& _translation);
+	mat4 RotationMatrix(const vec3& _axis, float _radians);
+	mat4 RotationMatrix(const quat& _q);
+	quat RotationQuaternion(const vec3& _axis, float _radians);
+	quat RotationQuaternion(const mat3& _rotation);
+	mat4 ScaleMatrix(const vec3& _scale);
 
-
-	// Transformation matrix helpers.
-	mat4 Translation(const vec3& _translation);
-	mat4 Rotation(const vec3& _axis, float _radians);
-	mat4 Scale(const vec3& _scale);
+	// Extract translation/rotation/scale from _m.
 	vec3 GetTranslation(const mat4& _m);
+	vec2 GetTranslation(const mat3& _m);
 	mat3 GetRotation(const mat4& _m);
+	mat2 GetRotation(const mat3& _m);
 	vec3 GetScale(const mat4& _m);
-	vec3 ToEulerXYZ(const mat3& _m);
-	mat3 FromEulerXYZ(const vec3& _euler);
+
+	// Transform a position or direction by homogeneous matrix _m.
+	inline vec3 TransformPosition(const mat4& _m, const vec3& _p)               { return mul(_m, vec4(_p, 1.0f)).xyz(); }
+	inline vec2 TransformPosition(const mat3& _m, const vec2& _p)               { return mul(_m, vec3(_p, 1.0f)).xy();  }
+	inline vec3 TransformDirection(const mat4& _m, const vec3& _d)              { return mul(_m, vec4(_d, 0.0f)).xyz(); }
+	inline vec2 TransformDirection(const mat3& _m, const vec2& _d)              { return mul(_m, vec3(_d, 0.0f)).xy();  }
 
 	// Get an orthonormal bases with X/Y/Z aligned with _axis.
 	mat4 AlignX(const vec3& _axis, const vec3& _up = vec3(0.0f, 1.0f, 0.0f));
@@ -82,37 +83,178 @@ namespace apt {
 	// Matrix with position = _from and +Z = (_to - _from).
 	mat4 LookAt(const vec3& _from, const vec3& _to, const vec3& _up = vec3(0.0f, 1.0f, 0.0f));
 
-	// \todo Rename, add a templated interface for integral types, plus interface for e.g. random rotations
-	class LCG
-	{
-		static const uint kMultiplier  = 48271u;
-		static const uint kIncrement   = 0u;
-		static const uint kModulus     = 2147483647u;
-		static const uint kDefaultSeed = 1u;
-		
-		uint m_seed;
-		
-	public:
-		LCG(uint _seed = kDefaultSeed)
-			: m_seed(_seed) 
-		{
-		}
+	// Convert between radians and degrees.
+	inline float Degrees(float _radians)                                        { return _radians * (180.0f / kPi); }
+	inline float Radians(float _degrees)                                        { return _degrees * (kPi / 180.0f); }
+
+	// Convert between mat3 and Euler angles (XYZ order).
+	vec3 ToEulerXYZ(const mat3& _m);
+	mat3 FromEulerXYZ(const vec3& _euler);
+
+	// Return the transpose of a matrix.
+	mat4 Transpose(const mat4& _m);
+	mat3 Transpose(const mat3& _m);
+	mat2 Transpose(const mat2& _m);
+
+	// Return the inverse of a matrix/quaternion.
+	mat4 Inverse(const mat4& _m);
+	mat3 Inverse(const mat3& _m);
+	mat2 Inverse(const mat2& _m);
+	quat Inverse(const quat& _q);   // can use Conjugate(_q) if _q is unit length
+	quat Conjugate(const quat& _q); // equivalent to Inverse(_q) if _q is unit length
+
+	// Return the inverse of an affine matrix.
+	mat4 AffineInverse(const mat4& _m);
+	mat3 AffineInverse(const mat3& _m);
+
+	// Normalize a vector.
+	template <typename tType>
+	inline tType Normalize(const tType& _v)                                     { return linalg::normalize(_v); }
+
+	// Return the length of a vector.
+	template <typename tType>
+	inline auto Length(const tType& _v)                                         { return linalg::length(_v); }
+
+	// Return the square length of a vector.
+	template <typename tType>
+	inline auto Length2(const tType& _v)                                        { return linalg::length2(_v); }
+
+	// Return the dot product of _a and _b.
+	template <typename tType>
+	inline auto Dot(const tType& _a, const tType& _b)                           { return linalg::dot(_a, _b); }
 	
-		void seed(uint _seed)               { APT_ASSERT(_seed > 0u); m_seed = _seed; }
-		void discard(uint _count = 1u)      { while (_count > 0) { rand(); --_count; } }
+	// Return the cross product of _a and _b.
+	template <typename tType>
+	inline auto Cross(const tType& _a, const tType& _b)                         { return linalg::cross(_a, _b); }
 
-		int rand()                          { return (int)urand(); }
-		int rand(int _max)                  { return (int)urand() % _max; }
-		int rand(int _min, int _max)        { return _min + (int)urand() % (_max - _min); }
+	// Return the fractional part of _x (elementwise for vector/matrix types).
+	template <typename tType>
+	tType Fract(const tType& _x);
 
-		uint urand()                        { m_seed = (m_seed * kMultiplier + kIncrement) % kModulus; return m_seed; }
-		uint urand(uint _max)               { return urand() % _max; }
-		uint urand(uint _min, uint _max)    { return _min + urand() % (_max - _min); }
+	// Return -1 if _x < 0, else 1 (elementwise for vector/matrix types).
+	template <typename tType>
+	tType Sign(const tType& _x);
 
-		float frand()                       { return (float)urand() / (float)0x7fffffffu; }
-		float frand(float _max)             { return frand() * _max; }
-		float frand(float _min, float _max) { return _min + frand() * (_max - _min); }
-	};
-}
+	// Return the absolute value for _x (elementwise for vector/matrix types).
+	template <typename tType>
+	tType Abs(const tType& _x);
 
-#endif // frm_math_h
+	// Return the largest integer value <= _x (elementwise for vector/matrix types).
+	template <typename tType>
+	tType Floor(const tType& _x);
+
+	// Return the smallest integer value >= _x (elementwise for vector/matrix types).
+	template <typename tType>
+	tType Ceil(const tType& _x);
+
+	// Return the remainder of _x / _y.
+	template <typename tType>
+	inline tType Mod(const tType& _x, const tType& _y)                           { return _x - _y * Floor(_x / _y); }
+
+	// Return the nearest integer to _x, rounding away from zero in halfway cases (elementwise for vector/matrix types).
+	template <typename tType>
+	tType Round(const tType& _x);
+
+	// Return the min of _a,_b (elementwise for vector/matrix types).
+	template <typename tType>
+	tType Min(const tType& _a, const tType& _b);
+	#define APT_MIN(_a, _b) apt::Min(_a, _b)
+
+	// Return the max of _a,_b (elementwise for vector/matrix types).
+	template <typename tType>
+	tType Max(const tType& _a, const tType& _b);
+	#define APT_MAX(_a, _b) apt::Max(_a, _b)
+
+	// Return _x clamped in [_min,_max] (elementwise for vector/matrix types).
+	template <typename tType>
+	inline tType Clamp(const tType& _x, const tType& _min, const tType& _max)   { return Max(Min(_x, _max), _min); }
+	#define APT_CLAMP(_x, _min, _max) apt::Clamp(_x, _min, _max)
+
+	// Return _x clamped in [0,1] (elementwise for vector/matrix types).
+	template <typename tType>
+	inline tType Saturate(const tType& _x)                                      { return Clamp(_x, tType(0), tType(1)); }
+	#define APT_SATURATE(_x) apt::Saturate(_x)
+
+	// Return whether _x is a power of 2.
+	template <typename tType>
+	inline bool IsPow2(const tType& _x)                                         { return (_x & (_x - 1)) == 0; }
+	#define APT_IS_POW2(_x) apt::IsPow2(_x)
+
+	// Return _x % _y where _y is a power of 2.
+	template <typename tType>
+	inline tType ModPow2(const tType& _x, const tType& _y)                      { return _x & (_y - 1); }
+	#define APT_MOD_POW2(_x, _y) apt::ModPow2(_x, _y)
+
+	namespace internal {
+		template <typename tType>
+		inline tType Fract(const tType& _x, FloatT)                             { return _x - std::floor(_x); }
+		template <typename tType>
+		inline tType Fract(const tType& _x, CompositeT)                         { return linalg::fract(_x); }
+	}
+	template <typename tType>
+	inline tType Fract(const tType& _x)                                         { return internal::Fract(_x, APT_TRAITS_FAMILY(tType)); }
+
+	namespace internal {
+		template <typename tType>
+		inline tType Sign(const tType& _x, FloatT)                              { return std::copysign(tType(1), _x); }
+		template <typename tType>
+		inline tType Sign(const tType& _x, CompositeT)                          { return linalg::copysign(tType(1), _x); }
+	}
+	template <typename tType>
+	inline tType Sign(const tType& _x)                                          { return internal::Sign(_x, APT_TRAITS_FAMILY(tType)); }
+
+	namespace internal {
+		template <typename tType>
+		inline tType Abs(const tType& _x, ScalarT)                              { return std::abs(_x); }
+		template <typename tType>
+		inline tType Abs(const tType& _x, CompositeT)                           { return linalg::abs(_x); }
+	}
+	template <typename tType>
+	inline tType Abs(const tType& _x)                                           { return internal::Abs(_x, APT_TRAITS_FAMILY(tType)); }
+
+	namespace internal {
+		template <typename tType>
+		inline tType Floor(const tType& _x, ScalarT)                            { return std::floor(_x); }
+		template <typename tType>
+		inline tType Floor(const tType& _x, CompositeT)                         { return linalg::floor(_x); }
+	}
+	template <typename tType>
+	inline tType Floor(const tType& _x)                                         { return internal::Floor(_x, APT_TRAITS_FAMILY(tType)); }
+
+	namespace internal {
+		template <typename tType>
+		inline tType Ceil(const tType& _x, ScalarT)                             { return std::ceil(_x); }
+		template <typename tType>
+		inline tType Ceil(const tType& _x, CompositeT)                          { return linalg::ceil(_x); }
+	}
+	template <typename tType>
+	inline tType Ceil(const tType& _x)                                          { return internal::Ceil(_x, APT_TRAITS_FAMILY(tType)); }
+
+	namespace internal {
+		template <typename tType>
+		inline tType Round(const tType& _x, ScalarT)                            { return std::round(_x); }
+		template <typename tType>
+		inline tType Round(const tType& _x, CompositeT)                         { return linalg::round(_x); }
+	}
+	template <typename tType>
+	inline tType Round(const tType& _x)                                         { return internal::Round(_x, APT_TRAITS_FAMILY(tType)); }
+
+	namespace internal {
+		template <typename tType>
+		inline tType Min(const tType& _a, const tType& _b, ScalarT)             { return std::min(_a, _b); }
+		template <typename tType>
+		inline tType Min(const tType& _a, const tType& _b, CompositeT)          { return linalg::min(_a, _b); }
+	}
+	template <typename tType>
+	inline tType Min(const tType& _a, const tType& _b)                          { return internal::Min(_a, _b, APT_TRAITS_FAMILY(tType)); }
+
+	namespace internal {
+		template <typename tType>
+		inline tType Max(const tType& _a, const tType& _b, ScalarT)             { return std::max(_a, _b); }
+		template <typename tType>
+		inline tType Max(const tType& _a, const tType& _b, CompositeT)          { return linalg::max(_a, _b); }
+	}
+	template <typename tType>
+	inline tType Max(const tType& _a, const tType& _b)                          { return internal::Max(_a, _b, APT_TRAITS_FAMILY(tType)); }
+
+} // namespace apt

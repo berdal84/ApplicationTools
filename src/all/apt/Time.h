@@ -1,16 +1,9 @@
 #pragma once
-#ifndef apt_time_h
-#define apt_time_h
 
-#include <apt/def.h>
-#include <apt/log.h>
+#include <apt/apt.h>
 #include <apt/static_initializer.h>
-#include <apt/String.h>
 
 namespace apt {
-
-class Timestamp;
-class DateTime;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Time
@@ -19,52 +12,45 @@ class DateTime;
 class Time
 {
 public:
-	// High-resolution time stamp. Use for interval measurements.
+	// See TimeStamp.
 	static Timestamp GetTimestamp();
+	static sint64    GetSystemFrequency();
 	
-	// High-resolution date-time, synchronized to UTC.
-	static DateTime GetDateTime();
-	
-	// Frequency of the system timer in ticks/second.
-	static sint64 GetSystemFrequency();
-	
+	// See DateTime.
+	static DateTime  GetDateTime(); // UTC
+	static DateTime  ToLocal(DateTime _utc);
+	static DateTime  ToUTC(DateTime _local);
+
 	// Interval since the application began.
 	static Timestamp GetApplicationElapsed();
 
+	// 
+	static void      Sleep(sint64 _ms);
+
 	static void Init();
 	static void Shutdown();
-
-}; // class Time
+};
 APT_DECLARE_STATIC_INIT(Time, Time::Init, Time::Shutdown);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Timestamp
-// High-resolution unsynchronized timestamp, with functions for converting 
-// between ticks and seconds/milliseconds/microseconds. Use for interval
-// measurments.
+// High resolution unsynchronized timestamp, use for interval measurments. 
 ////////////////////////////////////////////////////////////////////////////////
 class Timestamp
 {
 	friend class Time;
 public:
-	// Default/value-initializing ctor.
-	Timestamp(sint64 _raw = 0): m_raw(_raw) {}
+	Timestamp(sint64 _raw = 0ll): m_raw(_raw) {}
 
-	// Raw time value in system-dependent units.
+	// Raw time in system ticks.
 	sint64 getRaw() const { return m_raw; }
 
-	// Raw value converted to seconds.
 	double asSeconds() const;
-
-	// Raw value converted to milliseconds (10^-3s).
-	double asMilliseconds() const;
-
-	// Raw value converted to microseconds (10^-6s).
-	double asMicroseconds() const;
+	double asMilliseconds() const; // (10^-3s)
+	double asMicroseconds() const; // (10^-6s)
 	
 	// Return a string with an appropriate units e.g. "2.43s", "17.2ms", "400us".
-	// \note Returns a ptr to a local static buffer - for normal use this should 
-	//    be fine, just print the string and don't keep the ptr.
+	// Note that return value is a ptr to a local static buffer - for normal use this should be fine, just print the string and don't keep the ptr.
 	const char*     asString() const;
 
 	const Timestamp operator- (const Timestamp& rhs) const  { return m_raw -  rhs.m_raw; }
@@ -80,22 +66,21 @@ public:
 private:
 	sint64 m_raw;
 
-}; // class Timestamp
+};
 
 
 ////////////////////////////////////////////////////////////////////////////////
 // DateTime
-// High-resolution datetime, synchronized to UTC.
+// System datetime, use for file timestamps.
 ////////////////////////////////////////////////////////////////////////////////
 class DateTime
 {
 	friend class Time;
 public:
-	// Default/value-initializing ctor.
 	DateTime(sint64 _raw = 0ll): m_raw(_raw) {}
 
 	// Raw time value in system-dependent units.
-	sint64 getRaw() const { return m_raw; }
+	uint64 getRaw() const { return m_raw; }
 
 	sint32 getYear() const;
 	sint32 getMonth() const;
@@ -117,14 +102,8 @@ public:
 	//    %S       | Zero-padded second in [00,59]
 	//    %Y       | Year
 	// E.g. ISO 8601 format would be "%Y-%m-%dT%H:%M:%SZ".
-	// \note Returns a ptr to a local static buffer - for normal use this should 
-	//    be fine, just print the string and don't keep the ptr.
+	// Note that return value is a ptr to a local static buffer - for normal use this should be fine, just print the string and don't keep the ptr.
 	const char*    asString(const char* _format = nullptr) const;
-
-	const DateTime operator- (const DateTime& rhs) const  { return m_raw -  rhs.m_raw; }
-	const DateTime operator+ (const DateTime& rhs) const  { return m_raw +  rhs.m_raw; }
-	DateTime&      operator-=(const DateTime& rhs)        { m_raw -= rhs.m_raw; return *this; }
-	DateTime&      operator+=(const DateTime& rhs)        { m_raw += rhs.m_raw; return *this; }
 
 	bool           operator> (const DateTime& rhs) const  { return m_raw >  rhs.m_raw; }
 	bool           operator>=(const DateTime& rhs) const  { return m_raw >= rhs.m_raw; }
@@ -132,36 +111,30 @@ public:
 	bool           operator<=(const DateTime& rhs) const  { return m_raw <= rhs.m_raw; }
 
 private:	
-	sint64 m_raw;
+	uint64 m_raw;
 
-}; // class DateTime
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 // AutoTimer
 // Scoped timer. Measures the time between ctor and dtor, logs the interval in
-// the dtor. Use APT_TIME_DBG to declare an AutoTimer instance for debug builds 
-// only.
+// the dtor. Use APT_AUTOTIMER_DBG to declare an AutoTimer instance for debug 
+// builds only.
+//
+// Auto timers may be nested in which case the result is only logged when the
+// outer timer is destroyed, e.g.:
+//   Outer -- 20ms
+//     Inner -- 10ms
+//     Inner -- 10ms
 ////////////////////////////////////////////////////////////////////////////////
 class AutoTimer
 {
+	int        m_stackIndex;
 	Timestamp  m_start;
-	String<64> m_msg;
 public:
-	AutoTimer(const char* _fmt, ...)
-	{
-		va_list args;
-		va_start(args, _fmt);
-		m_msg.setfv(_fmt, args);
-		va_end(args);
-		m_start = Time::GetTimestamp(); 
-	}
-	~AutoTimer() 
-	{ 
-		Timestamp interval = Time::GetTimestamp() - m_start;
-		APT_LOG("%s -- %s", (const char*)m_msg, interval.asString());
-	}
+	AutoTimer(const char* _fmt, ...);
+	~AutoTimer();
 };
-
 #define APT_AUTOTIMER(...) apt::AutoTimer APT_UNIQUE_NAME(_aptAutoTimer_)(__VA_ARGS__)
 #ifdef APT_DEBUG
 	#define APT_AUTOTIMER_DBG(...) APT_AUTOTIMER(__VA_ARGS__)
@@ -170,5 +143,3 @@ public:
 #endif
 
 } // namespace apt
-
-#endif // APT_Time_h

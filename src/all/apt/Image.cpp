@@ -1,13 +1,18 @@
 #include <apt/Image.h>
 
-#include <apt/def.h>
 #include <apt/log.h>
+#include <apt/math.h>
+#include <apt/memory.h>
 #include <apt/File.h>
 #include <apt/FileSystem.h>
 #include <apt/Time.h>
 
 #include <cmath>
 #include <cstring>
+
+#ifdef APT_COMPILER_MSVC
+	#pragma warning(disable: 4244) // possible loss of data
+#endif
 
 using namespace apt;
 
@@ -18,7 +23,7 @@ template <typename tSrc, typename tDst>
 static void ConvertCopy(const tSrc* _src, tDst* _dst, uint _srcCount, uint _dstCount)
 {
 	do {
-		*_dst = DataType::Convert<tSrc, tDst>(*_src);
+		*_dst = DataTypeConvert<tSrc, tDst>(*_src);
 		++_src;
 		++_dst;
 		--_dstCount;
@@ -45,6 +50,24 @@ static void ConvertCopyImage(const void* _src, void* _dst, uint _srcCount, uint 
 	}
 }
 
+static uint GetImageSize(uint _w, uint _h, uint _d, Image::CompressionType _compression, uint _bytesPerTexel)
+{
+	switch (_compression) {
+		case Image::Compression_BC1:
+		case Image::Compression_BC4:
+			return APT_MAX(((_w + 3) / 4) * ((_h + 3) / 4) * 8, (uint)1) * _d;
+		case Image::Compression_BC2:
+		case Image::Compression_BC3:
+		case Image::Compression_BC5:
+		case Image::Compression_BC6:
+		case Image::Compression_BC7:
+			return APT_MAX(((_w + 3) / 4) * ((_h + 3) / 4) * 16, (uint)1) * _d;
+		default:
+			break;
+	};
+	return _w * _h * _d * _bytesPerTexel;
+}
+
 /*******************************************************************************
 
                                    Image
@@ -53,33 +76,35 @@ static void ConvertCopyImage(const void* _src, void* _dst, uint _srcCount, uint 
 
 // PUBLIC
 
-Image* Image::Create1d(uint _width, Layout _layout, DataType _dataType, uint _mipmapCount, CompressionType _compressionType)
+Image* Image::Create1d(uint _width, Layout _layout, DataType _dataType, uint _mipmapCount, uint _arrayCount, CompressionType _compressionType)
 {
-	Image* ret = new Image;
+	Image* ret = APT_NEW(Image);
 	APT_ASSERT(ret);
 	ret->init();
-	ret->m_type        = Type_1d;
+	ret->m_type        = _arrayCount > 1 ? Type_1dArray : Type_1d;
 	ret->m_width       = _width;
 	ret->m_layout      = _layout;
 	ret->m_dataType    = _dataType;
 	ret->m_mipmapCount = _mipmapCount;
+	ret->m_arrayCount  = _arrayCount;
 	ret->m_compression = _compressionType;
 	ret->alloc();
 
 	return ret;
 }
 
-Image* Image::Create2d(uint _width, uint _height, Layout _layout, DataType _dataType, uint _mipmapCount, CompressionType _compressionType)
+Image* Image::Create2d(uint _width, uint _height, Layout _layout, DataType _dataType, uint _mipmapCount, uint _arrayCount, CompressionType _compressionType)
 {
-	Image* ret = new Image;
+	Image* ret = APT_NEW(Image);
 	APT_ASSERT(ret);
 	ret->init();
-	ret->m_type        = Type_2d;
+	ret->m_type        = _arrayCount > 1 ? Type_2dArray : Type_2d;
 	ret->m_width       = _width;
 	ret->m_height      = _height;
 	ret->m_layout      = _layout;
 	ret->m_dataType    = _dataType;
 	ret->m_mipmapCount = _mipmapCount;
+	ret->m_arrayCount  = _arrayCount;
 	ret->m_compression = _compressionType;
 	ret->alloc();
 
@@ -87,18 +112,37 @@ Image* Image::Create2d(uint _width, uint _height, Layout _layout, DataType _data
 }
 
 
-Image* Image::Create3d(uint _width, uint _height, uint _depth, Layout _layout, DataType _dataType, uint _mipmapCount, CompressionType _compressionType)
+Image* Image::Create3d(uint _width, uint _height, uint _depth, Layout _layout, DataType _dataType, uint _mipmapCount, uint _arrayCount, CompressionType _compressionType)
 {
-	Image* ret = new Image;
+	Image* ret = APT_NEW(Image);
 	APT_ASSERT(ret);
 	ret->init();
-	ret->m_type        = Type_3d;
+	ret->m_type        = _arrayCount > 1 ? Type_3dArray : Type_3d;
 	ret->m_width       = _width;
 	ret->m_height      = _height;
 	ret->m_depth       = _depth;
 	ret->m_layout      = _layout;
 	ret->m_dataType    = _dataType;
 	ret->m_mipmapCount = _mipmapCount;
+	ret->m_arrayCount  = _arrayCount;
+	ret->m_compression = _compressionType;
+	ret->alloc();
+
+	return ret;
+}
+
+Image* Image::CreateCubemap(uint _width, Layout _layout, DataType _dataType, uint _mipmapCount, uint _arrayCount, CompressionType _compressionType)
+{
+	Image* ret = APT_NEW(Image);
+	APT_ASSERT(ret);
+	ret->init();
+	ret->m_type        = _arrayCount > 1 ? Type_CubemapArray : Type_Cubemap;
+	ret->m_width       = _width;
+	ret->m_height      = _width;
+	ret->m_layout      = _layout;
+	ret->m_dataType    = _dataType;
+	ret->m_mipmapCount = _mipmapCount;
+	ret->m_arrayCount  = _arrayCount;
 	ret->m_compression = _compressionType;
 	ret->alloc();
 
@@ -109,7 +153,7 @@ void Image::Destroy(Image*& _img_)
 {
 	APT_ASSERT(_img_);
 	if (_img_) {
-		delete _img_;
+		APT_DELETE(_img_);
 		_img_ = 0;
 	}
 }
@@ -199,26 +243,17 @@ bool Image::Write(const Image& _img, const char* _path, FileFormat _format)
 	return File::Write(f, _path);
 }
 
-uint Image::GetMaxMipmapSize(uint _width, uint _height, uint _depth)
+uint Image::GetMaxMipmapCount(uint _width, uint _height, uint _depth)
 {
-	const double rlog2    = 1.0 / log(2.0);
-	const uint log2Width  = (uint)(log((double)_width)  * rlog2);
-	const uint log2Height = (uint)(log((double)_height) * rlog2);
-	const uint log2Depth  = (uint)(log((double)_depth)  * rlog2);
-	uint mipCount = APT_MAX(log2Width, APT_MAX(log2Height, log2Depth)) + 1; // +1 for level 0
-	mipCount = APT_MIN(APT_MIN(mipCount, (uint)1u), kMaxMipmapCount);
-	return mipCount;
+	uint log2Width  = (uint)floor(log2((double)_width));
+	uint log2Height = (uint)floor(log2((double)_height));
+	uint log2Depth  = (uint)floor(log2((double)_depth));
+	return APT_MAX(log2Width, APT_MAX(log2Height, log2Depth)) + 1; // +1 for level 0
 }
 
 char* Image::getRawImage(uint _array, uint _mip) const
 {
 	APT_ASSERT(m_data);
-	APT_ASSERT(_array < m_arrayCount);
-	APT_ASSERT(_mip < m_mipmapCount);
-	if (m_data == 0 || _array >= m_arrayCount || _mip >= m_mipmapCount) {
-		return 0;
-	}
-
 	uint offset = _array * m_arrayLayerSize + m_mipOffsets[_mip];
 	return m_data + offset;
 }
@@ -227,7 +262,7 @@ uint Image::getRawImageSize(uint _mip) const
 {
 	APT_ASSERT(m_data);
 	APT_ASSERT(_mip < m_mipmapCount);
-	if (m_data == 0 || _mip >= m_mipmapCount) {
+	if (!m_data || _mip >= m_mipmapCount) {
 		return 0;
 	}
 
@@ -254,18 +289,18 @@ void Image::setRawImage(uint _array, uint _mip, const void* _src, Layout _layout
 
 	#define CONVERT_FROM(type) \
 		switch (m_dataType) { \
-			case DataType::Uint8N:   ConvertCopyImage<DataType::ToType<DataType:: ## type>::Type, DataType::ToType<DataType::Uint8N >::Type >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
-			case DataType::Uint16N:  ConvertCopyImage<DataType::ToType<DataType:: ## type>::Type, DataType::ToType<DataType::Uint16N>::Type >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
-			case DataType::Uint32N:  ConvertCopyImage<DataType::ToType<DataType:: ## type>::Type, DataType::ToType<DataType::Uint32N>::Type >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
-			case DataType::Float32:  ConvertCopyImage<DataType::ToType<DataType:: ## type>::Type, DataType::ToType<DataType::Float32>::Type >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
+			case DataType_Uint8N:   ConvertCopyImage<internal::DataType_EnumToType<type>::Type, uint8N >(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
+			case DataType_Uint16N:  ConvertCopyImage<internal::DataType_EnumToType<type>::Type, uint16N>(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
+			case DataType_Uint32N:  ConvertCopyImage<internal::DataType_EnumToType<type>::Type, uint32N>(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
+			case DataType_Float32:  ConvertCopyImage<internal::DataType_EnumToType<type>::Type, float32>(_src, dst, srcCount, dstCount, m_arrayLayerSize); break; \
 			default: APT_ASSERT(false); \
 		}
 	switch (_dataType) {
-		case DataType::Uint8N:  CONVERT_FROM(Uint8N); break;
-		case DataType::Uint16N: CONVERT_FROM(Uint16N); break;
-		case DataType::Uint32N: CONVERT_FROM(Uint32N); break;
-		case DataType::Float32: CONVERT_FROM(Float32); break;
-		default: APT_ASSERT_MSG(false, "Unknown data type");
+		case DataType_Uint8N:  CONVERT_FROM(DataType_Uint8N); break;
+		case DataType_Uint16N: CONVERT_FROM(DataType_Uint16N); break;
+		case DataType_Uint32N: CONVERT_FROM(DataType_Uint32N); break;
+		case DataType_Float32: CONVERT_FROM(DataType_Float32); break;
+		default:               APT_ASSERT_MSG(false, "Unsupported DataType: %s", DataTypeString(_dataType));
 	};
 	#undef CONVERT_FROM
 }
@@ -285,79 +320,107 @@ void Image::init()
 	m_type        = Type_Invalid;
 	m_compression = Compression_None;
 	m_layout      = Layout_Invalid;
-	m_dataType    = DataType::InvalidType;
+	m_dataType    = DataType_Invalid;
 	
-	char* m_data = 0;
+	char* m_data = nullptr;
 	memset(m_mipOffsets, 0, sizeof(uint) * kMaxMipmapCount);
 	memset(m_mipSizes,   0, sizeof(uint) * kMaxMipmapCount);
 	m_arrayLayerSize = 0;
-	m_texelSize = 0;
+	m_bytesPerTexel = 0.0f;
 }
 
 void Image::alloc()
 {
 	free(m_data);
-	
-	m_texelSize = DataType::GetSizeBytes(m_dataType) * GetComponentCount(m_layout);
+
+	if (m_compression == Compression_None) {
+		m_bytesPerTexel = (float)(DataTypeSizeBytes(m_dataType) * GetComponentCount(m_layout));
+	} else {
+		switch (m_compression) {
+			case Compression_BC1:
+			case Compression_BC4:
+				m_bytesPerTexel = 0.5f;
+				break;
+			case Compression_BC2:
+			case Compression_BC3:
+			case Compression_BC5:
+			case Compression_BC6:
+			case Compression_BC7:
+				m_bytesPerTexel = 1.0f;
+				break;
+			default:
+				APT_ASSERT(false); // unknown compression type?
+		};
+	}
 	uint w = m_width, h = m_height, d = m_depth;
 	m_arrayLayerSize = 0;
-	uint i = 0, lim = APT_MIN(m_mipmapCount, GetMaxMipmapSize(w, h, d));
+	uint i = 0, lim = APT_MIN(m_mipmapCount, GetMaxMipmapCount(w, h, d));
 	do {
 		m_mipOffsets[i] = m_arrayLayerSize;
-		m_mipSizes[i] = m_texelSize * w * h * d;
+		m_mipSizes[i] = GetImageSize(w, h, d, m_compression, (uint)m_bytesPerTexel);
 		m_arrayLayerSize += m_mipSizes[i];
-		w = APT_MAX(w / 2, (uint)1);
-		h = APT_MAX(h / 2, (uint)1);
-		d = APT_MAX(d / 2, (uint)1);
+		w = APT_MAX(w >> 1, (uint)1);
+		h = APT_MAX(h >> 1, (uint)1);
+		d = APT_MAX(d >> 1, (uint)1);
 		++i;
 		APT_ASSERT(i < kMaxMipmapCount);
 	} while (i < lim);
 
-	m_data = (char*)malloc(m_arrayLayerSize * m_arrayCount);
+	uint imageCount = isCubemap() ? m_arrayCount * 6 : m_arrayCount;
+	m_data = (char*)APT_MALLOC(m_arrayLayerSize * imageCount);
 	APT_ASSERT(m_data);
 }
 
 bool Image::validateFileFormat(FileFormat _format) const
 {
+	#define Image_ERR_IF(_cond, _msg, ...) \
+		if (_cond) { \
+			APT_LOG_ERR("Image: " _msg); \
+			return false; \
+		}
+
 	switch (_format) {
 		case FileFormat_Bmp:
-			if (m_compression != Compression_None) return false;
-			if (DataType::IsFloat(m_dataType))  return false;
-			if (DataType::IsSigned(m_dataType)) return false;
-			if (!DataType::IsNormalized(m_dataType)) return false;
-			if (IsDataTypeBpc(m_dataType, 16) || IsDataTypeBpc(m_dataType, 32)) return false;
-			return true;
-		case FileFormat_Dds:
-			if (m_type == Type_3dArray) return false;
-			return true;
-		case FileFormat_Exr:
-			if (m_compression != Compression_None) return false;
-			if (!DataType::IsFloat(m_dataType)) return false;
-			if (IsDataTypeBpc(m_dataType, 8) || IsDataTypeBpc(m_dataType, 16)) return false;
-		case FileFormat_Hdr:
-			if (m_compression != Compression_None) return false;
-			if (!DataType::IsFloat(m_dataType)) return false;
-			if (IsDataTypeBpc(m_dataType, 8) || IsDataTypeBpc(m_dataType, 16)) return false;
-			return true;
-		case FileFormat_Png:
-			if (m_compression != Compression_None) return false;
-			if (DataType::IsFloat(m_dataType))  return false;
-			if (DataType::IsSigned(m_dataType)) return false;
-			if (!DataType::IsNormalized(m_dataType)) return false;
-			if (IsDataTypeBpc(m_dataType, 32)) return false;
-			return true;
-		case FileFormat_Tga:
-			if (m_compression != Compression_None) return false;
-			if (DataType::IsFloat(m_dataType))  return false;
-			if (DataType::IsSigned(m_dataType)) return false;
-			if (!DataType::IsNormalized(m_dataType)) return false;
-			if (IsDataTypeBpc(m_dataType, 16) || IsDataTypeBpc(m_dataType, 32)) return false;
-			return true;
-		default:
+			Image_ERR_IF(m_compression != Compression_None,   "BMP compression not supported");
+			Image_ERR_IF(DataTypeIsFloat(m_dataType),         "BMP float data types not supported");
+			Image_ERR_IF(DataTypeIsSigned(m_dataType),        "BMP signed data types not supported");
+			Image_ERR_IF(!DataTypeIsNormalized(m_dataType),   "BMP only normalized data types are supported");
+			Image_ERR_IF(!IsDataTypeBpc(m_dataType, 8),       "BMP only 8 bit data types are supported");
 			break;
+		case FileFormat_Dds:
+			Image_ERR_IF(m_type == Type_3dArray,              "DDS 3d arrays not supported");
+			break;
+		case FileFormat_Exr:
+			Image_ERR_IF(m_compression != Compression_None,   "EXR compression not supported");
+			Image_ERR_IF(!DataTypeIsFloat(m_dataType),        "EXR only float data types are supported");
+			Image_ERR_IF(!IsDataTypeBpc(m_dataType, 32),      "EXR only 32 bit data types are supported");
+			break;
+		case FileFormat_Hdr:
+			Image_ERR_IF(m_compression != Compression_None,   "HDR compression not supported");
+			Image_ERR_IF(!DataTypeIsFloat(m_dataType),        "HDR only float data types are supported");
+			Image_ERR_IF(!IsDataTypeBpc(m_dataType, 32),      "HDR only 32 bit data types are supported");
+			break;
+		case FileFormat_Png:
+			Image_ERR_IF(m_compression != Compression_None,   "PNG compression not supported");
+			Image_ERR_IF(DataTypeIsFloat(m_dataType),         "PNG float data types not supported");
+			Image_ERR_IF(DataTypeIsSigned(m_dataType),        "PNG signed data types not supported");
+			Image_ERR_IF(!DataTypeIsNormalized(m_dataType),   "PNG only normalized data types are supported");
+			Image_ERR_IF(IsDataTypeBpc(m_dataType, 32),       "PNG only 8 and 16 bit data types are supported");
+			break;
+		case FileFormat_Tga:
+			Image_ERR_IF(m_compression != Compression_None,   "TGA compression not supported");
+			Image_ERR_IF(DataTypeIsFloat(m_dataType),         "TGA float data types not supported");
+			Image_ERR_IF(DataTypeIsSigned(m_dataType),        "TGA signed data types not supported");
+			Image_ERR_IF(!DataTypeIsNormalized(m_dataType),   "TGA only normalized data types are supported");
+			Image_ERR_IF(IsDataTypeBpc(m_dataType, 32),       "TGA only 8 and 16 bit data types are supported");
+			break;
+		default:
+			return false;
 	};
 
-	return false;
+	return true;
+
+	#undef Image_ERR_IF
 }
 
 uint Image::GetComponentCount(Layout _layout)
@@ -368,7 +431,7 @@ uint Image::GetComponentCount(Layout _layout)
 		case Layout_RGB:       return 3;
 		case Layout_RGBA:      return 4;
 		case Layout_Invalid:
-		default:                 return 0;
+		default:               return 0;
 	};
 }
 
@@ -410,7 +473,7 @@ Image::FileFormat Image::GuessFormat(const char* _path)
 
 bool Image::IsDataTypeBpc(DataType _type, int _bpc)
 {
-	return _bpc == DataType::GetSizeBytes(_type) * 8;
+	return _bpc == DataTypeSizeBytes(_type) * 8;
 }
 
 #define STB_IMAGE_STATIC
@@ -423,13 +486,19 @@ bool Image::IsDataTypeBpc(DataType _type, int _bpc)
 #define STBI_ONLY_PSD
 #define STBI_ONLY_TGA
 #define STBI_FAILURE_USERMSG
-#define STBI_ASSERT(x) APT_ASSERT(x)
+#define STBI_ASSERT(x)        APT_ASSERT(x)
+#define STBI_MALLOC(size)     APT_MALLOC(size)
+#define STBI_REALLOC(p, size) APT_REALLOC(p, size)
+#define STBI_FREE(p)          APT_FREE(p)
 #include <stb_image.h>
 
 #define STB_IMAGE_WRITE_STATIC
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define STBI_WRITE_NO_STDIO
-#define STBIW_ASSERT(x) APT_ASSERT(x)
+#define STBIW_ASSERT(x)        APT_ASSERT(x)
+#define STBIW_MALLOC(size)     APT_MALLOC(size)
+#define STBIW_REALLOC(p, size) APT_REALLOC(p, size)
+#define STBIW_FREE(p)          APT_FREE(p)
 #include <cstdio>
 #include <stb_image_write.h>
 static void StbiWriteFile(void* file_, void* _data, int _size)
@@ -446,6 +515,9 @@ static void StbiWriteFile(void* file_, void* _data, int _size)
 }
 
 #include <lodepng.h>
+void* lodepng_malloc(size_t size)                   { return APT_MALLOC(size); }
+void* lodepng_realloc(void* ptr, size_t new_size)   { return APT_REALLOC(ptr, new_size); }
+void  lodepng_free(void* ptr)                       { APT_FREE(ptr); }
 static void SwapByteOrder(char* _d_, unsigned _dsize)
 {
     for (unsigned i = 0; i < _dsize; i += 2) {
@@ -457,6 +529,8 @@ static void SwapByteOrder(char* _d_, unsigned _dsize)
 }
 
 #define TINYEXR_IMPLEMENTATION
+#define TINYEXR_USE_MINIZ 0
+#include <miniz.h>
 #include <tinyexr.h>
 
 bool Image::ReadDefault(Image& img_, const char* _data, uint _dataSize)
@@ -478,7 +552,7 @@ bool Image::ReadDefault(Image& img_, const char* _data, uint _dataSize)
 	img_.m_depth       = img_.m_arrayCount = img_.m_mipmapCount = 1;
 	img_.m_type        = Type_2d;
 	img_.m_layout      = GuessLayout((uint)cmp);
-	img_.m_dataType    = isHdr ? DataType::Float32 : DataType::Uint8N;
+	img_.m_dataType    = isHdr ? DataType_Float32 : DataType_Uint8N;
 	img_.m_compression = Compression_None;
 	img_.alloc();
 	memcpy(img_.m_data, d, w * h * cmp * (isHdr ? sizeof(float) : sizeof(stbi_uc))); // \todo avoid this, let image own the ptr
@@ -516,8 +590,8 @@ bool Image::ReadPng(Image& img_, const char* _data, uint _dataSize)
 		                        ret = false;
 	};
 	switch (state.info_raw.bitdepth) {
-		case 8:                 dataType = DataType::Uint8N;  break;
-		case 16:                dataType = DataType::Uint16N;
+		case 8:                 dataType = DataType_Uint8N;  break;
+		case 16:                dataType = DataType_Uint16N;
 		                        SwapByteOrder((char*)d, x * y * cmp * 2); break; // \todo swizzle bytes during copy to img_
 		default:                APT_ASSERT_MSG(false, "Unsupported bit depth (%d)", state.info_raw.bitdepth);
 		                        ret = false;
@@ -531,10 +605,10 @@ bool Image::ReadPng(Image& img_, const char* _data, uint _dataSize)
 	img_.m_dataType    = dataType;
 	img_.m_compression = Compression_None;
 	img_.alloc();
-	memcpy(img_.m_data, d, x * y * cmp * DataType::GetSizeBytes(dataType)); // \todo, avoid this?
+	memcpy(img_.m_data, d, x * y * cmp * DataTypeSizeBytes(dataType)); // \todo, avoid this?
 
 Image_ReadPng_end:
-	free(d);
+	APT_FREE(d);
 	lodepng_state_cleanup(&state);
 	if (err) {
 		APT_LOG_ERR("lodepng error: '%s'", lodepng_error_text(err));
@@ -560,10 +634,10 @@ bool Image::WritePng(File& file_, const Image& _img)
 	};
 
 	switch (_img.m_dataType) {
-		case DataType::Uint8N:  bitdepth = 8;   break;
-		case DataType::Uint16N: bitdepth = 16;
+		case DataType_Uint8N:  bitdepth = 8;   break;
+		case DataType_Uint16N: bitdepth = 16;
 		                       // \hack \todo Can lodepng be modified to swizzle the bytes automatically on x86?
-	                            buf = (char*)malloc(_img.getRawImageSize());
+	                            buf = (char*)APT_MALLOC(_img.getRawImageSize());
 	                            memcpy(buf, _img.getRawImage(), _img.getRawImageSize());
 		                        SwapByteOrder(buf, (unsigned)_img.getRawImageSize()); break;
 		default:                APT_ASSERT_MSG(false, "Unsupported data type");
@@ -578,6 +652,8 @@ bool Image::WritePng(File& file_, const Image& _img)
 	lodepng_state_init(&state);
 	state.info_raw.colortype = colorType;
 	state.info_raw.bitdepth = bitdepth;
+	state.info_png.color.colortype = colorType;
+	state.info_png.color.bitdepth = bitdepth;
 	state.encoder = enc;
 
 	unsigned char* d;
@@ -590,8 +666,8 @@ bool Image::WritePng(File& file_, const Image& _img)
 
 Image_WritePng_end:
 	lodepng_state_cleanup(&state);
-	free(buf);
-	free(d);
+	APT_FREE(buf);
+	APT_FREE(d);
 	if (err) {
 		APT_LOG_ERR("lodepng error: '%s'", lodepng_error_text(err));
 		return false;
@@ -648,7 +724,7 @@ bool Image::ReadExr(Image& img_, const char* _data, uint _dataSize)
 	img_.m_height      = exr.height;
 	img_.m_depth       = img_.m_arrayCount = img_.m_mipmapCount = 1;
 	img_.m_type        = Type_2d;
-	img_.m_dataType    = DataType::Float32;
+	img_.m_dataType    = DataType_Float32;
 	img_.m_compression = Compression_None;
 	img_.alloc();
 
@@ -688,20 +764,20 @@ bool Image::WriteExr(File& file_, const Image& _img)
 		default:          exr.num_channels = 3; break;
 	};
 	float* channels[4] = {};
-	for (int i = exr.num_channels - 1; i >= 0; --i) {
-		channels[i] = (float*)malloc(sizeof(float) * _img.m_width * _img.m_height);
-		for (uint j = i, n = _img.m_width * _img.m_height; j < n; j += (uint)exr.num_channels) {
-			channels[i][j] = ((float*)_img.m_data)[j];
+	for (int i = 0; i < exr.num_channels; ++i) {
+		int k = exr.num_channels - i - 1;
+		channels[i] = (float*)APT_MALLOC(sizeof(float) * _img.m_width * _img.m_height);
+		for (uint j = 0, n = _img.m_width * _img.m_height; j < n; ++j) {
+			channels[i][j] = ((float*)_img.m_data)[j * exr.num_channels + k];
 		}
 	}
-	
 	exr.images = (unsigned char**)channels;
 	exr.width = (int)_img.m_width;
 	exr.height = (int)_img.m_height;
 
 	header.num_channels = exr.num_channels;
-	header.channels = (EXRChannelInfo*)malloc(sizeof(EXRChannelInfo) * header.num_channels);
-	header.pixel_types = (int*)malloc(sizeof(int) * header.num_channels);
+	header.channels = (EXRChannelInfo*)APT_MALLOC(sizeof(EXRChannelInfo) * header.num_channels);
+	header.pixel_types = (int*)APT_MALLOC(sizeof(int) * header.num_channels);
 	header.requested_pixel_types = header.pixel_types;
 	const char* channelNames[] = { "A", "B", "G", "R" };
 	const char** name = channelNames + (4 - header.num_channels);
@@ -715,11 +791,11 @@ bool Image::WriteExr(File& file_, const Image& _img)
 	if (!err) {
 		file_.setData((char*)data, dataSize);
 	}
-	free(data);
-	free(header.channels);
-	free(header.pixel_types);
+	APT_FREE(data);
+	APT_FREE(header.channels);
+	APT_FREE(header.pixel_types);
 	for (int i = 0; i < exr.num_channels; ++i) {
-		free(channels[i]);
+		APT_FREE(channels[i]);
 	}
 	if (err) {
 		APT_LOG_ERR("ReadExr: '%s'", err);

@@ -1,8 +1,6 @@
 #pragma once
-#ifndef apt_StringHash_h
-#define apt_StringHash_h
 
-#include <apt/def.h>
+#include <apt/apt.h>
 
 namespace apt {
 
@@ -37,14 +35,10 @@ public:
 	bool operator<=(const StringHash& _rhs) const  { return m_hash <= _rhs.m_hash; }
 
 private:
-
 	HashType m_hash;
-
-}; // class StringHash
+};
 
 inline bool operator==(StringHash::HashType _lhs, const StringHash& _rhs) { return _lhs == _rhs.getHash(); }
 inline bool operator!=(StringHash::HashType _lhs, const StringHash& _rhs) { return _lhs != _rhs.getHash(); }
 
 } // namespace apt
-
-#endif // apt_StringHash_h

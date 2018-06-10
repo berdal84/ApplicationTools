@@ -1,13 +1,11 @@
 #pragma once
-#ifndef apt_hash_h
-#define apt_hash_h
 
-#include <apt/def.h>
+#include <apt/apt.h>
 
 namespace apt { namespace internal {
 
-extern const uint32 kFnv1aBase32;
-extern const uint64 kFnv1aBase64;
+constexpr uint32 kFnv1aBase32 = 0x811C9DC5u;
+constexpr uint64 kFnv1aBase64 = 0xCBF29CE484222325ull;
 
 uint16 Hash16(const uint8* _buf, uint _bufSize);
 uint16 Hash16(const uint8* _buf, uint _bufSize, uint16 _base);
@@ -55,5 +53,3 @@ tType HashString(const char* _str);
 	template <> inline uint64 HashString<uint64>(const char* _str) { return internal::HashString64(_str); }
 
 } // namespace apt
-
-#endif // apt_hash_h

@@ -1,8 +1,6 @@
 #pragma once
-#ifndef apt_File_h
-#define apt_File_h
 
-#include <apt/def.h>
+#include <apt/apt.h>
 #include <apt/String.h>
 
 namespace apt {
@@ -18,8 +16,7 @@ namespace apt {
 //   (prefer the former, buffer ownership issues in the latter case).
 // \todo Checksum/hash util.
 ////////////////////////////////////////////////////////////////////////////////
-class File
-	: private non_copyable<File>
+class File: private non_copyable<File>
 {
 public:
 	typedef String<64> PathStr;
@@ -29,12 +26,6 @@ public:
 
 	// Return true if _path exists.
 	static bool Exists(const char* _path);
-
-	// Create the directory specified by _path, plus all parent directories if they do not 
-	// exist. Return false if an error occurred.
-	// \note If _path contains only directory names, it must be appended by a path delimiter 
-	//   (e.g. "dir0/dir1/").
-	static bool CreateDir(const char* _path);
 
 	// Read file into memory from _path, or file_.getPath() if _path is 0. Use getData() to
 	// access the resulting buffer. Return false if an error occurred, in which case file_ 
@@ -54,7 +45,7 @@ public:
 	// Append _size bytes from _data to the internal buffer. If _data is 0 the internal buffer is reallocated.
 	void        appendData(const char* _data, uint64 _size);
 
-	const char* getPath() const                                 { return m_path; }
+	const char* getPath() const                                 { return (const char*)m_path; }
 	void        setPath(const char* _path)                      { m_path.set(_path); }
 	const char* getData() const                                 { return m_data; }
 	char*       getData()                                       { return m_data; }
@@ -71,8 +62,6 @@ private:
 	void ctorCommon();
 	void dtorCommon();
 
-}; // class File
+};
 
 } // namespace apt
-
-#endif // apt_File_h

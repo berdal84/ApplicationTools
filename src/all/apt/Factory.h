@@ -1,8 +1,7 @@
 #pragma once
-#ifndef apt_Factory_h
-#define apt_Factory_h
 
-#include <apt/def.h>
+#include <apt/apt.h>
+#include <apt/memory.h>
 #include <apt/StringHash.h>
 
 #include <EASTL/vector_map.h>
@@ -83,6 +82,7 @@ public:
 			if_unlikely (!s_registry) {
 				s_registry = new eastl::vector_map<StringHash, ClassRef*>;
 			}
+			APT_ASSERT(m_nameHash != StringHash::kInvalidHash);
 			APT_ASSERT(FindClassRef(m_nameHash) == nullptr); // multiple registrations, or name was not unique
 			s_registry->insert(eastl::make_pair(m_nameHash, this));
 		}
@@ -102,8 +102,8 @@ public:
 	template <typename tSubType>
 	struct ClassRefDefault: public ClassRef
 	{
-		static tType* Create()                                               { return new tSubType; }
-		static void Destroy(tType*& _inst_)                                  { delete _inst_; _inst_ = nullptr; }
+		static tType* Create()                                               { return APT_NEW(tSubType); }
+		static void Destroy(tType*& _inst_)                                  { APT_DELETE(_inst_); _inst_ = nullptr; }
 		ClassRefDefault(const char* _name): ClassRef(_name, Create, Destroy) {}
 	};
 
@@ -175,5 +175,3 @@ private:
 	static apt::Factory<_baseClass>::ClassRefDefault<_subClass> s_ ## _subClass(#_subClass)
 
 } // namespace apt
-
-#endif // apt_Factory_h
