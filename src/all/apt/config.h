@@ -24,6 +24,8 @@
 // Platform 
 #if defined(_WIN32) || defined(_WIN64)
 	#define APT_PLATFORM_WIN 1
+#elif defined(__linux__)
+	#define APT_PLATFORM_LINUX 1
 #else
 	#error apt: Platform not defined
 #endif

@@ -8,6 +8,8 @@ ifndef verbose
   SILENT = @
 endif
 
+CXX=g++
+
 .PHONY: clean prebuild prelink
 
 ifeq ($(config),debug_win64)
