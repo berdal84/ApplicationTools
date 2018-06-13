@@ -183,7 +183,7 @@ bool FileSystem::CompareExtension(const char* _ext, const char* _path)
 	}
 	const char* cmp = FindExtension(_path);
 	if (cmp) {
-		return _stricmp(_ext, cmp) == 0;
+		return strcasecmp(_ext, cmp) == 0;
 	}
 	return false;
 }

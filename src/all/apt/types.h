@@ -132,7 +132,7 @@ struct CompositeT {};
 template <typename tType>
 struct TypeTraits 
 { 
-	typedef typename tType         Type;
+	typedef tType Type;
 	typedef typename tType::Family Family; 
 	enum 
 	{ 
